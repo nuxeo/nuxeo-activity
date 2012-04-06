@@ -150,4 +150,13 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
         return messages;
     }
 
+    @Override
+    public List<Serializable> toActivityIds() {
+        List<Serializable> activityIds = new ArrayList<Serializable>();
+        for (Activity activity : this) {
+            activityIds.add(activity.getId());
+        }
+        return activityIds;
+    }
+
 }

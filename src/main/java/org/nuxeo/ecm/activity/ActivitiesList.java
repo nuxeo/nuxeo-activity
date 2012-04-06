@@ -17,6 +17,7 @@
 
 package org.nuxeo.ecm.activity;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,5 +45,11 @@ public interface ActivitiesList extends List<Activity> {
      * {@code ActivityMessage}, internationalized with the given {@code locale}.
      */
     List<ActivityMessage> toActivityMessages(Locale locale);
+
+    /**
+     * Transforms this {@code ActivitiesList} into a list of Activity ids.
+     * @since 5.6
+     */
+    List<Serializable> toActivityIds();
 
 }

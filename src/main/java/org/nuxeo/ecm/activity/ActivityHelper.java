@@ -17,6 +17,7 @@
 
 package org.nuxeo.ecm.activity;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +51,8 @@ public class ActivityHelper {
 
     public static final String DOC_PREFIX = "doc" + SEPARATOR;
 
+    public static final String ACTIVITY_PREFIX = "activity" + SEPARATOR;
+
     private ActivityHelper() {
         // helper class
     }
@@ -60,6 +63,10 @@ public class ActivityHelper {
 
     public static boolean isDocument(String activityObject) {
         return activityObject != null && activityObject.startsWith(DOC_PREFIX);
+    }
+
+    public static boolean isActivity(String activityObject) {
+        return activityObject != null && activityObject.startsWith(ACTIVITY_PREFIX);
     }
 
     public static String getUsername(String activityObject) {
@@ -94,6 +101,14 @@ public class ActivityHelper {
         return "";
     }
 
+    public static String getActivityId(String activityObject) {
+        if (isActivity(activityObject)) {
+            String[] v = activityObject.split(":");
+            return v[1];
+        }
+        return "";
+    }
+
     public static String createDocumentActivityObject(DocumentModel doc) {
         return createDocumentActivityObject(doc.getRepositoryName(),
                 doc.getId());
@@ -110,6 +125,14 @@ public class ActivityHelper {
 
     public static String createUserActivityObject(String username) {
         return USER_PREFIX + username;
+    }
+
+    public static String createActivityObject(Activity activity) {
+        return createActivityObject(activity.getId());
+    }
+
+    public static String createActivityObject(Serializable activityId) {
+        return ACTIVITY_PREFIX + activityId;
     }
 
     public static String generateDisplayName(Principal principal) {
