@@ -11,6 +11,9 @@
     <listener name="activityStreamListener" async="true" postCommit="true"
       class="org.nuxeo.ecm.activity.ActivityStreamListener"
       priority="100">
+      <event>documentCreated</event>
+      <event>documentModified</event>
+      <event>documentRemoved</event>
     </listener>
 
   </extension>
