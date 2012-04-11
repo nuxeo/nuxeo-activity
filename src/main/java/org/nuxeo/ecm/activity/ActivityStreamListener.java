@@ -21,13 +21,17 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.core.schema.FacetNames.HIDDEN_IN_NAVIGATION;
+import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
 import org.nuxeo.ecm.core.event.EventContext;
@@ -70,15 +74,30 @@ public class ActivityStreamListener implements PostCommitEventListener {
                     // or if not visible
                     return;
                 }
-                Activity activity = toActivity(docEventContext, event);
+
+                // add activity without context
                 ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+                Activity activity = toActivity(docEventContext, event);
                 activityStreamService.addActivity(activity);
+
+                CoreSession session = docEventContext.getCoreSession();
+                for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
+                    String context = ActivityHelper.createDocumentActivityObject(
+                            session.getRepositoryName(), ref.toString());
+                    activity = toActivity(docEventContext, event, context);
+                    activityStreamService.addActivity(activity);
+                }
             }
         }
     }
 
     private Activity toActivity(DocumentEventContext docEventContext,
             Event event) {
+        return toActivity(docEventContext, event, null);
+    }
+
+    private Activity toActivity(DocumentEventContext docEventContext,
+            Event event, String context) {
         Principal principal = docEventContext.getPrincipal();
         DocumentModel doc = docEventContext.getSourceDocument();
         return new ActivityBuilder().actor(
@@ -90,7 +109,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 ActivityHelper.createDocumentActivityObject(
                         doc.getRepositoryName(), doc.getParentRef().toString())).displayTarget(
                 getDocumentTitle(docEventContext.getCoreSession(),
-                        doc.getParentRef())).build();
+                        doc.getParentRef())).context(context).build();
     }
 
     private String getDocumentTitle(CoreSession session, DocumentRef docRef) {
@@ -100,6 +119,23 @@ public class ActivityStreamListener implements PostCommitEventListener {
         } catch (ClientException e) {
             return docRef.toString();
         }
+    }
+
+    private List<DocumentRef> getParentSuperSpaceRefs(CoreSession session,
+            final DocumentModel doc) throws ClientException {
+        final List<DocumentRef> parents = new ArrayList<DocumentRef>();
+        new UnrestrictedSessionRunner(session) {
+            @Override
+            public void run() throws ClientException {
+                List<DocumentModel> parentDocuments = session.getParentDocuments(doc.getRef());
+                for (DocumentModel parent : parentDocuments) {
+                    if (parent.hasFacet(SUPER_SPACE)) {
+                        parents.add(parent.getRef());
+                    }
+                }
+            }
+        }.runUnrestricted();
+        return parents;
     }
 
 }

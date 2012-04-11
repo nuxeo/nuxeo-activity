@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+
 /**
  * Representation of an Activity.
  *
@@ -58,6 +59,10 @@ public interface Activity {
     String getDisplayTarget();
 
     void setDisplayTarget(String displayTarget);
+
+    String getContext();
+
+    void setContext(String context);
 
     Date getPublishedDate();
 

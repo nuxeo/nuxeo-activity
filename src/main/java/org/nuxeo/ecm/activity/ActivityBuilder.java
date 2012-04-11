@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import java.util.Date;
 
+
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -38,6 +39,8 @@ public final class ActivityBuilder {
     private String target;
 
     private String displayTarget;
+
+    private String context;
 
     private Date publishedDate;
 
@@ -76,6 +79,11 @@ public final class ActivityBuilder {
         return this;
     }
 
+    public ActivityBuilder context(String context) {
+        this.context = context;
+        return this;
+    }
+
     public ActivityBuilder publishedDate(Date publishedDate) {
         this.publishedDate = publishedDate;
         return this;
@@ -89,6 +97,7 @@ public final class ActivityBuilder {
         activity.setDisplayObject(displayObject);
         activity.setTarget(target);
         activity.setDisplayTarget(displayTarget);
+        activity.setContext(context);
         activity.setVerb(verb);
         activity.setPublishedDate(publishedDate != null ? publishedDate
                 : new Date());

@@ -61,6 +61,8 @@ public class ActivityImpl implements Activity {
 
     private String displayTarget;
 
+    private String context;
+
     private Date publishedDate;
 
     @Id
@@ -150,6 +152,17 @@ public class ActivityImpl implements Activity {
     @Override
     public void setDisplayTarget(String displayTarget) {
         this.displayTarget = displayTarget;
+    }
+
+    @Column
+    @Override
+    public String getContext() {
+        return context;
+    }
+
+    @Override
+    public void setContext(String context) {
+        this.context = context;
     }
 
     @Temporal(TemporalType.TIMESTAMP)

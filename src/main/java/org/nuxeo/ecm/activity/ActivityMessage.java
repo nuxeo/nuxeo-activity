@@ -20,6 +20,7 @@ package org.nuxeo.ecm.activity;
 import java.io.Serializable;
 import java.util.Date;
 
+
 /**
  * Immutable object representing an Activity message.
  *
@@ -32,23 +33,45 @@ public final class ActivityMessage implements Serializable {
 
     private final Serializable activityId;
 
+    private final String actor;
+
+    private final String displayActor;
+
+    private final String verb;
+
     private final String message;
 
     private final Date publishedDate;
 
-    public ActivityMessage(Serializable activityId, String message,
-            Date publishedDate) {
+    public ActivityMessage(Serializable activityId, String actor,
+            String displayActor, String verb, String message, Date publishedDate) {
         this.activityId = activityId;
+        this.actor = actor;
+        this.displayActor = displayActor;
+        this.verb = verb;
         this.message = message;
         this.publishedDate = publishedDate;
     }
 
     public ActivityMessage(Activity activity, String message) {
-        this(activity.getId(), message, activity.getPublishedDate());
+        this(activity.getId(), activity.getActor(), activity.getDisplayActor(),
+                activity.getVerb(), message, activity.getPublishedDate());
     }
 
     public Serializable getActivityId() {
         return activityId;
+    }
+
+    public String getActor() {
+        return actor;
+    }
+
+    public String getDisplayActor() {
+        return displayActor;
+    }
+
+    public String getVerb() {
+        return verb;
     }
 
     public String getMessage() {

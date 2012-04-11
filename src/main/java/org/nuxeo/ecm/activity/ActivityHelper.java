@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,7 +68,8 @@ public class ActivityHelper {
     }
 
     public static boolean isActivity(String activityObject) {
-        return activityObject != null && activityObject.startsWith(ACTIVITY_PREFIX);
+        return activityObject != null
+                && activityObject.startsWith(ACTIVITY_PREFIX);
     }
 
     public static String getUsername(String activityObject) {
@@ -211,6 +214,24 @@ public class ActivityHelper {
                     "URLPolicyService service is not registered.");
         }
         return urlPolicyService;
+    }
+
+    public static Pattern HTTP_URL_PATTERN = Pattern.compile("\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
+
+    public static String replaceURLsByLinks(String message) {
+        String escapedMessage = StringEscapeUtils.escapeHtml(message);
+        Matcher m = HTTP_URL_PATTERN.matcher(escapedMessage);
+        StringBuffer sb = new StringBuffer(escapedMessage.length());
+        while (m.find()) {
+            String url = m.group(1);
+            m.appendReplacement(sb, computeLinkFor(url));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    private static String computeLinkFor(String url) {
+        return "<a href=\"" + url + "\" target=\"_top\">" + url + "</a>";
     }
 
 }

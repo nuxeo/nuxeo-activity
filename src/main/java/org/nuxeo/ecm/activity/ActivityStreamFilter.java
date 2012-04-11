@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
+
 /**
  * Filter called by the {@code ActivityStreamService} to store and filter
  * activities for specific use cases.

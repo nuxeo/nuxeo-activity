@@ -225,8 +225,23 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             Locale locale) {
         Map<String, String> fields = activity.toMap();
 
+        String actor = activity.getActor();
+        String displayActor;
+        if (ActivityHelper.isUser(actor)) {
+            try {
+                displayActor = getUserProfileLink(actor,
+                        activity.getDisplayActor());
+            } catch (Exception e) {
+                displayActor = activity.getDisplayActor();
+            }
+        } else {
+            displayActor = activity.getDisplayActor();
+        }
+
         if (!activityMessageLabels.containsKey(activity.getVerb())) {
-            return new ActivityMessage(activity, activity.toString());
+            return new ActivityMessage(activity.getId(), actor, displayActor,
+                    activity.getVerb(), activity.toString(),
+                    activity.getPublishedDate());
         }
 
         String labelKey = activityMessageLabels.get(activity.getVerb());
@@ -238,7 +253,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             log.error(e.getMessage());
             log.debug(e, e);
             // just return the labelKey if we have no resource bundle
-            return new ActivityMessage(activity, labelKey);
+            return new ActivityMessage(activity.getId(), actor, displayActor,
+                    activity.getVerb(), labelKey, activity.getPublishedDate());
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -253,11 +269,17 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                     value = getDocumentLink(value, displayValue);
                 } else if (ActivityHelper.isUser(value)) {
                     value = getUserProfileLink(value, displayValue);
+                } else {
+                    // simple text
+                    value = ActivityHelper.replaceURLsByLinks(value);
                 }
                 messageTemplate = messageTemplate.replace(m.group(), value);
             }
         }
-        return new ActivityMessage(activity, messageTemplate);
+
+        return new ActivityMessage(activity.getId(), actor, displayActor,
+                activity.getVerb(), messageTemplate,
+                activity.getPublishedDate());
     }
 
     @Override

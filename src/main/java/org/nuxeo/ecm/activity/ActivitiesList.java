@@ -48,6 +48,7 @@ public interface ActivitiesList extends List<Activity> {
 
     /**
      * Transforms this {@code ActivitiesList} into a list of Activity ids.
+     *
      * @since 5.6
      */
     List<Serializable> toActivityIds();
