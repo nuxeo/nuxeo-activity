@@ -37,6 +37,8 @@ public final class ActivityMessage implements Serializable {
 
     private final String displayActor;
 
+    private final String displayActorLink;
+
     private final String verb;
 
     private final String message;
@@ -44,10 +46,11 @@ public final class ActivityMessage implements Serializable {
     private final Date publishedDate;
 
     public ActivityMessage(Serializable activityId, String actor,
-            String displayActor, String verb, String message, Date publishedDate) {
+            String displayActor, String displayActorLink, String verb, String message, Date publishedDate) {
         this.activityId = activityId;
         this.actor = actor;
         this.displayActor = displayActor;
+        this.displayActorLink = displayActorLink;
         this.verb = verb;
         this.message = message;
         this.publishedDate = publishedDate;
@@ -55,7 +58,7 @@ public final class ActivityMessage implements Serializable {
 
     public ActivityMessage(Activity activity, String message) {
         this(activity.getId(), activity.getActor(), activity.getDisplayActor(),
-                activity.getVerb(), message, activity.getPublishedDate());
+                null, activity.getVerb(), message, activity.getPublishedDate());
     }
 
     public Serializable getActivityId() {
@@ -68,6 +71,10 @@ public final class ActivityMessage implements Serializable {
 
     public String getDisplayActor() {
         return displayActor;
+    }
+
+    public String getDisplayActorLink() {
+        return displayActorLink;
     }
 
     public String getVerb() {

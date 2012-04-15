@@ -226,21 +226,22 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         Map<String, String> fields = activity.toMap();
 
         String actor = activity.getActor();
-        String displayActor;
+        String displayActor = activity.getDisplayActor();
+        String displayActorLink;
         if (ActivityHelper.isUser(actor)) {
             try {
-                displayActor = getUserProfileLink(actor,
+                displayActorLink = getUserProfileLink(actor,
                         activity.getDisplayActor());
             } catch (Exception e) {
-                displayActor = activity.getDisplayActor();
+                displayActorLink = activity.getDisplayActor();
             }
         } else {
-            displayActor = activity.getDisplayActor();
+            displayActorLink = activity.getDisplayActor();
         }
 
         if (!activityMessageLabels.containsKey(activity.getVerb())) {
             return new ActivityMessage(activity.getId(), actor, displayActor,
-                    activity.getVerb(), activity.toString(),
+                    displayActorLink, activity.getVerb(), activity.toString(),
                     activity.getPublishedDate());
         }
 
@@ -254,7 +255,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             log.debug(e, e);
             // just return the labelKey if we have no resource bundle
             return new ActivityMessage(activity.getId(), actor, displayActor,
-                    activity.getVerb(), labelKey, activity.getPublishedDate());
+                    displayActorLink, activity.getVerb(), labelKey,
+                    activity.getPublishedDate());
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -278,7 +280,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
 
         return new ActivityMessage(activity.getId(), actor, displayActor,
-                activity.getVerb(), messageTemplate,
+                displayActorLink, activity.getVerb(), messageTemplate,
                 activity.getPublishedDate());
     }
 
