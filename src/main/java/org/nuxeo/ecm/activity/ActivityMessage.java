@@ -45,8 +45,22 @@ public final class ActivityMessage implements Serializable {
 
     private final Date publishedDate;
 
+    /**
+     * @deprecated since 5.6. Use
+     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date)}
+     *             instead.
+     */
+    public ActivityMessage(Serializable activityId, String message,
+            Date publishedDate) {
+        this(activityId, null, null, null, null, message, publishedDate);
+    }
+
+    /**
+     * @since 5.6
+     */
     public ActivityMessage(Serializable activityId, String actor,
-            String displayActor, String displayActorLink, String verb, String message, Date publishedDate) {
+            String displayActor, String displayActorLink, String verb,
+            String message, Date publishedDate) {
         this.activityId = activityId;
         this.actor = actor;
         this.displayActor = displayActor;
@@ -65,18 +79,30 @@ public final class ActivityMessage implements Serializable {
         return activityId;
     }
 
+    /**
+     * @since 5.6
+     */
     public String getActor() {
         return actor;
     }
 
+    /**
+     * @since 5.6
+     */
     public String getDisplayActor() {
         return displayActor;
     }
 
+    /**
+     * @since 5.6
+     */
     public String getDisplayActorLink() {
         return displayActorLink;
     }
 
+    /**
+     * @since 5.6
+     */
     public String getVerb() {
         return verb;
     }

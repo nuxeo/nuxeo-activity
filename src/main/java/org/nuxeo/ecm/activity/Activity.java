@@ -60,8 +60,18 @@ public interface Activity {
 
     void setDisplayTarget(String displayTarget);
 
+    /**
+     * Returns the context of this {@code Activity}.
+     *
+     * @since 5.6
+     */
     String getContext();
 
+    /**
+     * Set the context of this {@code Activity}.
+     *
+     * @since 5.6
+     */
     void setContext(String context);
 
     Date getPublishedDate();
