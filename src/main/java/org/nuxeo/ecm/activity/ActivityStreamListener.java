@@ -31,6 +31,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
@@ -69,9 +70,16 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
                 DocumentModel doc = docEventContext.getSourceDocument();
                 if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION)) {
-                    // Not really interested if document cannot be reconnected
+                        || doc.hasFacet(HIDDEN_IN_NAVIGATION) || doc.isProxy()
+                        || doc.isVersion()) {
+                    // Not really interested in non live document or if document
+                    // cannot be reconnected
                     // or if not visible
+                    return;
+                }
+
+                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
+                    // do not log activity for system principal
                     return;
                 }
 
