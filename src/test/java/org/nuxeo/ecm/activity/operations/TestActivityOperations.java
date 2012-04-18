@@ -29,6 +29,7 @@ import javax.persistence.Query;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.activity.Activity;
 import org.nuxeo.ecm.activity.ActivityComment;
@@ -93,6 +94,7 @@ public class TestActivityOperations {
         TransactionHelper.startTransaction();
     }
 
+    @Ignore
     @Test
     public void shouldAddAnActivityComment() throws Exception {
         Activity activity = new ActivityImpl();
@@ -132,6 +134,7 @@ public class TestActivityOperations {
         assertEquals("First comment", comment.getMessage());
     }
 
+    @Ignore
     @Test
     public void shouldRemoveAnActivityComment() throws Exception {
         Activity activity = new ActivityImpl();
