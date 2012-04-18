@@ -50,6 +50,7 @@ import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 import com.google.inject.Inject;
 
@@ -88,6 +89,8 @@ public class TestActivityOperations {
                         query.executeUpdate();
                     }
                 });
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
     }
 
     @Test
@@ -183,4 +186,5 @@ public class TestActivityOperations {
         assertNotNull(comment.getPublishedDate());
         assertEquals("First comment", comment.getMessage());
     }
+
 }
