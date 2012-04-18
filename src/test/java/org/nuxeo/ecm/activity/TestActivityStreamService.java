@@ -42,14 +42,11 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.ClientRuntimeException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
-import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.BackendType;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.LocalDeploy;
 
 import com.google.inject.Inject;
 
@@ -58,10 +55,8 @@ import com.google.inject.Inject;
  * @since 5.5
  */
 @RunWith(FeaturesRunner.class)
-@Features(CoreFeature.class)
-@RepositoryConfig(repositoryName = "default", type = BackendType.H2, user = "Administrator", cleanup = Granularity.METHOD)
-@Deploy({ "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity" })
-@LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
+@Features(ActivityFeature.class)
+@RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestActivityStreamService {
 
     @Inject
@@ -347,6 +342,201 @@ public class TestActivityStreamService {
         assertNotNull(verbs);
         assertEquals(1, verbs.size());
         assertTrue(verbs.contains("documentDeleted"));
+    }
+
+    @Test
+    public void shouldStoreAnActivityComment() {
+        Activity activity = new ActivityImpl();
+        activity.setActor("Administrator");
+        activity.setVerb("test");
+        activity.setObject("yo");
+        activity.setPublishedDate(new Date());
+        activityStreamService.addActivity(activity);
+
+        List<Activity> activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+
+        Activity storedActivity = activities.get(0);
+        assertEquals(activity.getActor(), storedActivity.getActor());
+        assertEquals(activity.getVerb(), storedActivity.getVerb());
+        assertEquals(activity.getObject(), storedActivity.getObject());
+
+        long commentPublishedDate = new Date().getTime();
+        ActivityComment comment = new ActivityComment("bender", "Bender",
+                "First comment", commentPublishedDate);
+        ActivityComment storedComment = activityStreamService.addActivityComment(activity.getId(), comment);
+        assertEquals(storedActivity.getId() + "-comment-1", storedComment.getId());
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+        storedActivity = activities.get(0);
+        assertNotNull(storedActivity.getComments());
+        List<ActivityComment> comments = storedActivity.getActivityComments();
+        assertFalse(comments.isEmpty());
+        assertEquals(1, comments.size());
+        storedComment = comments.get(0);
+        assertEquals(storedActivity.getId() + "-comment-1", storedComment.getId());
+        assertEquals("bender", storedComment.getActor());
+        assertEquals("Bender", storedComment.getDisplayActor());
+        assertEquals(commentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("First comment", storedComment.getMessage());
+    }
+
+    @Test
+    public void shouldStoreMultipleActivityComments() {
+        Activity activity = new ActivityImpl();
+        activity.setActor("Administrator");
+        activity.setVerb("test");
+        activity.setObject("yo");
+        activity.setPublishedDate(new Date());
+        activityStreamService.addActivity(activity);
+
+        List<Activity> activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+
+        Activity storedActivity = activities.get(0);
+
+        long firstCommentPublishedDate = new Date().getTime();
+        ActivityComment firstComment = new ActivityComment("bender", "Bender",
+                "First comment", firstCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), firstComment);
+        long secondCommentPublishedDate = new Date().getTime();
+        ActivityComment secondComment = new ActivityComment("bender", "Bender",
+                "Second comment", secondCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), secondComment);
+        long thirdCommentPublishedDate = new Date().getTime();
+        ActivityComment thirdComment = new ActivityComment("fry", "Fry",
+                "Third comment", thirdCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), thirdComment);
+        long fourthCommentPublishedDate = new Date().getTime();
+        ActivityComment fourthComment = new ActivityComment("leela", "Leela",
+                "Fourth comment", fourthCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), fourthComment);
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+        storedActivity = activities.get(0);
+        assertNotNull(storedActivity.getComments());
+        List<ActivityComment> comments = storedActivity.getActivityComments();
+        assertFalse(comments.isEmpty());
+        assertEquals(4, comments.size());
+
+        ActivityComment storedComment = comments.get(0);
+        assertEquals(storedActivity.getId() + "-comment-1", storedComment.getId());
+        assertEquals("bender", storedComment.getActor());
+        assertEquals("Bender", storedComment.getDisplayActor());
+        assertEquals(firstCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("First comment", storedComment.getMessage());
+        storedComment = comments.get(1);
+        assertEquals(storedActivity.getId() + "-comment-2", storedComment.getId());
+        assertEquals("bender", storedComment.getActor());
+        assertEquals("Bender", storedComment.getDisplayActor());
+        assertEquals(secondCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Second comment", storedComment.getMessage());
+        storedComment = comments.get(2);
+        assertEquals(storedActivity.getId() + "-comment-3", storedComment.getId());
+        assertEquals("fry", storedComment.getActor());
+        assertEquals("Fry", storedComment.getDisplayActor());
+        assertEquals(thirdCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Third comment", storedComment.getMessage());
+        storedComment = comments.get(3);
+        assertEquals(storedActivity.getId() + "-comment-4", storedComment.getId());
+        assertEquals("leela", storedComment.getActor());
+        assertEquals("Leela", storedComment.getDisplayActor());
+        assertEquals(fourthCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Fourth comment", storedComment.getMessage());
+    }
+
+    @Test
+    public void shouldRemoveActivityComment() {
+        Activity activity = new ActivityImpl();
+        activity.setActor("Administrator");
+        activity.setVerb("test");
+        activity.setObject("yo");
+        activity.setPublishedDate(new Date());
+        activityStreamService.addActivity(activity);
+
+        List<Activity> activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+
+        Activity storedActivity = activities.get(0);
+
+        long firstCommentPublishedDate = new Date().getTime();
+        ActivityComment firstComment = new ActivityComment("bender", "Bender",
+                "First comment", firstCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), firstComment);
+        long secondCommentPublishedDate = new Date().getTime();
+        ActivityComment secondComment = new ActivityComment("bender", "Bender",
+                "Second comment", secondCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), secondComment);
+        long thirdCommentPublishedDate = new Date().getTime();
+        ActivityComment thirdComment = new ActivityComment("fry", "Fry",
+                "Third comment", thirdCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), thirdComment);
+        long fourthCommentPublishedDate = new Date().getTime();
+        ActivityComment fourthComment = new ActivityComment("leela", "Leela",
+                "Fourth comment", fourthCommentPublishedDate);
+        activityStreamService.addActivityComment(storedActivity.getId(), fourthComment);
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+        storedActivity = activities.get(0);
+        assertNotNull(storedActivity.getComments());
+        List<ActivityComment> comments = storedActivity.getActivityComments();
+        assertFalse(comments.isEmpty());
+        assertEquals(4, comments.size());
+
+        ActivityComment storedComment = comments.get(0);
+        assertEquals(storedActivity.getId() + "-comment-1", storedComment.getId());
+        assertEquals("bender", storedComment.getActor());
+        assertEquals("Bender", storedComment.getDisplayActor());
+        assertEquals(firstCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("First comment", storedComment.getMessage());
+        storedComment = comments.get(1);
+        assertEquals(storedActivity.getId() + "-comment-2", storedComment.getId());
+        assertEquals("bender", storedComment.getActor());
+        assertEquals("Bender", storedComment.getDisplayActor());
+        assertEquals(secondCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Second comment", storedComment.getMessage());
+        storedComment = comments.get(2);
+        assertEquals(storedActivity.getId() + "-comment-3", storedComment.getId());
+        assertEquals("fry", storedComment.getActor());
+        assertEquals("Fry", storedComment.getDisplayActor());
+        assertEquals(thirdCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Third comment", storedComment.getMessage());
+        storedComment = comments.get(3);
+        assertEquals(storedActivity.getId() + "-comment-4", storedComment.getId());
+        assertEquals("leela", storedComment.getActor());
+        assertEquals("Leela", storedComment.getDisplayActor());
+        assertEquals(fourthCommentPublishedDate, storedComment.getPublishedDate());
+        assertEquals("Fourth comment", storedComment.getMessage());
+
+        activityStreamService.removeActivityComment(activity.getId(), thirdComment.getId());
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(1, activities.size());
+        storedActivity = activities.get(0);
+        assertNotNull(storedActivity.getComments());
+        comments = storedActivity.getActivityComments();
+        assertFalse(comments.isEmpty());
+        assertEquals(3, comments.size());
+
+        for (ActivityComment comment : comments) {
+            assertFalse(comment.getMessage().equals("Third comment"));
+        }
     }
 
 }

@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -45,14 +46,17 @@ public final class ActivityMessage implements Serializable {
 
     private final Date publishedDate;
 
+    private final List<ActivityCommentMessage> comments;
+
     /**
      * @deprecated since 5.6. Use
-     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date)}
+     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date, java.util.List)}
      *             instead.
      */
+    @Deprecated
     public ActivityMessage(Serializable activityId, String message,
             Date publishedDate) {
-        this(activityId, null, null, null, null, message, publishedDate);
+        this(activityId, null, null, null, null, message, publishedDate, null);
     }
 
     /**
@@ -60,7 +64,8 @@ public final class ActivityMessage implements Serializable {
      */
     public ActivityMessage(Serializable activityId, String actor,
             String displayActor, String displayActorLink, String verb,
-            String message, Date publishedDate) {
+            String message, Date publishedDate,
+            List<ActivityCommentMessage> comments) {
         this.activityId = activityId;
         this.actor = actor;
         this.displayActor = displayActor;
@@ -68,11 +73,17 @@ public final class ActivityMessage implements Serializable {
         this.verb = verb;
         this.message = message;
         this.publishedDate = publishedDate;
+        this.comments = comments;
     }
 
+    /**
+     * @deprecated since 5.6.
+     */
+    @Deprecated
     public ActivityMessage(Activity activity, String message) {
         this(activity.getId(), activity.getActor(), activity.getDisplayActor(),
-                null, activity.getVerb(), message, activity.getPublishedDate());
+                null, activity.getVerb(), message, activity.getPublishedDate(),
+                null);
     }
 
     public Serializable getActivityId() {
@@ -113,6 +124,13 @@ public final class ActivityMessage implements Serializable {
 
     public Date getPublishedDate() {
         return publishedDate;
+    }
+
+    /**
+     * @since 5.6
+     */
+    public List<ActivityCommentMessage> getActivityCommentMessages() {
+        return comments;
     }
 
 }

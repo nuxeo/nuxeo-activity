@@ -99,8 +99,9 @@ public final class ActivityBuilder {
         activity.setDisplayTarget(displayTarget);
         activity.setContext(context);
         activity.setVerb(verb);
-        activity.setPublishedDate(publishedDate != null ? publishedDate
-                : new Date());
+        Date date = publishedDate != null ? publishedDate : new Date();
+        activity.setPublishedDate(date);
+        activity.setLastUpdatedDate(date);
         return activity;
     }
 

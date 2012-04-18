@@ -43,6 +43,7 @@ import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.LocalDeploy;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 import com.google.inject.Inject;
 
@@ -51,10 +52,7 @@ import com.google.inject.Inject;
  * @since 5.5
  */
 @RunWith(FeaturesRunner.class)
-@Features(CoreFeature.class)
-@RepositoryConfig(repositoryName = "default", type = BackendType.H2, user = "Administrator", cleanup = Granularity.METHOD)
-@Deploy({ "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity" })
-@LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
+@Features(ActivityFeature.class)
 public class TestActivityStreamListener {
 
     @Inject
@@ -85,19 +83,16 @@ public class TestActivityStreamListener {
         DocumentModel doc1 = session.createDocumentModel("/", "firstDocument",
                 "File");
         doc1 = session.createDocument(doc1);
-        session.save();
-        eventService.waitForAsyncCompletion();
+        commitAndWaitForAsyncCompletion();
 
         DocumentModel doc2 = session.createDocumentModel("/", "secondDocument",
                 "File");
         doc2 = session.createDocument(doc2);
-        session.save();
-        eventService.waitForAsyncCompletion();
+        commitAndWaitForAsyncCompletion();
 
         doc1.setPropertyValue("dc:title", "A new Title");
         session.saveDocument(doc1);
-        session.save();
-        eventService.waitForAsyncCompletion();
+        commitAndWaitForAsyncCompletion();
 
         List<Activity> activities = activityStreamService.query(
                 ActivityStreamService.ALL_ACTIVITIES, null);
@@ -138,6 +133,12 @@ public class TestActivityStreamListener {
         assertEquals(
                 ActivityHelper.createDocumentActivityObject(session.getRootDocument()),
                 storedActivity.getTarget());
+    }
+
+    private void commitAndWaitForAsyncCompletion() {
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+        eventService.waitForAsyncCompletion();
     }
 
 }

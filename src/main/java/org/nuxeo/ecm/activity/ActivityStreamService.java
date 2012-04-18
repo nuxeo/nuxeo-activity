@@ -86,9 +86,37 @@ public interface ActivityStreamService {
     ActivityMessage toActivityMessage(Activity activity, Locale locale);
 
     /**
+     * Computes an {@link ActivityMessage} from the given {@code activity} and
+     * {@code locale}.
+     */
+    ActivityCommentMessage toActivityCommentMessage(
+            ActivityComment activityComment, Locale locale);
+
+    /**
      * Returns the {@link ActivityStream} with the given {@code name},
      * {@code null} if it does not exist.
      */
     ActivityStream getActivityStream(String name);
+
+    /**
+     * Add an {@link ActivityComment} to the {@link Activity} referenced by the
+     * {@code activityId}.
+     *
+     * @return the updated {@code activityComment}
+     * @since 5.6
+     */
+    ActivityComment addActivityComment(Serializable activityId,
+            ActivityComment activityComment);
+
+    /**
+     * Remove an {@link ActivityComment} from the {@link Activity} referenced by
+     * the {@code activityId}.
+     *
+     * @return the removed {@link ActivityComment} if any, {@code null}
+     *         otherwise
+     * @since 5.6
+     */
+    ActivityComment removeActivityComment(Serializable activityId,
+            String activityCommentId);
 
 }

@@ -6,4 +6,5 @@ Bundle-Vendor: Nuxeo
 Bundle-Version: 1.0.0
 Nuxeo-Component: OSGI-INF/activity-stream-service.xml,
  OSGI-INF/activity-stream-contrib.xml,
- OSGI-INF/listeners-contrib.xml
+ OSGI-INF/listeners-contrib.xml,
+ OSGI-INF/operations-contrib.xml

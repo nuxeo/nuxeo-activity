@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -68,7 +69,7 @@ public interface Activity {
     String getContext();
 
     /**
-     * Set the context of this {@code Activity}.
+     * Sets the context of this {@code Activity}.
      *
      * @since 5.6
      */
@@ -77,6 +78,52 @@ public interface Activity {
     Date getPublishedDate();
 
     void setPublishedDate(Date publishedDate);
+
+    /**
+     * Returns the last updated date of this {@code Activity}.
+     *
+     * @since 5.6
+     */
+    Date getLastUpdatedDate();
+
+    /**
+     * Sets the last updated date of this {@code Activity}.
+     *
+     * @since 5.6
+     */
+    void setLastUpdatedDate(Date lastUpdatedDate);
+
+    /**
+     * Returns the comments of this {@code Activity}.
+     * <p>
+     * The comments are stored as a JSON string.
+     *
+     * @since 5.6
+     */
+    String getComments();
+
+    /**
+     * Sets the comments of this {@code Activity}.
+     * <p>
+     * The comments are stored as a JSON string.
+     *
+     * @since 5.6
+     */
+    void setComments(String comments);
+
+    /**
+     * Returns the list of {@link ActivityComment} of this {@code Activity}.
+     *
+     * @since 5.6
+     */
+    List<ActivityComment> getActivityComments();
+
+    /**
+     * Sets the comments of this {@code Activity}.
+     *
+     * @since 5.6
+     */
+    void setActivityComments(List<ActivityComment> activityComments);
 
     Map<String, String> toMap();
 

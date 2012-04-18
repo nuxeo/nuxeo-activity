@@ -21,9 +21,13 @@ import static org.nuxeo.ecm.activity.ActivityHelper.getDocumentLink;
 import static org.nuxeo.ecm.activity.ActivityHelper.getUserProfileLink;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -142,7 +146,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     @SuppressWarnings("unchecked")
     protected ActivitiesList queryAll(EntityManager em, long offset, long limit) {
-        Query query = em.createQuery("from Activity activity order by activity.id asc");
+        Query query = em.createQuery("select activity from Activity activity order by activity.id asc");
         if (limit > 0) {
             query.setMaxResults((int) limit);
             if (offset > 0) {
@@ -239,10 +243,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             displayActorLink = activity.getDisplayActor();
         }
 
+        List<ActivityCommentMessage> activityCommentMessages = toActivityCommentMessages(
+                activity.getActivityComments(), locale);
+
         if (!activityMessageLabels.containsKey(activity.getVerb())) {
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), activity.toString(),
-                    activity.getPublishedDate());
+                    activity.getPublishedDate(), activityCommentMessages);
         }
 
         String labelKey = activityMessageLabels.get(activity.getVerb());
@@ -256,7 +263,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             // just return the labelKey if we have no resource bundle
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), labelKey,
-                    activity.getPublishedDate());
+                    activity.getPublishedDate(), activityCommentMessages);
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -281,12 +288,111 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
         return new ActivityMessage(activity.getId(), actor, displayActor,
                 displayActorLink, activity.getVerb(), messageTemplate,
-                activity.getPublishedDate());
+                activity.getPublishedDate(), activityCommentMessages);
+    }
+
+    @Override
+    public ActivityCommentMessage toActivityCommentMessage(
+            ActivityComment activityComment, Locale locale) {
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
+                locale);
+
+        String id = activityComment.getId();
+        String actor = activityComment.getActor();
+        String displayActor = activityComment.getDisplayActor();
+        String displayActorLink = getUserProfileLink(actor, displayActor);
+        String message = ActivityHelper.replaceURLsByLinks(activityComment.getMessage());
+        String publishedDate = dateFormat.format(new Date(
+                activityComment.getPublishedDate()));
+
+        return new ActivityCommentMessage(id, actor, displayActor,
+                displayActorLink, message, publishedDate);
+    }
+
+    private List<ActivityCommentMessage> toActivityCommentMessages(
+            List<ActivityComment> comments, Locale locale) {
+        List<ActivityCommentMessage> activityCommentMessages = new ArrayList<ActivityCommentMessage>();
+        for (ActivityComment comment : comments) {
+            activityCommentMessages.add(toActivityCommentMessage(comment,
+                    locale));
+        }
+        return activityCommentMessages;
     }
 
     @Override
     public ActivityStream getActivityStream(String name) {
         return activityStreamRegistry.get(name);
+    }
+
+    @Override
+    public ActivityComment addActivityComment(Serializable activityId,
+            ActivityComment activityComment) {
+        Activity activity = getActivity(activityId);
+        if (activity != null) {
+            List<ActivityComment> comments = activity.getActivityComments();
+            String newCommentId = activity.getId() + "-comment-"
+                    + (comments.size() + 1);
+            activityComment.setId(newCommentId);
+            comments.add(activityComment);
+            activity.setActivityComments(comments);
+            updateActivity(activity);
+        }
+        return activityComment;
+    }
+
+    protected Activity getActivity(final Serializable activityId) {
+        try {
+            return getOrCreatePersistenceProvider().run(false,
+                    new PersistenceProvider.RunCallback<Activity>() {
+                        @Override
+                        public Activity runWith(EntityManager em) {
+                            return getActivity(em, activityId);
+                        }
+                    });
+        } catch (ClientException e) {
+            throw new ClientRuntimeException(e);
+        }
+    }
+
+    @Override
+    public ActivityComment removeActivityComment(Serializable activityId,
+            String activityCommentId) {
+        Activity activity = getActivity(activityId);
+        if (activity != null) {
+            List<ActivityComment> comments = activity.getActivityComments();
+            for (Iterator<ActivityComment> it = comments.iterator(); it.hasNext();) {
+                ActivityComment comment = it.next();
+                if (comment.getId().equals(activityCommentId)) {
+                    it.remove();
+                    activity.setActivityComments(comments);
+                    updateActivity(activity);
+                    return comment;
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Activity getActivity(EntityManager em, Serializable activityId) {
+        Query query = em.createQuery("select activity from Activity activity where activity.id = :activityId");
+        query.setParameter("activityId", activityId);
+        return (Activity) query.getSingleResult();
+    }
+
+    protected void updateActivity(final Activity activity) {
+        try {
+            getOrCreatePersistenceProvider().run(false,
+                    new PersistenceProvider.RunCallback<Activity>() {
+                        @Override
+                        public Activity runWith(EntityManager em) {
+                            activity.setLastUpdatedDate(new Date());
+                            return em.merge(activity);
+                        }
+                    });
+        } catch (ClientException e) {
+            throw new ClientRuntimeException(e);
+        }
     }
 
     public EntityManager getEntityManager() {

@@ -17,9 +17,12 @@
 
 package org.nuxeo.ecm.activity;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -27,13 +30,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 /**
  * Default implementation of {@link Activity}.
@@ -44,6 +53,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity(name = "Activity")
 @Table(name = "nxp_activities")
 public class ActivityImpl implements Activity {
+
+    private static final Log log = LogFactory.getLog(ActivityImpl.class);
 
     private Long id;
 
@@ -64,6 +75,10 @@ public class ActivityImpl implements Activity {
     private String context;
 
     private Date publishedDate;
+
+    private Date lastUpdatedDate;
+
+    private String comments;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -177,6 +192,66 @@ public class ActivityImpl implements Activity {
         this.publishedDate = publishedDate;
     }
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column
+    @Override
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
+
+    @Override
+    public void setLastUpdatedDate(Date lastUpdated) {
+        this.lastUpdatedDate = lastUpdated;
+    }
+
+    @Column
+    @Lob
+    @Override
+    public String getComments() {
+        return comments;
+    }
+
+    @Override
+    public void setComments(String replies) {
+        this.comments = replies;
+    }
+
+    @Transient
+    @Override
+    public List<ActivityComment> getActivityComments() {
+        if (comments == null) {
+            return new ArrayList<ActivityComment>();
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(comments,
+                    new TypeReference<List<ActivityComment>>() {
+                    });
+        } catch (Exception e) {
+            log.warn(String.format(
+                    "Unable to convert comments to ActivityComments: %s",
+                    e.getMessage()));
+            log.debug(e, e);
+            return new ArrayList<ActivityComment>();
+        }
+    }
+
+    @Override
+    public void setActivityComments(List<ActivityComment> activityComments) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            StringWriter writer = new StringWriter();
+            mapper.writeValue(writer, activityComments);
+            comments = writer.toString();
+        } catch (Exception e) {
+            log.warn(String.format(
+                    "Unable to convert comments to ActivityComments: %s",
+                    e.getMessage()));
+            log.debug(e, e);
+        }
+    }
+
     @Override
     public Map<String, String> toMap() {
         Map<String, String> m = new HashMap<String, String>();
@@ -188,7 +263,11 @@ public class ActivityImpl implements Activity {
         m.put("target", target);
         m.put("displayTarget", displayTarget);
         m.put("verb", verb);
+        m.put("context", context);
         m.put("publishedDate", publishedDate.toString());
+        m.put("lastUpdatedDate",
+                lastUpdatedDate != null ? lastUpdatedDate.toString() : null);
+        m.put("comments", comments);
         return Collections.unmodifiableMap(m);
     }
 
