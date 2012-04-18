@@ -17,8 +17,8 @@
 
 package org.nuxeo.ecm.activity;
 
-import static org.nuxeo.ecm.activity.ActivityHelper.getDocumentLink;
-import static org.nuxeo.ecm.activity.ActivityHelper.getUserProfileLink;
+import static org.nuxeo.ecm.activity.ActivityMessageHelper.getDocumentLink;
+import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserProfileLink;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -280,7 +280,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                     value = getUserProfileLink(value, displayValue);
                 } else {
                     // simple text
-                    value = ActivityHelper.replaceURLsByLinks(value);
+                    value = ActivityMessageHelper.replaceURLsByLinks(value);
                 }
                 messageTemplate = messageTemplate.replace(m.group(), value);
             }
@@ -301,7 +301,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         String actor = activityComment.getActor();
         String displayActor = activityComment.getDisplayActor();
         String displayActorLink = getUserProfileLink(actor, displayActor);
-        String message = ActivityHelper.replaceURLsByLinks(activityComment.getMessage());
+        String message = ActivityMessageHelper.replaceURLsByLinks(activityComment.getMessage());
         String publishedDate = dateFormat.format(new Date(
                 activityComment.getPublishedDate()));
 

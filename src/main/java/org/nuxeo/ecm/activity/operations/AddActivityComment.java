@@ -17,8 +17,10 @@
 
 package org.nuxeo.ecm.activity.operations;
 
-import static org.nuxeo.ecm.activity.ActivityHelper.getUserProfileLink;
-import static org.nuxeo.ecm.user.center.profile.UserProfileConstants.USER_PROFILE_AVATAR_FIELD;
+import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
+import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserAvatarURL;
+import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserProfileLink;
+import static org.nuxeo.ecm.activity.ActivityMessageHelper.replaceURLsByLinks;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -28,13 +30,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.nuxeo.common.utils.URIUtils;
 import org.nuxeo.ecm.activity.ActivityComment;
 import org.nuxeo.ecm.activity.ActivityHelper;
+import org.nuxeo.ecm.activity.ActivityMessageHelper;
 import org.nuxeo.ecm.activity.ActivityStreamService;
 import org.nuxeo.ecm.automation.core.Constants;
 import org.nuxeo.ecm.automation.core.annotations.Context;
@@ -42,14 +43,8 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.impl.blob.InputStreamBlob;
-import org.nuxeo.ecm.platform.web.common.vh.VirtualHostHelper;
-import org.nuxeo.ecm.user.center.profile.UserProfileConstants;
-import org.nuxeo.ecm.user.center.profile.UserProfileService;
-import org.nuxeo.runtime.api.Framework;
 
 /**
  * Operation to add an activity comment.
@@ -102,9 +97,9 @@ public class AddActivityComment {
                         comment.getDisplayActor()));
         m.put("actorAvatarURL",
                 getUserAvatarURL(session,
-                        ActivityHelper.getUsername(comment.getActor())));
+                        getUsername(comment.getActor())));
         m.put("message",
-                ActivityHelper.replaceURLsByLinks(comment.getMessage()));
+                replaceURLsByLinks(comment.getMessage()));
         m.put("publishedDate",
                 dateFormat.format(new Date(comment.getPublishedDate())));
         m.put("allowDeletion",
@@ -128,29 +123,6 @@ public class AddActivityComment {
             log.debug(e, e);
         }
         return "";
-    }
-
-    public static String getUserAvatarURL(CoreSession session, String username)
-            throws ClientException {
-        UserProfileService userProfileService = Framework.getLocalService(UserProfileService.class);
-        DocumentModel profile = userProfileService.getUserProfileDocument(
-                username, session);
-        Blob avatar = (Blob) profile.getPropertyValue(USER_PROFILE_AVATAR_FIELD);
-        if (avatar != null) {
-            String bigDownloadURL = VirtualHostHelper.getContextPathProperty()
-                    + "/";
-            bigDownloadURL += "nxbigfile" + "/";
-            bigDownloadURL += profile.getRepositoryName() + "/";
-            bigDownloadURL += profile.getRef().toString() + "/";
-            bigDownloadURL += USER_PROFILE_AVATAR_FIELD + "/";
-            String filename = username + "."
-                    + FilenameUtils.getExtension(avatar.getFilename());
-            bigDownloadURL += URIUtils.quoteURIPathComponent(filename, true);
-            return bigDownloadURL;
-        } else {
-            return VirtualHostHelper.getContextPathProperty()
-                    + "/icons/missing_avatar.png";
-        }
     }
 
 }

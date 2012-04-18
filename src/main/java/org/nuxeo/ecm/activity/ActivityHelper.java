@@ -42,6 +42,8 @@ import org.nuxeo.ecm.platform.web.common.vh.VirtualHostHelper;
 import org.nuxeo.runtime.api.Framework;
 
 /**
+ * Helper class to deal with activity objects.
+ *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
@@ -156,82 +158,6 @@ public class ActivityHelper {
         } catch (ClientException e) {
             return doc.getId();
         }
-    }
-
-    public static String getDocumentURL(String repositoryName, String documentId) {
-        DocumentLocation docLoc = new DocumentLocationImpl(repositoryName,
-                new IdRef(documentId));
-        DocumentView docView = new DocumentViewImpl(docLoc, "view_documents");
-        return VirtualHostHelper.getContextPathProperty()
-                + "/"
-                + getURLPolicyService().getUrlFromDocumentView("id", docView,
-                        null);
-    }
-
-    public static String getUserProfileURL(String username) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("username", username);
-        DocumentView docView = new DocumentViewImpl(null, null, params);
-        return VirtualHostHelper.getContextPathProperty()
-                + "/"
-                + getURLPolicyService().getUrlFromDocumentView("user", docView,
-                        null);
-    }
-
-    public static String getDocumentLink(String documentActivityObject,
-            String displayValue) {
-        documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
-        String link = "<a href=\"%s\" target=\"_top\">%s</a>";
-        return String.format(
-                link,
-                getDocumentURL(
-                        ActivityHelper.getRepositoryName(documentActivityObject),
-                        ActivityHelper.getDocumentId(documentActivityObject)),
-                displayValue);
-    }
-
-    public static String getUserProfileLink(String userActivityObject,
-            String displayValue) {
-        userActivityObject = StringEscapeUtils.escapeHtml(userActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
-        String link = "<a href=\"%s\" target=\"_top\" title=\"%s\">%s</a>";
-        String username = ActivityHelper.getUsername(userActivityObject);
-        return String.format(link, getUserProfileURL(username), username,
-                displayValue);
-    }
-
-    private static URLPolicyService getURLPolicyService() {
-        URLPolicyService urlPolicyService;
-        try {
-            urlPolicyService = Framework.getService(URLPolicyService.class);
-        } catch (Exception e) {
-            throw new ClientRuntimeException(e);
-        }
-
-        if (urlPolicyService == null) {
-            throw new ClientRuntimeException(
-                    "URLPolicyService service is not registered.");
-        }
-        return urlPolicyService;
-    }
-
-    public static Pattern HTTP_URL_PATTERN = Pattern.compile("\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
-
-    public static String replaceURLsByLinks(String message) {
-        String escapedMessage = StringEscapeUtils.escapeHtml(message);
-        Matcher m = HTTP_URL_PATTERN.matcher(escapedMessage);
-        StringBuffer sb = new StringBuffer(escapedMessage.length());
-        while (m.find()) {
-            String url = m.group(1);
-            m.appendReplacement(sb, computeLinkFor(url));
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    private static String computeLinkFor(String url) {
-        return "<a href=\"" + url + "\" target=\"_top\">" + url + "</a>";
     }
 
 }
