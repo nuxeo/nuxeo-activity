@@ -132,6 +132,9 @@ public class ActivityStreamListener implements PostCommitEventListener {
     private List<DocumentRef> getParentSuperSpaceRefs(CoreSession session,
             final DocumentModel doc) throws ClientException {
         final List<DocumentRef> parents = new ArrayList<DocumentRef>();
+        if (doc.hasFacet(SUPER_SPACE)) {
+            parents.add(doc.getRef());
+        }
         new UnrestrictedSessionRunner(session) {
             @Override
             public void run() throws ClientException {
