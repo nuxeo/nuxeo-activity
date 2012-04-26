@@ -25,6 +25,7 @@ import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.nuxeo.ecm.core.api.ClientException;
@@ -55,10 +56,42 @@ public class ActivityStreamListener implements PostCommitEventListener {
         if (events.containsEventName(DOCUMENT_CREATED)
                 || events.containsEventName(DOCUMENT_UPDATED)
                 || events.containsEventName(DOCUMENT_REMOVED)) {
-            for (Event event : events) {
+            List<Event> filteredEvents = filterDuplicateEvents(events);
+            for (Event event : filteredEvents) {
                 handleEvent(event);
             }
         }
+    }
+
+    private List<Event> filterDuplicateEvents(EventBundle events) {
+        List<Event> filteredEvents = new ArrayList<Event>();
+
+        for (Event event : events) {
+            filteredEvents = removeEventIfExist(filteredEvents, event);
+            filteredEvents.add(event);
+        }
+
+        return filteredEvents;
+    }
+
+    private List<Event> removeEventIfExist(List<Event> events, Event event) {
+        EventContext eventContext = event.getContext();
+        if (eventContext instanceof DocumentEventContext) {
+            DocumentModel doc = ((DocumentEventContext) eventContext).getSourceDocument();
+            for (Iterator<Event> it = events.iterator(); it.hasNext();) {
+                Event filteredEvent = it.next();
+                EventContext filteredEventContext = filteredEvent.getContext();
+                if (filteredEventContext instanceof DocumentEventContext) {
+                    DocumentModel filteredEventDoc = ((DocumentEventContext) filteredEventContext).getSourceDocument();
+                    if (event.getName().equals(filteredEvent.getName())
+                            && doc.getRef().equals(filteredEventDoc.getRef())) {
+                        it.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        return events;
     }
 
     private void handleEvent(Event event) throws ClientException {
