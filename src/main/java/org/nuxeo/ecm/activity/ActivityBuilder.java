@@ -19,7 +19,6 @@ package org.nuxeo.ecm.activity;
 
 import java.util.Date;
 
-
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -43,6 +42,21 @@ public final class ActivityBuilder {
     private String context;
 
     private Date publishedDate;
+
+    public ActivityBuilder() {
+        // Empty constructor
+    }
+
+    public ActivityBuilder(Activity fromActivity) {
+        actor(fromActivity.getActor());
+        context(fromActivity.getContext());
+        displayActor(fromActivity.getDisplayActor());
+        displayTarget(fromActivity.getDisplayTarget());
+        displayObject(fromActivity.getDisplayObject());
+        target(fromActivity.getTarget());
+        verb(fromActivity.getVerb());
+        object(fromActivity.getObject());
+    }
 
     public ActivityBuilder actor(String actor) {
         this.actor = actor;

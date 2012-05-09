@@ -46,7 +46,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 /**
  * Default implementation of {@link Activity}.
- *
+ * 
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
