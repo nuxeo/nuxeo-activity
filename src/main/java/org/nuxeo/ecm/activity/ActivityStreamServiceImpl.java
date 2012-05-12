@@ -313,8 +313,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             List<ActivityReply> replies, Locale locale) {
         List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
         for (ActivityReply reply : replies) {
-            activityReplyMessages.add(toActivityReplyMessage(reply,
-                    locale));
+            activityReplyMessages.add(toActivityReplyMessage(reply, locale));
         }
         return activityReplyMessages;
     }
@@ -326,7 +325,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     @Override
     public ActivityReply addActivityReply(Serializable activityId,
-                                          ActivityReply activityReply) {
+            ActivityReply activityReply) {
         Activity activity = getActivity(activityId);
         if (activity != null) {
             List<ActivityReply> replies = activity.getActivityReplies();
@@ -356,7 +355,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     @Override
     public ActivityReply removeActivityReply(Serializable activityId,
-                                             String activityReplyId) {
+            String activityReplyId) {
         Activity activity = getActivity(activityId);
         if (activity != null) {
             List<ActivityReply> replies = activity.getActivityReplies();

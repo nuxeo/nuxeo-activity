@@ -33,8 +33,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.nuxeo.ecm.activity.ActivityReply;
 import org.nuxeo.ecm.activity.ActivityHelper;
+import org.nuxeo.ecm.activity.ActivityReply;
 import org.nuxeo.ecm.activity.ActivityStreamService;
 import org.nuxeo.ecm.automation.core.Constants;
 import org.nuxeo.ecm.automation.core.annotations.Context;
@@ -77,8 +77,8 @@ public class AddActivityReply {
     public Blob run() throws Exception {
         String actor = ActivityHelper.createUserActivityObject(session.getPrincipal());
         String displayActor = ActivityHelper.generateDisplayName(session.getPrincipal());
-        ActivityReply reply = new ActivityReply(actor, displayActor,
-                message, new Date().getTime());
+        ActivityReply reply = new ActivityReply(actor, displayActor, message,
+                new Date().getTime());
         reply = activityStreamService.addActivityReply(
                 Long.valueOf(activityId), reply);
 
@@ -92,13 +92,10 @@ public class AddActivityReply {
         m.put("actor", reply.getActor());
         m.put("displayActor", reply.getDisplayActor());
         m.put("displayActorLink",
-                getDisplayActorLink(reply.getActor(),
-                        reply.getDisplayActor()));
+                getDisplayActorLink(reply.getActor(), reply.getDisplayActor()));
         m.put("actorAvatarURL",
-                getUserAvatarURL(session,
-                        getUsername(reply.getActor())));
-        m.put("message",
-                replaceURLsByLinks(reply.getMessage()));
+                getUserAvatarURL(session, getUsername(reply.getActor())));
+        m.put("message", replaceURLsByLinks(reply.getMessage()));
         m.put("publishedDate",
                 dateFormat.format(new Date(reply.getPublishedDate())));
         m.put("allowDeletion",

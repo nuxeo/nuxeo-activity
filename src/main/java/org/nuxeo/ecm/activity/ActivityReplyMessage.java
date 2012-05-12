@@ -41,8 +41,8 @@ public class ActivityReplyMessage implements Serializable {
     private final String publishedDate;
 
     public ActivityReplyMessage(String activityReplyId, String actor,
-                                String displayActor, String displayActorLink, String message,
-                                String publishedDate) {
+            String displayActor, String displayActorLink, String message,
+            String publishedDate) {
         this.activityReplyId = activityReplyId;
         this.actor = actor;
         this.displayActor = displayActor;

@@ -389,7 +389,7 @@ public class TestActivityStreamService {
     }
 
     @Test
-    public void shouldStoreMultipleActivityReplys() {
+    public void shouldStoreMultipleActivityReplies() {
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");

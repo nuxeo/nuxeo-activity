@@ -42,8 +42,8 @@ import org.nuxeo.ecm.user.center.profile.UserProfileService;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * Helper class to compute links for {@link ActivityMessage} content from
- * an activity attributes.
+ * Helper class to compute links for {@link ActivityMessage} content from an
+ * activity attributes.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
@@ -97,7 +97,7 @@ public class ActivityMessageHelper {
     }
 
     public static String getUserAvatarURL(CoreSession session, String username)
-                throws ClientException {
+            throws ClientException {
         UserProfileService userProfileService = Framework.getLocalService(UserProfileService.class);
         DocumentModel profile = userProfileService.getUserProfileDocument(
                 username, session);
