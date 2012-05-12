@@ -6,9 +6,9 @@
     point="operations">
 
     <operation
-      class="org.nuxeo.ecm.activity.operations.AddActivityComment" />
+      class="org.nuxeo.ecm.activity.operations.AddActivityReply" />
     <operation
-      class="org.nuxeo.ecm.activity.operations.RemoveActivityComment" />
+      class="org.nuxeo.ecm.activity.operations.RemoveActivityReply" />
 
   </extension>
 

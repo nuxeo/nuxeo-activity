@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.activity.Activity;
-import org.nuxeo.ecm.activity.ActivityComment;
+import org.nuxeo.ecm.activity.ActivityReply;
 import org.nuxeo.ecm.activity.ActivityFeature;
 import org.nuxeo.ecm.activity.ActivityImpl;
 import org.nuxeo.ecm.activity.ActivityStreamService;
@@ -45,7 +45,6 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.test.DefaultRepositoryInit;
-import org.nuxeo.ecm.core.test.annotations.BackendType;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -96,7 +95,7 @@ public class TestActivityOperations {
 
     @Ignore
     @Test
-    public void shouldAddAnActivityComment() throws Exception {
+    public void shouldAddAnActivityReply() throws Exception {
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -104,14 +103,14 @@ public class TestActivityOperations {
         activity.setPublishedDate(new Date());
         activity = activityStreamService.addActivity(activity);
 
-        String commentMessage = "First comment";
+        String replyMessage = "First reply";
 
         OperationContext ctx = new OperationContext(session);
         assertNotNull(ctx);
 
         OperationChain chain = new OperationChain("testActivityOperation");
-        chain.add(AddActivityComment.ID).set("activityId",
-                String.valueOf(activity.getId())).set("message", commentMessage);
+        chain.add(AddActivityReply.ID).set("activityId",
+                String.valueOf(activity.getId())).set("message", replyMessage);
         Blob result = (Blob) automationService.run(ctx, chain);
         assertNotNull(result);
         String json = result.getString();
@@ -123,20 +122,20 @@ public class TestActivityOperations {
         assertEquals(1, activities.size());
 
         activity = activities.get(0);
-        List<ActivityComment> comments = activity.getActivityComments();
-        assertFalse(comments.isEmpty());
-        assertEquals(1, comments.size());
-        ActivityComment comment = comments.get(0);
-        assertEquals(activity.getId() + "-comment-1", comment.getId());
-        assertEquals("user:Administrator", comment.getActor());
-        assertEquals("Administrator", comment.getDisplayActor());
-        assertNotNull(comment.getPublishedDate());
-        assertEquals("First comment", comment.getMessage());
+        List<ActivityReply> replies = activity.getActivityReplies();
+        assertFalse(replies.isEmpty());
+        assertEquals(1, replies.size());
+        ActivityReply reply = replies.get(0);
+        assertEquals(activity.getId() + "-reply-1", reply.getId());
+        assertEquals("user:Administrator", reply.getActor());
+        assertEquals("Administrator", reply.getDisplayActor());
+        assertNotNull(reply.getPublishedDate());
+        assertEquals("First reply", reply.getMessage());
     }
 
     @Ignore
     @Test
-    public void shouldRemoveAnActivityComment() throws Exception {
+    public void shouldRemoveAnActivityReply() throws Exception {
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -144,33 +143,33 @@ public class TestActivityOperations {
         activity.setPublishedDate(new Date());
         activity = activityStreamService.addActivity(activity);
 
-        long firstCommentPublishedDate = new Date().getTime();
-        ActivityComment firstComment = new ActivityComment("bender", "Bender",
-                "First comment", firstCommentPublishedDate);
-        firstComment = activityStreamService.addActivityComment(
-                activity.getId(), firstComment);
-        long secondCommentPublishedDate = new Date().getTime();
-        ActivityComment secondComment = new ActivityComment("bender", "Bender",
-                "Second comment", secondCommentPublishedDate);
-        secondComment = activityStreamService.addActivityComment(
-                activity.getId(), secondComment);
+        long firstReplyPublishedDate = new Date().getTime();
+        ActivityReply firstReply = new ActivityReply("bender", "Bender",
+                "First reply", firstReplyPublishedDate);
+        firstReply = activityStreamService.addActivityReply(
+                activity.getId(), firstReply);
+        long secondReplyPublishedDate = new Date().getTime();
+        ActivityReply secondReply = new ActivityReply("bender", "Bender",
+                "Second reply", secondReplyPublishedDate);
+        secondReply = activityStreamService.addActivityReply(
+                activity.getId(), secondReply);
 
         List<Activity> activities = activityStreamService.query(
                 ActivityStreamService.ALL_ACTIVITIES, null);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);
-        List<ActivityComment> comments = activity.getActivityComments();
-        assertFalse(comments.isEmpty());
-        assertEquals(2, comments.size());
+        List<ActivityReply> replies = activity.getActivityReplies();
+        assertFalse(replies.isEmpty());
+        assertEquals(2, replies.size());
 
         OperationContext ctx = new OperationContext(session);
         assertNotNull(ctx);
 
         OperationChain chain = new OperationChain("testActivityOperation");
-        chain.add(RemoveActivityComment.ID).set("activityId",
-                String.valueOf(activity.getId())).set("commentId",
-                secondComment.getId());
+        chain.add(RemoveActivityReply.ID).set("activityId",
+                String.valueOf(activity.getId())).set("replyId",
+                secondReply.getId());
         automationService.run(ctx, chain);
 
         activities = activityStreamService.query(
@@ -178,16 +177,16 @@ public class TestActivityOperations {
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);
-        comments = activity.getActivityComments();
-        assertFalse(comments.isEmpty());
-        assertEquals(1, comments.size());
+        replies = activity.getActivityReplies();
+        assertFalse(replies.isEmpty());
+        assertEquals(1, replies.size());
 
-        ActivityComment comment = comments.get(0);
-        assertEquals(activity.getId() + "-comment-1", comment.getId());
-        assertEquals("bender", comment.getActor());
-        assertEquals("Bender", comment.getDisplayActor());
-        assertNotNull(comment.getPublishedDate());
-        assertEquals("First comment", comment.getMessage());
+        ActivityReply reply = replies.get(0);
+        assertEquals(activity.getId() + "-reply-1", reply.getId());
+        assertEquals("bender", reply.getActor());
+        assertEquals("Bender", reply.getDisplayActor());
+        assertNotNull(reply.getPublishedDate());
+        assertEquals("First reply", reply.getMessage());
     }
 
 }

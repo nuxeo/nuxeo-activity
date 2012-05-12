@@ -94,36 +94,34 @@ public interface Activity {
     void setLastUpdatedDate(Date lastUpdatedDate);
 
     /**
-     * Returns the comments of this {@code Activity}.
+     * Returns the replies of this {@code Activity}.
      * <p>
-     * The comments are stored as a JSON string.
+     * The replies are stored as a JSON string.
      *
      * @since 5.6
      */
-    String getComments();
+    String getReplies();
 
     /**
-     * Sets the comments of this {@code Activity}.
-     * <p>
-     * The comments are stored as a JSON string.
+     * Sets the replies of this {@code Activity}.
      *
      * @since 5.6
      */
-    void setComments(String comments);
+    void setReplies(String replies);
 
     /**
-     * Returns the list of {@link ActivityComment} of this {@code Activity}.
+     * Returns the list of {@link ActivityReply} of this {@code Activity}.
      *
      * @since 5.6
      */
-    List<ActivityComment> getActivityComments();
+    List<ActivityReply> getActivityReplies();
 
     /**
-     * Sets the comments of this {@code Activity}.
+     * Sets the replies of this {@code Activity}.
      *
      * @since 5.6
      */
-    void setActivityComments(List<ActivityComment> activityComments);
+    void setActivityReplies(List<ActivityReply> activityReplies);
 
     Map<String, String> toMap();
 

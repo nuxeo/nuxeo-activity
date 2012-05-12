@@ -243,13 +243,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             displayActorLink = activity.getDisplayActor();
         }
 
-        List<ActivityCommentMessage> activityCommentMessages = toActivityCommentMessages(
-                activity.getActivityComments(), locale);
+        List<ActivityReplyMessage> activityReplyMessages = toActivityReplyMessages(
+                activity.getActivityReplies(), locale);
 
         if (!activityMessageLabels.containsKey(activity.getVerb())) {
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), activity.toString(),
-                    activity.getPublishedDate(), activityCommentMessages);
+                    activity.getPublishedDate(), activityReplyMessages);
         }
 
         String labelKey = activityMessageLabels.get(activity.getVerb());
@@ -263,7 +263,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             // just return the labelKey if we have no resource bundle
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), labelKey,
-                    activity.getPublishedDate(), activityCommentMessages);
+                    activity.getPublishedDate(), activityReplyMessages);
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -288,35 +288,35 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
         return new ActivityMessage(activity.getId(), actor, displayActor,
                 displayActorLink, activity.getVerb(), messageTemplate,
-                activity.getPublishedDate(), activityCommentMessages);
+                activity.getPublishedDate(), activityReplyMessages);
     }
 
     @Override
-    public ActivityCommentMessage toActivityCommentMessage(
-            ActivityComment activityComment, Locale locale) {
+    public ActivityReplyMessage toActivityReplyMessage(
+            ActivityReply activityReply, Locale locale) {
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
                 locale);
 
-        String id = activityComment.getId();
-        String actor = activityComment.getActor();
-        String displayActor = activityComment.getDisplayActor();
+        String id = activityReply.getId();
+        String actor = activityReply.getActor();
+        String displayActor = activityReply.getDisplayActor();
         String displayActorLink = getUserProfileLink(actor, displayActor);
-        String message = ActivityMessageHelper.replaceURLsByLinks(activityComment.getMessage());
+        String message = ActivityMessageHelper.replaceURLsByLinks(activityReply.getMessage());
         String publishedDate = dateFormat.format(new Date(
-                activityComment.getPublishedDate()));
+                activityReply.getPublishedDate()));
 
-        return new ActivityCommentMessage(id, actor, displayActor,
+        return new ActivityReplyMessage(id, actor, displayActor,
                 displayActorLink, message, publishedDate);
     }
 
-    private List<ActivityCommentMessage> toActivityCommentMessages(
-            List<ActivityComment> comments, Locale locale) {
-        List<ActivityCommentMessage> activityCommentMessages = new ArrayList<ActivityCommentMessage>();
-        for (ActivityComment comment : comments) {
-            activityCommentMessages.add(toActivityCommentMessage(comment,
+    private List<ActivityReplyMessage> toActivityReplyMessages(
+            List<ActivityReply> replies, Locale locale) {
+        List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
+        for (ActivityReply reply : replies) {
+            activityReplyMessages.add(toActivityReplyMessage(reply,
                     locale));
         }
-        return activityCommentMessages;
+        return activityReplyMessages;
     }
 
     @Override
@@ -325,19 +325,19 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityComment addActivityComment(Serializable activityId,
-            ActivityComment activityComment) {
+    public ActivityReply addActivityReply(Serializable activityId,
+                                          ActivityReply activityReply) {
         Activity activity = getActivity(activityId);
         if (activity != null) {
-            List<ActivityComment> comments = activity.getActivityComments();
-            String newCommentId = activity.getId() + "-comment-"
-                    + (comments.size() + 1);
-            activityComment.setId(newCommentId);
-            comments.add(activityComment);
-            activity.setActivityComments(comments);
+            List<ActivityReply> replies = activity.getActivityReplies();
+            String newReplyId = activity.getId() + "-reply-"
+                    + (replies.size() + 1);
+            activityReply.setId(newReplyId);
+            replies.add(activityReply);
+            activity.setActivityReplies(replies);
             updateActivity(activity);
         }
-        return activityComment;
+        return activityReply;
     }
 
     protected Activity getActivity(final Serializable activityId) {
@@ -355,18 +355,18 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityComment removeActivityComment(Serializable activityId,
-            String activityCommentId) {
+    public ActivityReply removeActivityReply(Serializable activityId,
+                                             String activityReplyId) {
         Activity activity = getActivity(activityId);
         if (activity != null) {
-            List<ActivityComment> comments = activity.getActivityComments();
-            for (Iterator<ActivityComment> it = comments.iterator(); it.hasNext();) {
-                ActivityComment comment = it.next();
-                if (comment.getId().equals(activityCommentId)) {
+            List<ActivityReply> replies = activity.getActivityReplies();
+            for (Iterator<ActivityReply> it = replies.iterator(); it.hasNext();) {
+                ActivityReply reply = it.next();
+                if (reply.getId().equals(activityReplyId)) {
                     it.remove();
-                    activity.setActivityComments(comments);
+                    activity.setActivityReplies(replies);
                     updateActivity(activity);
-                    return comment;
+                    return reply;
                 }
             }
         }

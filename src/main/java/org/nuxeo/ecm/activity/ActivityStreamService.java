@@ -86,11 +86,13 @@ public interface ActivityStreamService {
     ActivityMessage toActivityMessage(Activity activity, Locale locale);
 
     /**
-     * Computes an {@link ActivityMessage} from the given {@code activity} and
-     * {@code locale}.
+     * Computes an {@link ActivityReplyMessage} from the given
+     * {@code activityReply} and {@code locale}.
+     *
+     * @since 5.6
      */
-    ActivityCommentMessage toActivityCommentMessage(
-            ActivityComment activityComment, Locale locale);
+    ActivityReplyMessage toActivityReplyMessage(ActivityReply activityReply,
+            Locale locale);
 
     /**
      * Returns the {@link ActivityStream} with the given {@code name},
@@ -99,24 +101,23 @@ public interface ActivityStreamService {
     ActivityStream getActivityStream(String name);
 
     /**
-     * Add an {@link ActivityComment} to the {@link Activity} referenced by the
+     * Add an {@link ActivityReply} to the {@link Activity} referenced by the
      * {@code activityId}.
      *
-     * @return the updated {@code activityComment}
+     * @return the updated {@code activityReply}
      * @since 5.6
      */
-    ActivityComment addActivityComment(Serializable activityId,
-            ActivityComment activityComment);
+    ActivityReply addActivityReply(Serializable activityId,
+            ActivityReply activityReply);
 
     /**
-     * Remove an {@link ActivityComment} from the {@link Activity} referenced by
+     * Remove an {@link ActivityReply} from the {@link Activity} referenced by
      * the {@code activityId}.
      *
-     * @return the removed {@link ActivityComment} if any, {@code null}
-     *         otherwise
+     * @return the removed {@link ActivityReply} if any, {@code null} otherwise
      * @since 5.6
      */
-    ActivityComment removeActivityComment(Serializable activityId,
-            String activityCommentId);
+    ActivityReply removeActivityReply(Serializable activityId,
+            String activityReplyId);
 
 }

@@ -46,7 +46,7 @@ public final class ActivityMessage implements Serializable {
 
     private final Date publishedDate;
 
-    private final List<ActivityCommentMessage> comments;
+    private final List<ActivityReplyMessage> replies;
 
     /**
      * @deprecated since 5.6. Use
@@ -65,7 +65,7 @@ public final class ActivityMessage implements Serializable {
     public ActivityMessage(Serializable activityId, String actor,
             String displayActor, String displayActorLink, String verb,
             String message, Date publishedDate,
-            List<ActivityCommentMessage> comments) {
+            List<ActivityReplyMessage> replies) {
         this.activityId = activityId;
         this.actor = actor;
         this.displayActor = displayActor;
@@ -73,7 +73,7 @@ public final class ActivityMessage implements Serializable {
         this.verb = verb;
         this.message = message;
         this.publishedDate = publishedDate;
-        this.comments = comments;
+        this.replies = replies;
     }
 
     /**
@@ -129,8 +129,8 @@ public final class ActivityMessage implements Serializable {
     /**
      * @since 5.6
      */
-    public List<ActivityCommentMessage> getActivityCommentMessages() {
-        return comments;
+    public List<ActivityReplyMessage> getActivityReplyMessages() {
+        return replies;
     }
 
 }

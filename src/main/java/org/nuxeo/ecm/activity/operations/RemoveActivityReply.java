@@ -25,15 +25,15 @@ import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 
 /**
- * Operation to remove an activity comment.
+ * Operation to remove an activity reply.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-@Operation(id = RemoveActivityComment.ID, category = Constants.CAT_SERVICES, label = "Remove a comment to an existing activity", description = "Remove a comment to an existing activity.")
-public class RemoveActivityComment {
+@Operation(id = RemoveActivityReply.ID, category = Constants.CAT_SERVICES, label = "Remove a reply to an existing activity", description = "Remove a reply to an existing activity.")
+public class RemoveActivityReply {
 
-    public static final String ID = "Services.RemoveActivityComment";
+    public static final String ID = "Services.RemoveActivityReply";
 
     @Context
     protected ActivityStreamService activityStreamService;
@@ -41,13 +41,13 @@ public class RemoveActivityComment {
     @Param(name = "activityId", required = true)
     protected String activityId;
 
-    @Param(name = "commentId", required = true)
-    protected String commentId;
+    @Param(name = "replyId", required = true)
+    protected String replyId;
 
     @OperationMethod
     public void run() throws Exception {
-        activityStreamService.removeActivityComment(Long.valueOf(activityId),
-                commentId);
+        activityStreamService.removeActivityReply(Long.valueOf(activityId),
+                replyId);
     }
 
 }

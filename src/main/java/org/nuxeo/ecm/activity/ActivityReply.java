@@ -17,65 +17,70 @@
 
 package org.nuxeo.ecm.activity;
 
-import java.io.Serializable;
-
-
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-public class ActivityCommentMessage implements Serializable {
+public final class ActivityReply {
 
-    private static final long serialVersionUID = 1L;
+    private String id;
 
-    private final String activityCommentId;
+    private String actor;
 
-    private final String actor;
+    private String displayActor;
 
-    private final String displayActor;
+    private String message;
 
-    private final String displayActorLink;
+    private long publishedDate;
 
-    private final String message;
+    public ActivityReply() {
+    }
 
-    private final String publishedDate;
-
-    public ActivityCommentMessage(String activityCommentId, String actor,
-            String displayActor, String displayActorLink, String message,
-            String publishedDate) {
-        this.activityCommentId = activityCommentId;
+    public ActivityReply(String actor, String displayActor, String message,
+                         long publishedDate) {
         this.actor = actor;
         this.displayActor = displayActor;
-        this.displayActorLink = displayActorLink;
         this.message = message;
         this.publishedDate = publishedDate;
     }
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
+    public String getId() {
+        return id;
     }
 
-    public String getActivityCommentId() {
-        return activityCommentId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getActor() {
         return actor;
     }
 
+    public void setActor(String actor) {
+        this.actor = actor;
+    }
+
     public String getDisplayActor() {
         return displayActor;
     }
 
-    public String getDisplayActorLink() {
-        return displayActorLink;
+    public void setDisplayActor(String displayActor) {
+        this.displayActor = displayActor;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public String getPublishedDate() {
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public long getPublishedDate() {
         return publishedDate;
+    }
+
+    public void setPublishedDate(long publishedDate) {
+        this.publishedDate = publishedDate;
     }
 }

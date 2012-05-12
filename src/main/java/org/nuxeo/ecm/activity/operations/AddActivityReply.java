@@ -33,9 +33,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.nuxeo.ecm.activity.ActivityComment;
+import org.nuxeo.ecm.activity.ActivityReply;
 import org.nuxeo.ecm.activity.ActivityHelper;
-import org.nuxeo.ecm.activity.ActivityMessageHelper;
 import org.nuxeo.ecm.activity.ActivityStreamService;
 import org.nuxeo.ecm.automation.core.Constants;
 import org.nuxeo.ecm.automation.core.annotations.Context;
@@ -47,17 +46,17 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.impl.blob.InputStreamBlob;
 
 /**
- * Operation to add an activity comment.
+ * Operation to add an activity reply.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-@Operation(id = AddActivityComment.ID, category = Constants.CAT_SERVICES, label = "Add a comment to an existing activity", description = "Add a comment to an existing activity.")
-public class AddActivityComment {
+@Operation(id = AddActivityReply.ID, category = Constants.CAT_SERVICES, label = "Add a reply to an existing activity", description = "Add a reply to an existing activity.")
+public class AddActivityReply {
 
-    public static final String ID = "Services.AddActivityComment";
+    public static final String ID = "Services.AddActivityReply";
 
-    private static final Log log = LogFactory.getLog(AddActivityComment.class);
+    private static final Log log = LogFactory.getLog(AddActivityReply.class);
 
     @Context
     protected CoreSession session;
@@ -78,10 +77,10 @@ public class AddActivityComment {
     public Blob run() throws Exception {
         String actor = ActivityHelper.createUserActivityObject(session.getPrincipal());
         String displayActor = ActivityHelper.generateDisplayName(session.getPrincipal());
-        ActivityComment comment = new ActivityComment(actor, displayActor,
+        ActivityReply reply = new ActivityReply(actor, displayActor,
                 message, new Date().getTime());
-        comment = activityStreamService.addActivityComment(
-                Long.valueOf(activityId), comment);
+        reply = activityStreamService.addActivityReply(
+                Long.valueOf(activityId), reply);
 
         Locale locale = language != null && !language.isEmpty() ? new Locale(
                 language) : Locale.ENGLISH;
@@ -89,21 +88,21 @@ public class AddActivityComment {
                 locale);
 
         Map<String, Object> m = new HashMap<String, Object>();
-        m.put("id", comment.getId());
-        m.put("actor", comment.getActor());
-        m.put("displayActor", comment.getDisplayActor());
+        m.put("id", reply.getId());
+        m.put("actor", reply.getActor());
+        m.put("displayActor", reply.getDisplayActor());
         m.put("displayActorLink",
-                getDisplayActorLink(comment.getActor(),
-                        comment.getDisplayActor()));
+                getDisplayActorLink(reply.getActor(),
+                        reply.getDisplayActor()));
         m.put("actorAvatarURL",
                 getUserAvatarURL(session,
-                        getUsername(comment.getActor())));
+                        getUsername(reply.getActor())));
         m.put("message",
-                replaceURLsByLinks(comment.getMessage()));
+                replaceURLsByLinks(reply.getMessage()));
         m.put("publishedDate",
-                dateFormat.format(new Date(comment.getPublishedDate())));
+                dateFormat.format(new Date(reply.getPublishedDate())));
         m.put("allowDeletion",
-                session.getPrincipal().getName().equals(comment.getActor()));
+                session.getPrincipal().getName().equals(reply.getActor()));
 
         ObjectMapper mapper = new ObjectMapper();
         StringWriter writer = new StringWriter();

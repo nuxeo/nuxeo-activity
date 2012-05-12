@@ -78,7 +78,7 @@ public class ActivityImpl implements Activity {
 
     private Date lastUpdatedDate;
 
-    private String comments;
+    private String replies;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -207,46 +207,46 @@ public class ActivityImpl implements Activity {
     @Column
     @Lob
     @Override
-    public String getComments() {
-        return comments;
+    public String getReplies() {
+        return replies;
     }
 
     @Override
-    public void setComments(String replies) {
-        this.comments = replies;
+    public void setReplies(String replies) {
+        this.replies = replies;
     }
 
     @Transient
     @Override
-    public List<ActivityComment> getActivityComments() {
-        if (comments == null) {
-            return new ArrayList<ActivityComment>();
+    public List<ActivityReply> getActivityReplies() {
+        if (replies == null) {
+            return new ArrayList<ActivityReply>();
         }
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(comments,
-                    new TypeReference<List<ActivityComment>>() {
+            return mapper.readValue(replies,
+                    new TypeReference<List<ActivityReply>>() {
                     });
         } catch (Exception e) {
             log.warn(String.format(
-                    "Unable to convert comments to ActivityComments: %s",
+                    "Unable to convert replies to ActivityReply: %s",
                     e.getMessage()));
             log.debug(e, e);
-            return new ArrayList<ActivityComment>();
+            return new ArrayList<ActivityReply>();
         }
     }
 
     @Override
-    public void setActivityComments(List<ActivityComment> activityComments) {
+    public void setActivityReplies(List<ActivityReply> activityReplies) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             StringWriter writer = new StringWriter();
-            mapper.writeValue(writer, activityComments);
-            comments = writer.toString();
+            mapper.writeValue(writer, activityReplies);
+            replies = writer.toString();
         } catch (Exception e) {
             log.warn(String.format(
-                    "Unable to convert comments to ActivityComments: %s",
+                    "Unable to convert replies to ActivityReply: %s",
                     e.getMessage()));
             log.debug(e, e);
         }
@@ -267,7 +267,7 @@ public class ActivityImpl implements Activity {
         m.put("publishedDate", publishedDate.toString());
         m.put("lastUpdatedDate",
                 lastUpdatedDate != null ? lastUpdatedDate.toString() : null);
-        m.put("comments", comments);
+        m.put("replies", replies);
         return Collections.unmodifiableMap(m);
     }
 
