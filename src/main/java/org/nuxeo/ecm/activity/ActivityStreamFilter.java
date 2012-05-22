@@ -54,9 +54,21 @@ public interface ActivityStreamFilter {
     /**
      * Called by the {@code ActivityStreamService} before removing the
      * activities referenced by the given {@code activityIds}.
+     *
+     * @deprecated since 5.6
      */
+    @Deprecated
     void handleRemovedActivities(ActivityStreamService activityStreamService,
             Collection<Serializable> activityIds);
+
+    /**
+     * Called by the {@code ActivityStreamService} before removing the
+     * given {@code activities}.
+     *
+     * @since 5.6
+     */
+    void handleRemovedActivities(ActivityStreamService activityStreamService,
+            ActivitiesList activities);
 
     /**
      * Returns the list of activities filtered by the given parameters.

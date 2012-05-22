@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
+
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -48,10 +49,17 @@ public class DummyActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
+    @Deprecated
     public void handleRemovedActivities(
             ActivityStreamService activityStreamService,
             Collection<Serializable> activityIds) {
         // nothing
+    }
+
+    @Override
+    public void handleRemovedActivities(
+            ActivityStreamService activityStreamService,
+            ActivitiesList activities) {
     }
 
     @Override

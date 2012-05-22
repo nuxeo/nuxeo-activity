@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -65,12 +66,19 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
+    @Deprecated
     public void handleRemovedActivities(
             ActivityStreamService activityStreamService,
             Collection<Serializable> activityIds) {
+    }
+
+    @Override
+    public void handleRemovedActivities(
+            ActivityStreamService activityStreamService,
+            ActivitiesList activities) {
         EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();
         Query query = em.createQuery("delete from Tweet tweet where tweet.activityId in (:activityIds)");
-        query.setParameter("activityIds", activityIds);
+        query.setParameter("activityIds", activities.toActivityIds());
         query.executeUpdate();
     }
 

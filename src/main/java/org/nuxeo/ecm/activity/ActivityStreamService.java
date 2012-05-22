@@ -39,15 +39,19 @@ public interface ActivityStreamService {
      */
     String ALL_ACTIVITIES = "allActivities";
 
+    Activity getActivity(Serializable activityId);
+
+    ActivitiesList getActivities(Collection<Serializable> activityIds);
+
     /**
      * Add and store a new {@code Activity}.
      */
     Activity addActivity(Activity activity);
 
     /**
-     * Remove the Activities referenced by the given {@code activityIds}.
+     * Remove the given {@code activities}.
      */
-    void removeActivities(Collection<Serializable> activityIds);
+    void removeActivities(Collection<Activity> activities);
 
     /**
      * Returns the list of activities filtered by the given parameters using the

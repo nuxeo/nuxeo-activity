@@ -190,8 +190,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public void removeActivities(final Collection<Serializable> activityIds) {
-        if (activityIds == null || activityIds.isEmpty()) {
+    public void removeActivities(final Collection<Activity> activities) {
+        if (activities == null || activities.isEmpty()) {
             return;
         }
 
@@ -200,7 +200,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                     new PersistenceProvider.RunVoid() {
                         @Override
                         public void runWith(EntityManager em) {
-                            removeActivities(em, activityIds);
+                            removeActivities(em, activities);
                         }
                     });
         } catch (ClientException e) {
@@ -209,15 +209,17 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     protected void removeActivities(EntityManager em,
-            Collection<Serializable> activityIds) {
+            Collection<Activity> activities) {
         try {
             localEntityManager.set(em);
+
+            ActivitiesList l = new ActivitiesListImpl(activities);
             for (ActivityStreamFilter filter : activityStreamFilters.values()) {
-                filter.handleRemovedActivities(this, activityIds);
+                filter.handleRemovedActivities(this, l);
             }
 
             Query query = em.createQuery("delete from Activity activity where activity.id in (:ids)");
-            query.setParameter("ids", activityIds);
+            query.setParameter("ids", l.toActivityIds());
             query.executeUpdate();
         } finally {
             localEntityManager.remove();
@@ -339,13 +341,28 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         return activityReply;
     }
 
-    protected Activity getActivity(final Serializable activityId) {
+    public Activity getActivity(final Serializable activityId) {
         try {
             return getOrCreatePersistenceProvider().run(false,
                     new PersistenceProvider.RunCallback<Activity>() {
                         @Override
                         public Activity runWith(EntityManager em) {
                             return getActivity(em, activityId);
+                        }
+                    });
+        } catch (ClientException e) {
+            throw new ClientRuntimeException(e);
+        }
+    }
+
+    public ActivitiesList getActivities(
+            final Collection<Serializable> activityIds) {
+        try {
+            return getOrCreatePersistenceProvider().run(false,
+                    new PersistenceProvider.RunCallback<ActivitiesList>() {
+                        @Override
+                        public ActivitiesList runWith(EntityManager em) {
+                            return getActivities(em, activityIds);
                         }
                     });
         } catch (ClientException e) {
@@ -372,11 +389,18 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     protected Activity getActivity(EntityManager em, Serializable activityId) {
         Query query = em.createQuery("select activity from Activity activity where activity.id = :activityId");
         query.setParameter("activityId", activityId);
         return (Activity) query.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ActivitiesList getActivities(EntityManager em,
+            Collection<Serializable> activityIds) {
+        Query query = em.createQuery("select activity from Activity activity where activity.id in (:ids)");
+        query.setParameter("ids", activityIds);
+        return new ActivitiesListImpl(query.getResultList());
     }
 
     protected void updateActivity(final Activity activity) {

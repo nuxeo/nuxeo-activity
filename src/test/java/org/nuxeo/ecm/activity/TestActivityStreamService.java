@@ -192,7 +192,7 @@ public class TestActivityStreamService {
         assertEquals(10, allActivities.size());
 
         Activity firstActivity = allActivities.get(0);
-        activityStreamService.removeActivities(Collections.singleton(firstActivity.getId()));
+        activityStreamService.removeActivities(Collections.singleton(firstActivity));
 
         allActivities = activityStreamService.query(
                 ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
@@ -200,24 +200,16 @@ public class TestActivityStreamService {
         assertFalse(allActivities.contains(firstActivity));
 
         List<Activity> activities = allActivities.subList(0, 4);
-        activityStreamService.removeActivities(toActivityIds(activities));
+        activityStreamService.removeActivities(activities);
         allActivities = activityStreamService.query(
                 ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
         assertEquals(5, allActivities.size());
 
         activities = allActivities.subList(0, 5);
-        activityStreamService.removeActivities(toActivityIds(activities));
+        activityStreamService.removeActivities(activities);
         allActivities = activityStreamService.query(
                 ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
         assertTrue(allActivities.isEmpty());
-    }
-
-    private List<Serializable> toActivityIds(List<Activity> activities) {
-        List<Serializable> activityIds = new ArrayList<Serializable>();
-        for (Activity activity : activities) {
-            activityIds.add(activity.getId());
-        }
-        return activityIds;
     }
 
     @Test
@@ -295,7 +287,7 @@ public class TestActivityStreamService {
         List<TweetActivity> tweets = getAllTweetActivities();
         assertEquals(3, tweets.size());
 
-        activityStreamService.removeActivities(Collections.singleton(activity.getId()));
+        activityStreamService.removeActivities(Collections.singleton(activity));
         activities = activityStreamService.query(TweetActivityStreamFilter.ID,
                 parameters);
         assertTrue(activities.isEmpty());
