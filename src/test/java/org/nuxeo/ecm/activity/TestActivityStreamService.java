@@ -214,19 +214,33 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldStoreLabelKeyForActivityVerbs() {
-        Map<String, String> activityMessageLabels = ((ActivityStreamServiceImpl) activityStreamService).activityMessageLabels;
-        assertNotNull(activityMessageLabels);
-        assertEquals(3, activityMessageLabels.size());
-        assertTrue(activityMessageLabels.containsKey(DOCUMENT_CREATED));
-        assertTrue(activityMessageLabels.containsKey(DOCUMENT_UPDATED));
-        assertTrue(activityMessageLabels.containsKey(DOCUMENT_REMOVED));
+        // compat test
+        ActivityVerbRegistry activityVerbRegistry = ((ActivityStreamServiceImpl) activityStreamService).activityVerbRegistry;
+        assertNotNull(activityVerbRegistry);
 
+        ActivityVerb activityVerb = activityVerbRegistry.get("compatVerb");
+        assertNotNull(activityVerb);
+        assertEquals("label.activity.compatLabel",
+                activityVerb.getLabelKey());
+    }
+
+    @Test
+    public void shouldStoreActivityVerbs() {
+        ActivityVerbRegistry activityVerbRegistry = ((ActivityStreamServiceImpl) activityStreamService).activityVerbRegistry;
+        assertNotNull(activityVerbRegistry);
+
+        ActivityVerb activityVerb = activityVerbRegistry.get(DOCUMENT_CREATED);
+        assertNotNull(activityVerb);
         assertEquals("label.activity.documentCreated",
-                activityMessageLabels.get(DOCUMENT_CREATED));
+                activityVerb.getLabelKey());
+        activityVerb = activityVerbRegistry.get(DOCUMENT_UPDATED);
+        assertNotNull(activityVerb);
         assertEquals("label.activity.documentUpdated",
-                activityMessageLabels.get(DOCUMENT_UPDATED));
+                activityVerb.getLabelKey());
+        activityVerb = activityVerbRegistry.get(DOCUMENT_REMOVED);
+        assertNotNull(activityVerb);
         assertEquals("label.activity.documentRemoved",
-                activityMessageLabels.get(DOCUMENT_REMOVED));
+                activityVerb.getLabelKey());
     }
 
     @Test

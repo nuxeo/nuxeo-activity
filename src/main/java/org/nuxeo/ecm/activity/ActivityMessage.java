@@ -17,10 +17,18 @@
 
 package org.nuxeo.ecm.activity;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
+import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.core.api.CoreSession;
 
 /**
  * Immutable object representing an Activity message.
@@ -46,17 +54,20 @@ public final class ActivityMessage implements Serializable {
 
     private final Date publishedDate;
 
+    private final String icon;
+
     private final List<ActivityReplyMessage> replies;
 
     /**
      * @deprecated since 5.6. Use
-     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date, java.util.List)}
+     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date, String, java.util.List)}
      *             instead.
      */
     @Deprecated
     public ActivityMessage(Serializable activityId, String message,
             Date publishedDate) {
-        this(activityId, null, null, null, null, message, publishedDate, null);
+        this(activityId, null, null, null, null, message, publishedDate, null,
+                null);
     }
 
     /**
@@ -64,7 +75,7 @@ public final class ActivityMessage implements Serializable {
      */
     public ActivityMessage(Serializable activityId, String actor,
             String displayActor, String displayActorLink, String verb,
-            String message, Date publishedDate,
+            String message, Date publishedDate, String icon,
             List<ActivityReplyMessage> replies) {
         this.activityId = activityId;
         this.actor = actor;
@@ -73,6 +84,7 @@ public final class ActivityMessage implements Serializable {
         this.verb = verb;
         this.message = message;
         this.publishedDate = publishedDate;
+        this.icon = icon;
         this.replies = replies;
     }
 
@@ -83,7 +95,7 @@ public final class ActivityMessage implements Serializable {
     public ActivityMessage(Activity activity, String message) {
         this(activity.getId(), activity.getActor(), activity.getDisplayActor(),
                 null, activity.getVerb(), message, activity.getPublishedDate(),
-                null);
+                null, null);
     }
 
     public Serializable getActivityId() {
@@ -129,8 +141,38 @@ public final class ActivityMessage implements Serializable {
     /**
      * @since 5.6
      */
+    public String getIcon() {
+        return icon;
+    }
+
+    /**
+     * @since 5.6
+     */
     public List<ActivityReplyMessage> getActivityReplyMessages() {
         return replies;
+    }
+
+    /**
+     * @since 5.6
+     */
+    public Map<String, Object> toMap(CoreSession session, Locale locale)
+            throws ClientException {
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
+                locale);
+
+        Map<String, Object> o = new HashMap<String, Object>();
+        o.put("id", getActivityId());
+        o.put("actor", getActor());
+        o.put("displayActor", getDisplayActor());
+        o.put("displayActorLink", getDisplayActorLink());
+        String actorUsername = getUsername(getActor());
+        o.put("actorAvatarURL",
+                ActivityMessageHelper.getUserAvatarURL(session, actorUsername));
+        o.put("activityVerb", getVerb());
+        o.put("activityMessage", getMessage());
+        o.put("publishedDate", dateFormat.format(getPublishedDate()));
+        o.put("icon", getIcon());
+        return o;
     }
 
 }

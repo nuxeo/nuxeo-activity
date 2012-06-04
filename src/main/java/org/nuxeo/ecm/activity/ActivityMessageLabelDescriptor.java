@@ -26,7 +26,9 @@ import org.nuxeo.common.xmap.annotation.XObject;
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
+ * @deprecated since 5.6. See {@link ActivityVerb}.
  */
+@Deprecated
 @XObject("activityMessageLabel")
 public class ActivityMessageLabelDescriptor {
 

@@ -2,14 +2,17 @@
 <component name="org.nuxeo.ecm.activity.contrib">
 
   <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
-    point="activityMessageLabels">
+    point="activityVerbs">
 
-    <activityMessageLabel activityVerb="documentCreated"
-      labelKey="label.activity.documentCreated" />
-    <activityMessageLabel activityVerb="documentModified"
-      labelKey="label.activity.documentUpdated" />
-    <activityMessageLabel activityVerb="documentRemoved"
-      labelKey="label.activity.documentRemoved" />
+    <activityVerb verb="documentCreated"
+      labelKey="label.activity.documentCreated"
+      icon="/icons/activity_document_creation.png" />
+    <activityVerb verb="documentModified"
+      labelKey="label.activity.documentUpdated"
+      icon="/icons/activity_document_edition.png" />
+    <activityVerb verb="documentRemoved"
+      labelKey="label.activity.documentRemoved"
+      icon="/icons/activity_document_deletion.png"/>
 
   </extension>
 

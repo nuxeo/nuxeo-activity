@@ -17,9 +17,12 @@
 
 package org.nuxeo.ecm.activity;
 
+import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
 import static org.nuxeo.ecm.user.center.profile.UserProfileConstants.USER_PROFILE_AVATAR_FIELD;
 
+import java.text.DateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -136,4 +139,5 @@ public class ActivityMessageHelper {
     private static String computeLinkFor(String url) {
         return "<a href=\"" + url + "\" target=\"_top\">" + url + "</a>";
     }
+
 }

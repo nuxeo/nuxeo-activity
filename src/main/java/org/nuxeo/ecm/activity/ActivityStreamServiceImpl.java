@@ -65,17 +65,23 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     public static final String ACTIVITY_STREAM_FILTER_EP = "activityStreamFilters";
 
+    /**
+     * @deprecated since 5.6. Use {@link ACTIVITY_VERBS_EP}.
+     */
+    @Deprecated
     public static final String ACTIVITY_MESSAGE_LABELS_EP = "activityMessageLabels";
 
     public static final String ACTIVITY_STREAMS_EP = "activityStreams";
+
+    public static final String ACTIVITY_VERBS_EP = "activityVerbs";
 
     protected final ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<EntityManager>();
 
     protected final Map<String, ActivityStreamFilter> activityStreamFilters = new HashMap<String, ActivityStreamFilter>();
 
-    protected final Map<String, String> activityMessageLabels = new HashMap<String, String>();
-
     protected ActivityStreamRegistry activityStreamRegistry;
+
+    protected ActivityVerbRegistry activityVerbRegistry;
 
     protected PersistenceProvider persistenceProvider;
 
@@ -248,13 +254,15 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         List<ActivityReplyMessage> activityReplyMessages = toActivityReplyMessages(
                 activity.getActivityReplies(), locale);
 
-        if (!activityMessageLabels.containsKey(activity.getVerb())) {
+        ActivityVerb verb = activityVerbRegistry.get(activity.getVerb());
+
+        if (verb == null || verb.getLabelKey() == null) {
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), activity.toString(),
-                    activity.getPublishedDate(), activityReplyMessages);
+                    activity.getPublishedDate(), null, activityReplyMessages);
         }
 
-        String labelKey = activityMessageLabels.get(activity.getVerb());
+        String labelKey = verb.getLabelKey();
         String messageTemplate;
         try {
             messageTemplate = I18NUtils.getMessageString("messages", labelKey,
@@ -265,7 +273,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             // just return the labelKey if we have no resource bundle
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), labelKey,
-                    activity.getPublishedDate(), activityReplyMessages);
+                    activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -290,7 +298,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
         return new ActivityMessage(activity.getId(), actor, displayActor,
                 displayActorLink, activity.getVerb(), messageTemplate,
-                activity.getPublishedDate(), activityReplyMessages);
+                activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
     }
 
     @Override
@@ -453,6 +461,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     public void activate(ComponentContext context) throws Exception {
         super.activate(context);
         activityStreamRegistry = new ActivityStreamRegistry();
+        activityVerbRegistry = new ActivityVerbRegistry();
     }
 
     @Override
@@ -471,6 +480,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             registerActivityMessageLabel((ActivityMessageLabelDescriptor) contribution);
         } else if (ACTIVITY_STREAMS_EP.equals(extensionPoint)) {
             registerActivityStream((ActivityStream) contribution);
+        } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
+            registerActivityVerb((ActivityVerb) contribution);
         }
     }
 
@@ -497,19 +508,26 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     private void registerActivityMessageLabel(
             ActivityMessageLabelDescriptor descriptor) {
-        String activityVerb = descriptor.getActivityVerb();
-        if (activityMessageLabels.containsKey(activityVerb)) {
-            log.info("Overriding activity message label for verb "
-                    + activityVerb);
-        }
-        log.info("Registering activity message label for verb" + activityVerb);
-        activityMessageLabels.put(activityVerb, descriptor.getLabelKey());
+        log.info("Registering activity message label for verb"
+                + descriptor.getActivityVerb());
+        log.warn("The 'activityMessageLabels' extension point is deprecated, "
+                + "please use the 'activityVerbs' extension point.");
+        ActivityVerb activityVerb = new ActivityVerb();
+        activityVerb.setVerb(descriptor.getActivityVerb());
+        activityVerb.setLabelKey(descriptor.getLabelKey());
+        registerActivityVerb(activityVerb);
     }
 
     private void registerActivityStream(ActivityStream activityStream) {
         log.info(String.format("Registering activity stream '%s'",
                 activityStream.getName()));
         activityStreamRegistry.addContribution(activityStream);
+    }
+
+    private void registerActivityVerb(ActivityVerb activityVerb) {
+        log.info(String.format("Registering activity verb '%s'",
+                activityVerb.getVerb()));
+        activityVerbRegistry.addContribution(activityVerb);
     }
 
     @Override
@@ -522,6 +540,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             unregisterActivityMessageLabel((ActivityMessageLabelDescriptor) contribution);
         } else if (ACTIVITY_STREAMS_EP.equals(extensionPoint)) {
             unregisterActivityStream((ActivityStream) contribution);
+        } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
+            unregisterActivityVerb((ActivityVerb) contribution);
         }
     }
 
@@ -535,16 +555,26 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     private void unregisterActivityMessageLabel(
             ActivityMessageLabelDescriptor descriptor) {
-        String activityVerb = descriptor.getActivityVerb();
-        activityMessageLabels.remove(activityVerb);
+        ActivityVerb activityVerb = new ActivityVerb();
+        activityVerb.setVerb(descriptor.getActivityVerb());
+        activityVerb.setLabelKey(descriptor.getLabelKey());
+        unregisterActivityVerb(activityVerb);
         log.info("Unregistering activity message label for verb "
                 + activityVerb);
+        log.warn("The 'activityMessageLabels' extension point is deprecated, "
+                + "please use the 'activityVerbs' extension point.");
     }
 
     private void unregisterActivityStream(ActivityStream activityStream) {
         activityStreamRegistry.removeContribution(activityStream);
         log.info(String.format("Unregistering activity stream '%s'",
                 activityStream.getName()));
+    }
+
+    private void unregisterActivityVerb(ActivityVerb activityVerb) {
+        activityVerbRegistry.removeContribution(activityVerb);
+        log.info(String.format("Unregistering activity verb '%s'",
+                activityVerb.getVerb()));
     }
 
 }

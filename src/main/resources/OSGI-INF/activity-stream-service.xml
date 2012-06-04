@@ -25,8 +25,19 @@
   <extension-point name="activityMessageLabels">
     <documentation>
       An ActivityMessageLabel stores a mapping between an Activity verb and a label key.
+
+      @deprecated since 5.6. Use the 'activityVerbs' extension point.
     </documentation>
     <object class="org.nuxeo.ecm.activity.ActivityMessageLabelDescriptor" />
+  </extension-point>
+
+  <extension-point name="activityVerbs">
+    <documentation>
+      An ActivityVerb stores the configuration for a given verb:
+      - a label key
+      - an icon path
+    </documentation>
+    <object class="org.nuxeo.ecm.activity.ActivityVerb" />
   </extension-point>
 
   <extension-point name="activityStreams">
