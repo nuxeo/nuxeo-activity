@@ -83,7 +83,7 @@ public class ActivityMessageHelper {
             String displayValue) {
         userActivityObject = StringEscapeUtils.escapeHtml(userActivityObject);
         displayValue = StringEscapeUtils.escapeHtml(displayValue);
-        String link = "<a href=\"%s\" target=\"_top\" title=\"%s\">%s</a>";
+        String link = "<span class=\"username\"><a href=\"%s\" target=\"_top\" title=\"%s\">%s</a></span>";
         String username = ActivityHelper.getUsername(userActivityObject);
         return String.format(link, getUserProfileURL(username), username,
                 displayValue);
