@@ -18,6 +18,7 @@
 package org.nuxeo.ecm.activity;
 
 import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
+import static org.nuxeo.ecm.activity.ActivityHelper.isUser;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -165,9 +166,11 @@ public final class ActivityMessage implements Serializable {
         o.put("actor", getActor());
         o.put("displayActor", getDisplayActor());
         o.put("displayActorLink", getDisplayActorLink());
-        String actorUsername = getUsername(getActor());
-        o.put("actorAvatarURL",
-                ActivityMessageHelper.getUserAvatarURL(session, actorUsername));
+        if (isUser(getActor())) {
+            String actorUsername = getUsername(getActor());
+            o.put("actorAvatarURL", ActivityMessageHelper.getUserAvatarURL(
+                    session, actorUsername));
+        }
         o.put("activityVerb", getVerb());
         o.put("activityMessage", getMessage());
         o.put("publishedDate", dateFormat.format(getPublishedDate()));
