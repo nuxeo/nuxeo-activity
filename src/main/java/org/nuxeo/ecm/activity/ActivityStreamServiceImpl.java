@@ -21,7 +21,6 @@ import static org.nuxeo.ecm.activity.ActivityMessageHelper.getDocumentLink;
 import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserProfileLink;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -273,7 +272,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             // just return the labelKey if we have no resource bundle
             return new ActivityMessage(activity.getId(), actor, displayActor,
                     displayActorLink, activity.getVerb(), labelKey,
-                    activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
+                    activity.getPublishedDate(), verb.getIcon(),
+                    activityReplyMessages);
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -298,25 +298,20 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
         return new ActivityMessage(activity.getId(), actor, displayActor,
                 displayActorLink, activity.getVerb(), messageTemplate,
-                activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
+                activity.getPublishedDate(), verb.getIcon(),
+                activityReplyMessages);
     }
 
     @Override
     public ActivityReplyMessage toActivityReplyMessage(
             ActivityReply activityReply, Locale locale) {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                locale);
-
-        String id = activityReply.getId();
         String actor = activityReply.getActor();
         String displayActor = activityReply.getDisplayActor();
         String displayActorLink = getUserProfileLink(actor, displayActor);
         String message = ActivityMessageHelper.replaceURLsByLinks(activityReply.getMessage());
-        String publishedDate = dateFormat.format(new Date(
-                activityReply.getPublishedDate()));
-
-        return new ActivityReplyMessage(id, actor, displayActor,
-                displayActorLink, message, publishedDate);
+        return new ActivityReplyMessage(activityReply.getId(), actor,
+                displayActor, displayActorLink, message,
+                activityReply.getPublishedDate());
     }
 
     private List<ActivityReplyMessage> toActivityReplyMessages(

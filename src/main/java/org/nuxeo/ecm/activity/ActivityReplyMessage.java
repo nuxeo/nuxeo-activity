@@ -17,8 +17,18 @@
 
 package org.nuxeo.ecm.activity;
 
-import java.io.Serializable;
+import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
+import static org.nuxeo.ecm.activity.ActivityHelper.isUser;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.core.api.CoreSession;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -38,21 +48,17 @@ public class ActivityReplyMessage implements Serializable {
 
     private final String message;
 
-    private final String publishedDate;
+    private final long publishedDate;
 
     public ActivityReplyMessage(String activityReplyId, String actor,
             String displayActor, String displayActorLink, String message,
-            String publishedDate) {
+            long publishedDate) {
         this.activityReplyId = activityReplyId;
         this.actor = actor;
         this.displayActor = displayActor;
         this.displayActorLink = displayActorLink;
         this.message = message;
         this.publishedDate = publishedDate;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
     }
 
     public String getActivityReplyId() {
@@ -75,7 +81,27 @@ public class ActivityReplyMessage implements Serializable {
         return message;
     }
 
-    public String getPublishedDate() {
+    public long getPublishedDate() {
         return publishedDate;
+    }
+
+    public Map<String, Object> toMap(CoreSession session, Locale locale)
+            throws ClientException {
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
+                locale);
+
+        Map<String, Object> o = new HashMap<String, Object>();
+        o.put("id", getActivityReplyId());
+        o.put("actor", getActor());
+        o.put("displayActor", getDisplayActor());
+        o.put("displayActorLink", getDisplayActorLink());
+        if (isUser(getActor())) {
+            String actorUsername = getUsername(getActor());
+            o.put("actorAvatarURL", ActivityMessageHelper.getUserAvatarURL(
+                    session, actorUsername));
+        }
+        o.put("activityMessage", getMessage());
+        o.put("publishedDate", dateFormat.format(new Date(getPublishedDate())));
+        return o;
     }
 }
