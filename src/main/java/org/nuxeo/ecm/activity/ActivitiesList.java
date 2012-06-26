@@ -47,6 +47,17 @@ public interface ActivitiesList extends List<Activity> {
     List<ActivityMessage> toActivityMessages(Locale locale);
 
     /**
+     * Transforms this {@code ActivitiesList} into a list of
+     * {@code ActivityMessage}, internationalized with the given {@code locale}.
+     * <p>
+     * Use the {@link ActivityLinkBuilder} of name {@code activityLinkBuilderName} to
+     * generate the links.
+     *
+     * @since 5.6
+     */
+    List<ActivityMessage> toActivityMessages(Locale locale, String activityLinkBuilderName);
+
+    /**
      * Transforms this {@code ActivitiesList} into a list of Activity ids.
      *
      * @since 5.6

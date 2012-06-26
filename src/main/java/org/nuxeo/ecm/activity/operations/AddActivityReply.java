@@ -18,8 +18,6 @@
 package org.nuxeo.ecm.activity.operations;
 
 import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
-import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserAvatarURL;
-import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserProfileLink;
 import static org.nuxeo.ecm.activity.ActivityMessageHelper.replaceURLsByLinks;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.nuxeo.ecm.activity.ActivityHelper;
+import org.nuxeo.ecm.activity.ActivityLinkBuilder;
 import org.nuxeo.ecm.activity.ActivityReply;
 import org.nuxeo.ecm.activity.ActivityStreamService;
 import org.nuxeo.ecm.automation.core.Constants;
@@ -44,6 +43,7 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.impl.blob.InputStreamBlob;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Operation to add an activity reply.
@@ -73,6 +73,9 @@ public class AddActivityReply {
     @Param(name = "message", required = true)
     protected String message;
 
+    @Param(name = "activityLinkBuilderName", required = true)
+    protected String activityLinkBuilderName;
+
     @OperationMethod
     public Blob run() throws Exception {
         String actor = ActivityHelper.createUserActivityObject(session.getPrincipal());
@@ -86,15 +89,20 @@ public class AddActivityReply {
                 language) : Locale.ENGLISH;
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
                 locale);
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(
+                ActivityStreamService.class).getActivityLinkBuilder(
+                activityLinkBuilderName);
 
         Map<String, Object> m = new HashMap<String, Object>();
         m.put("id", reply.getId());
         m.put("actor", reply.getActor());
         m.put("displayActor", reply.getDisplayActor());
         m.put("displayActorLink",
-                getDisplayActorLink(reply.getActor(), reply.getDisplayActor()));
+                getDisplayActorLink(reply.getActor(), reply.getDisplayActor(),
+                        activityLinkBuilder));
         m.put("actorAvatarURL",
-                getUserAvatarURL(session, getUsername(reply.getActor())));
+                activityLinkBuilder.getUserAvatarURL(session,
+                        getUsername(reply.getActor())));
         m.put("message", replaceURLsByLinks(reply.getMessage()));
         m.put("publishedDate",
                 dateFormat.format(new Date(reply.getPublishedDate())));
@@ -109,9 +117,10 @@ public class AddActivityReply {
                 writer.toString().getBytes("UTF-8")), "application/json");
     }
 
-    protected String getDisplayActorLink(String actor, String displayActor) {
+    protected String getDisplayActorLink(String actor, String displayActor,
+            ActivityLinkBuilder activityLinkBuilder) {
         try {
-            return getUserProfileLink(actor, displayActor);
+            return activityLinkBuilder.getUserProfileLink(actor, displayActor);
         } catch (Exception e) {
             log.warn(String.format(
                     "Unable to get user profile link for '%s': %s", actor,

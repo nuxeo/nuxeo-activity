@@ -49,4 +49,12 @@
 
   </extension>
 
+  <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
+    point="activityLinkBuilders">
+
+    <activityLinkBuilder name="dummy"
+      class="org.nuxeo.ecm.activity.DummyActivityLinkBuilder" />
+
+  </extension>
+
 </component>

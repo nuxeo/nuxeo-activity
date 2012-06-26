@@ -40,6 +40,14 @@
     <object class="org.nuxeo.ecm.activity.ActivityVerb" />
   </extension-point>
 
+  <extension-point name="activityLinkBuilders">
+    <documentation>
+      An ActivityLinkBuilder is used to compute the different links and URLs
+      (for a document, an user, ...) that can be in an Activity message.
+    </documentation>
+    <object class="org.nuxeo.ecm.activity.ActivityLinkBuilderDescriptor" />
+  </extension-point>
+
   <extension-point name="activityStreams">
     <documentation>
       An ActivityStream stores the information about a given stream (user

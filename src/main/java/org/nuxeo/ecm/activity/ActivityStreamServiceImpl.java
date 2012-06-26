@@ -17,9 +17,6 @@
 
 package org.nuxeo.ecm.activity;
 
-import static org.nuxeo.ecm.activity.ActivityMessageHelper.getDocumentLink;
-import static org.nuxeo.ecm.activity.ActivityMessageHelper.getUserProfileLink;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +62,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     public static final String ACTIVITY_STREAM_FILTER_EP = "activityStreamFilters";
 
     /**
-     * @deprecated since 5.6. Use {@link ACTIVITY_VERBS_EP}.
+     * @deprecated since 5.6. Use {@link #ACTIVITY_VERBS_EP}.
      */
     @Deprecated
     public static final String ACTIVITY_MESSAGE_LABELS_EP = "activityMessageLabels";
@@ -74,6 +71,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     public static final String ACTIVITY_VERBS_EP = "activityVerbs";
 
+    public static final String ACTIVITY_LINK_BUILDERS_EP = "activityLinkBuilders";
+
     protected final ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<EntityManager>();
 
     protected final Map<String, ActivityStreamFilter> activityStreamFilters = new HashMap<String, ActivityStreamFilter>();
@@ -81,6 +80,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     protected ActivityStreamRegistry activityStreamRegistry;
 
     protected ActivityVerbRegistry activityVerbRegistry;
+
+    protected ActivityLinkBuilderRegistry activityLinkBuilderRegistry;
 
     protected PersistenceProvider persistenceProvider;
 
@@ -234,6 +235,14 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     @Override
     public ActivityMessage toActivityMessage(final Activity activity,
             Locale locale) {
+        return toActivityMessage(activity, locale, null);
+    }
+
+    @Override
+    public ActivityMessage toActivityMessage(Activity activity, Locale locale,
+            String activityLinkBuilderName) {
+        ActivityLinkBuilder activityLinkBuilder = getActivityLinkBuilder(activityLinkBuilderName);
+
         Map<String, String> fields = activity.toMap();
 
         String actor = activity.getActor();
@@ -241,8 +250,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         String displayActorLink;
         if (ActivityHelper.isUser(actor)) {
             try {
-                displayActorLink = getUserProfileLink(actor,
-                        activity.getDisplayActor());
+                displayActorLink = activityLinkBuilder.getUserProfileLink(
+                        actor, activity.getDisplayActor());
             } catch (Exception e) {
                 displayActorLink = activity.getDisplayActor();
             }
@@ -251,7 +260,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
 
         List<ActivityReplyMessage> activityReplyMessages = toActivityReplyMessages(
-                activity.getActivityReplies(), locale);
+                activity.getActivityReplies(), locale, activityLinkBuilderName);
 
         ActivityVerb verb = activityVerbRegistry.get(activity.getVerb());
 
@@ -285,9 +294,11 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                 final String displayValue = fields.get("display"
                         + StringUtils.capitalize(param));
                 if (ActivityHelper.isDocument(value)) {
-                    value = getDocumentLink(value, displayValue);
+                    value = activityLinkBuilder.getDocumentLink(value,
+                            displayValue);
                 } else if (ActivityHelper.isUser(value)) {
-                    value = getUserProfileLink(value, displayValue);
+                    value = activityLinkBuilder.getUserProfileLink(value,
+                            displayValue);
                 } else {
                     // simple text
                     value = ActivityMessageHelper.replaceURLsByLinks(value);
@@ -303,22 +314,49 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
+    public ActivityLinkBuilder getActivityLinkBuilder(String name) {
+        ActivityLinkBuilder activityLinkBuilder;
+        if (StringUtils.isBlank(name)) {
+            activityLinkBuilder = activityLinkBuilderRegistry.getDefaultActivityLinkBuilder();
+        } else {
+            activityLinkBuilder = activityLinkBuilderRegistry.get(name);
+            if (activityLinkBuilder == null) {
+                log.warn("Fallback on default Activity link builder");
+                activityLinkBuilder = activityLinkBuilderRegistry.getDefaultActivityLinkBuilder();
+            }
+        }
+        return activityLinkBuilder;
+    }
+
+    @Override
     public ActivityReplyMessage toActivityReplyMessage(
             ActivityReply activityReply, Locale locale) {
+        return toActivityReplyMessage(activityReply, locale, null);
+    }
+
+    @Override
+    public ActivityReplyMessage toActivityReplyMessage(
+            ActivityReply activityReply, Locale locale,
+            String activityLinkBuilderName) {
+        ActivityLinkBuilder activityLinkBuilder = getActivityLinkBuilder(activityLinkBuilderName);
+
         String actor = activityReply.getActor();
         String displayActor = activityReply.getDisplayActor();
-        String displayActorLink = getUserProfileLink(actor, displayActor);
+        String displayActorLink = activityLinkBuilder.getUserProfileLink(actor,
+                displayActor);
         String message = ActivityMessageHelper.replaceURLsByLinks(activityReply.getMessage());
         return new ActivityReplyMessage(activityReply.getId(), actor,
                 displayActor, displayActorLink, message,
                 activityReply.getPublishedDate());
+
+
     }
 
     private List<ActivityReplyMessage> toActivityReplyMessages(
-            List<ActivityReply> replies, Locale locale) {
+            List<ActivityReply> replies, Locale locale, String activityLinkBuilderName) {
         List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
         for (ActivityReply reply : replies) {
-            activityReplyMessages.add(toActivityReplyMessage(reply, locale));
+            activityReplyMessages.add(toActivityReplyMessage(reply, locale, activityLinkBuilderName));
         }
         return activityReplyMessages;
     }
@@ -457,6 +495,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         super.activate(context);
         activityStreamRegistry = new ActivityStreamRegistry();
         activityVerbRegistry = new ActivityVerbRegistry();
+        activityLinkBuilderRegistry = new ActivityLinkBuilderRegistry();
     }
 
     @Override
@@ -477,6 +516,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             registerActivityStream((ActivityStream) contribution);
         } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
             registerActivityVerb((ActivityVerb) contribution);
+        } else if (ACTIVITY_LINK_BUILDERS_EP.equals(extensionPoint)) {
+            registerActivityLinkBuilder((ActivityLinkBuilderDescriptor) contribution);
         }
     }
 
@@ -525,6 +566,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         activityVerbRegistry.addContribution(activityVerb);
     }
 
+    private void registerActivityLinkBuilder(
+            ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
+        log.info(String.format("Registering activity link builder '%s'",
+                activityLinkBuilderDescriptor.getName()));
+        activityLinkBuilderRegistry.addContribution(activityLinkBuilderDescriptor);
+    }
+
     @Override
     public void unregisterContribution(Object contribution,
             String extensionPoint, ComponentInstance contributor)
@@ -537,6 +585,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             unregisterActivityStream((ActivityStream) contribution);
         } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
             unregisterActivityVerb((ActivityVerb) contribution);
+        } else if (ACTIVITY_LINK_BUILDERS_EP.equals(extensionPoint)) {
+            unregisterActivityLinkBuilder((ActivityLinkBuilderDescriptor) contribution);
         }
     }
 
@@ -570,6 +620,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         activityVerbRegistry.removeContribution(activityVerb);
         log.info(String.format("Unregistering activity verb '%s'",
                 activityVerb.getVerb()));
+    }
+
+    private void unregisterActivityLinkBuilder(
+            ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
+        activityLinkBuilderRegistry.removeContribution(activityLinkBuilderDescriptor);
+        log.info(String.format("Unregistering activity link builder '%s'",
+                activityLinkBuilderDescriptor.getName()));
     }
 
 }

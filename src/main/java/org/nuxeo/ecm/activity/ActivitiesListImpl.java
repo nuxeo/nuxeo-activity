@@ -151,6 +151,17 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
     }
 
     @Override
+    public List<ActivityMessage> toActivityMessages(Locale locale, String activityLinkBuilderName) {
+        ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+        List<ActivityMessage> messages = new ArrayList<ActivityMessage>();
+        for (Activity activity : this) {
+            messages.add(activityStreamService.toActivityMessage(activity,
+                    locale, activityLinkBuilderName));
+        }
+        return messages;
+    }
+
+    @Override
     public List<Serializable> toActivityIds() {
         List<Serializable> activityIds = new ArrayList<Serializable>();
         for (Activity activity : this) {

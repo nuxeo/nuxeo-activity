@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -87,6 +88,15 @@ public class ActivityReplyMessage implements Serializable {
 
     public Map<String, Object> toMap(CoreSession session, Locale locale)
             throws ClientException {
+        return toMap(session, locale, null);
+    }
+
+    public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
+            throws ClientException {
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(
+                        ActivityStreamService.class).getActivityLinkBuilder(
+                        activityLinkBuilderName);
+
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
                 locale);
 
@@ -97,7 +107,7 @@ public class ActivityReplyMessage implements Serializable {
         o.put("displayActorLink", getDisplayActorLink());
         if (isUser(getActor())) {
             String actorUsername = getUsername(getActor());
-            o.put("actorAvatarURL", ActivityMessageHelper.getUserAvatarURL(
+            o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(
                     session, actorUsername));
         }
         o.put("activityMessage", getMessage());

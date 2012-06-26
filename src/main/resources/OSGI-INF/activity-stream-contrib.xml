@@ -16,4 +16,13 @@
 
   </extension>
 
+  <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
+    point="activityLinkBuilders">
+
+    <activityLinkBuilder name="default"
+      class="org.nuxeo.ecm.activity.DefaultActivityLinkBuilder"
+      default="true" />
+
+  </extension>
+
 </component>

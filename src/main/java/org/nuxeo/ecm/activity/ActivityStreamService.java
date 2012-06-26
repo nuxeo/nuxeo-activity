@@ -90,6 +90,13 @@ public interface ActivityStreamService {
     ActivityMessage toActivityMessage(Activity activity, Locale locale);
 
     /**
+     * Computes an {@link ActivityMessage} from the given {@code activity},
+     * {@code locale} and use .
+     */
+    ActivityMessage toActivityMessage(Activity activity, Locale locale,
+            String activityLinkBuilderName);
+
+    /**
      * Computes an {@link ActivityReplyMessage} from the given
      * {@code activityReply} and {@code locale}.
      *
@@ -99,10 +106,27 @@ public interface ActivityStreamService {
             Locale locale);
 
     /**
+     * Computes an {@link ActivityReplyMessage} from the given
+     * {@code activityReply} and {@code locale}.
+     *
+     * @since 5.6
+     */
+    ActivityReplyMessage toActivityReplyMessage(ActivityReply activityReply,
+            Locale locale, String activityLinkBuilderName);
+
+    /**
      * Returns the {@link ActivityStream} with the given {@code name},
      * {@code null} if it does not exist.
      */
     ActivityStream getActivityStream(String name);
+
+    /**
+     * Returns the {@link ActivityLinkBuilder} with the given {@code name}.
+     * <p>
+     * If {@code name} is {@code null}, or if the {@link ActivityLinkBuilder}
+     * does not exist, fallback on the default one if any.
+     */
+    ActivityLinkBuilder getActivityLinkBuilder(String name);
 
     /**
      * Add an {@link ActivityReply} to the {@link Activity} referenced by the
