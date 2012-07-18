@@ -110,7 +110,7 @@ public class ActivityReplyMessage implements Serializable {
             o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(
                     session, actorUsername));
         }
-        o.put("activityMessage", getMessage());
+        o.put("message", getMessage());
         o.put("publishedDate", dateFormat.format(new Date(getPublishedDate())));
         return o;
     }
