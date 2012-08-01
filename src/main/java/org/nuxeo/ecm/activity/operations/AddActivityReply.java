@@ -106,8 +106,9 @@ public class AddActivityReply {
         m.put("message", replaceURLsByLinks(reply.getMessage()));
         m.put("publishedDate",
                 dateFormat.format(new Date(reply.getPublishedDate())));
+        String username = ActivityHelper.getUsername(reply.getActor());
         m.put("allowDeletion",
-                session.getPrincipal().getName().equals(reply.getActor()));
+                session.getPrincipal().getName().equals(username));
 
         ObjectMapper mapper = new ObjectMapper();
         StringWriter writer = new StringWriter();
