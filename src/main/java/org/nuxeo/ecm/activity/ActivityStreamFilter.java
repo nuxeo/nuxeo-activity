@@ -62,13 +62,23 @@ public interface ActivityStreamFilter {
             Collection<Serializable> activityIds);
 
     /**
-     * Called by the {@code ActivityStreamService} before removing the
-     * given {@code activities}.
+     * Called by the {@code ActivityStreamService} before removing the given
+     * {@code activities}.
      *
      * @since 5.6
      */
     void handleRemovedActivities(ActivityStreamService activityStreamService,
             ActivitiesList activities);
+
+    /**
+     * Called by the {@code ActivityStreamService} before removing the given
+     * {@code activityReply}.
+     *
+     * @since 5.6
+     */
+    void handleRemovedActivityReply(
+            ActivityStreamService activityStreamService, Activity activity,
+            ActivityReply activityReply);
 
     /**
      * Returns the list of activities filtered by the given parameters.

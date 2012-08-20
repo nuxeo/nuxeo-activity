@@ -83,6 +83,12 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
+    public void handleRemovedActivityReply(
+            ActivityStreamService activityStreamService, Activity activity,
+            ActivityReply activityReply) {
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public ActivitiesList query(ActivityStreamService activityStreamService,
             Map<String, Serializable> parameters, long offset, long limit) {
