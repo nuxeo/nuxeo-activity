@@ -349,14 +349,15 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                 displayActor, displayActorLink, message,
                 activityReply.getPublishedDate());
 
-
     }
 
     private List<ActivityReplyMessage> toActivityReplyMessages(
-            List<ActivityReply> replies, Locale locale, String activityLinkBuilderName) {
+            List<ActivityReply> replies, Locale locale,
+            String activityLinkBuilderName) {
         List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
         for (ActivityReply reply : replies) {
-            activityReplyMessages.add(toActivityReplyMessage(reply, locale, activityLinkBuilderName));
+            activityReplyMessages.add(toActivityReplyMessage(reply, locale,
+                    activityLinkBuilderName));
         }
         return activityReplyMessages;
     }
@@ -372,14 +373,30 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         Activity activity = getActivity(activityId);
         if (activity != null) {
             List<ActivityReply> replies = activity.getActivityReplies();
-            String newReplyId = activity.getId() + "-reply-"
-                    + (replies.size() + 1);
+            String newReplyId = computeNewReplyId(activity);
             activityReply.setId(newReplyId);
             replies.add(activityReply);
             activity.setActivityReplies(replies);
             updateActivity(activity);
         }
         return activityReply;
+    }
+
+    /**
+     * @since 5.6
+     */
+    protected String computeNewReplyId(Activity activity) {
+        String replyIdPrefix = activity.getId() + "-reply-";
+        List<ActivityReply> replies = activity.getActivityReplies();
+        long maxId = 0;
+        for (ActivityReply reply : replies) {
+            String replyId = reply.getId();
+            long currentId = Long.valueOf(replyId.replace(replyIdPrefix, ""));
+            if (currentId > maxId) {
+                maxId = currentId;
+            }
+        }
+        return replyIdPrefix + (maxId + 1);
     }
 
     public Activity getActivity(final Serializable activityId) {
@@ -412,22 +429,52 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityReply removeActivityReply(Serializable activityId,
-            String activityReplyId) {
-        Activity activity = getActivity(activityId);
-        if (activity != null) {
-            List<ActivityReply> replies = activity.getActivityReplies();
-            for (Iterator<ActivityReply> it = replies.iterator(); it.hasNext();) {
-                ActivityReply reply = it.next();
-                if (reply.getId().equals(activityReplyId)) {
-                    it.remove();
-                    activity.setActivityReplies(replies);
-                    updateActivity(activity);
-                    return reply;
+    public ActivityReply removeActivityReply(final Serializable activityId,
+            final String activityReplyId) {
+        try {
+            return getOrCreatePersistenceProvider().run(true,
+                    new PersistenceProvider.RunCallback<ActivityReply>() {
+                        @Override
+                        public ActivityReply runWith(EntityManager em) {
+                            return removeActivityReply(em, activityId,
+                                    activityReplyId);
+                        }
+                    });
+        } catch (ClientException e) {
+            throw new ClientRuntimeException(e);
+        }
+
+    }
+
+    /**
+     * @since 5.6
+     */
+    protected ActivityReply removeActivityReply(EntityManager em,
+            Serializable activityId, String activityReplyId) {
+        try {
+            localEntityManager.set(em);
+
+            Activity activity = getActivity(activityId);
+            if (activity != null) {
+                List<ActivityReply> replies = activity.getActivityReplies();
+                for (Iterator<ActivityReply> it = replies.iterator(); it.hasNext();) {
+                    ActivityReply reply = it.next();
+                    if (reply.getId().equals(activityReplyId)) {
+                        for (ActivityStreamFilter filter : activityStreamFilters.values()) {
+                            filter.handleRemovedActivityReply(this, activity,
+                                    reply);
+                        }
+                        it.remove();
+                        activity.setActivityReplies(replies);
+                        updateActivity(activity);
+                        return reply;
+                    }
                 }
             }
+            return null;
+        } finally {
+            localEntityManager.remove();
         }
-        return null;
     }
 
     protected Activity getActivity(EntityManager em, Serializable activityId) {

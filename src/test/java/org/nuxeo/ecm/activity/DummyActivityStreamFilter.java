@@ -63,6 +63,12 @@ public class DummyActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
+    public void handleRemovedActivityReply(
+            ActivityStreamService activityStreamService, Activity activity,
+            ActivityReply activityReply) {
+    }
+
+    @Override
     public ActivitiesList query(ActivityStreamService activityStreamService,
             Map<String, Serializable> parameters, long offset, long limit) {
         ActivitiesList list = new ActivitiesListImpl();
