@@ -22,6 +22,7 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.core.schema.FacetNames.HIDDEN_IN_NAVIGATION;
 import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
+import static org.nuxeo.ecm.core.schema.FacetNames.SYSTEM_DOCUMENT;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -103,7 +104,9 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
                 DocumentModel doc = docEventContext.getSourceDocument();
                 if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION) || doc.isProxy()
+                        || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
+                        || doc.hasFacet(SYSTEM_DOCUMENT) //
+                        || doc.isProxy() //
                         || doc.isVersion()) {
                     // Not really interested in non live document or if document
                     // cannot be reconnected
