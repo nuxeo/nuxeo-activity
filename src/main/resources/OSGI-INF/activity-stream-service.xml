@@ -72,6 +72,14 @@
     <object class="org.nuxeo.ecm.activity.ActivityStream" />
   </extension-point>
 
+  <extension-point name="activityUpgraders">
+    <documentation>
+      An ActivityUpgrader is launched after the repository initialization to
+      do some upgrades if needed on the already existing Activities.
+    </documentation>
+    <object class="org.nuxeo.ecm.activity.ActivityUpgraderDescriptor" />
+  </extension-point>
+
   <require>org.nuxeo.ecm.core.persistence.PersistenceComponent</require>
 
   <extension target="org.nuxeo.ecm.core.persistence.PersistenceComponent"

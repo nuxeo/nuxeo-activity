@@ -57,4 +57,15 @@
 
   </extension>
 
+  <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
+    point="activityUpgraders">
+
+    <activityUpgrader name="dummyUpgrader"
+      class="org.nuxeo.ecm.activity.DummyActivityUpgrader" order="10" />
+
+    <activityUpgrader name="anotherDummyUpgrader"
+      class="org.nuxeo.ecm.activity.DummyActivityUpgrader" order="5" />
+
+  </extension>
+
 </component>
