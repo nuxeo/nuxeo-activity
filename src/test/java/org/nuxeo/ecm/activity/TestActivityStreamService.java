@@ -26,7 +26,6 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -545,6 +544,54 @@ public class TestActivityStreamService {
         for (ActivityReply reply : replies) {
             assertFalse(reply.getMessage().equals("Third reply"));
         }
+    }
+
+    @Test
+    public void testActivityUpgraders() {
+        Activity activity = new ActivityImpl();
+        activity.setActor("Bender");
+        activity.setVerb("hi");
+        activity.setObject("Hello");
+        activityStreamService.addActivity(activity);
+        activity = new ActivityImpl();
+        activity.setActor("Leela");
+        activity.setVerb("hi");
+        activity.setObject("Hello Fry");
+        activityStreamService.addActivity(activity);
+
+        ActivitiesList activities = activityStreamService.query(
+                        ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(2, activities.size());
+
+        activity = activities.get(0);
+        assertEquals("Bender", activity.getActor());
+        activity = activities.get(1);
+        assertEquals("Leela", activity.getActor());
+
+        ((ActivityStreamServiceImpl) activityStreamService).upgradeActivities();
+
+        activities = activityStreamService.query(
+                        ActivityStreamService.ALL_ACTIVITIES, null);
+        assertNotNull(activities);
+        assertEquals(2, activities.size());
+
+        activity = activities.get(0);
+        assertEquals("Dummy Actor", activity.getActor());
+        activity = activities.get(1);
+        assertEquals("Dummy Actor", activity.getActor());
+    }
+
+    @Test
+    public void testActivityUpgradersOrder() {
+        List<ActivityUpgrader> upgraders = ((ActivityStreamServiceImpl) activityStreamService).activityUpgraderRegistry.getOrderedActivityUpgraders();
+        assertEquals(2, upgraders.size());
+        ActivityUpgrader upgrader = upgraders.get(0);
+        assertEquals("anotherDummyUpgrader", upgrader.getName());
+        assertEquals(5, upgrader.getOrder());
+        upgrader = upgraders.get(1);
+        assertEquals("dummyUpgrader", upgrader.getName());
+        assertEquals(10, upgrader.getOrder());
     }
 
 }

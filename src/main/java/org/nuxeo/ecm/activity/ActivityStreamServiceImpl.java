@@ -41,6 +41,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.ClientRuntimeException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.persistence.PersistenceProviderFactory;
+import org.nuxeo.ecm.core.repository.RepositoryInitializationHandler;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.ComponentInstance;
@@ -73,6 +74,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     public static final String ACTIVITY_LINK_BUILDERS_EP = "activityLinkBuilders";
 
+    public static final String ACTIVITY_UPGRADERS_EP = "activityUpgraders";
+
     protected final ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<EntityManager>();
 
     protected final Map<String, ActivityStreamFilter> activityStreamFilters = new HashMap<String, ActivityStreamFilter>();
@@ -83,7 +86,39 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     protected ActivityLinkBuilderRegistry activityLinkBuilderRegistry;
 
+    protected ActivityUpgraderRegistry activityUpgraderRegistry;
+
     protected PersistenceProvider persistenceProvider;
+
+    protected RepositoryInitializationHandler initializationHandler;
+
+    public void upgradeActivities() {
+        for (final ActivityUpgrader upgrader : activityUpgraderRegistry.getOrderedActivityUpgraders()) {
+            try {
+                getOrCreatePersistenceProvider().run(false,
+                        new PersistenceProvider.RunVoid() {
+                            @Override
+                            public void runWith(EntityManager em) {
+                                upgradeActivities(em, upgrader);
+                            }
+                        });
+            } catch (ClientException e) {
+                log.error(String.format(
+                        "Error while running '%s' activity upgrader: %s",
+                        upgrader.getName(), e.getMessage()));
+                log.debug(e, e);
+            }
+        }
+    }
+
+    protected void upgradeActivities(EntityManager em, ActivityUpgrader upgrader) {
+        try {
+            localEntityManager.set(em);
+            upgrader.doUpgrade(this);
+        } finally {
+            localEntityManager.remove();
+        }
+    }
 
     @Override
     public ActivitiesList query(String filterId,
@@ -543,11 +578,20 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         activityStreamRegistry = new ActivityStreamRegistry();
         activityVerbRegistry = new ActivityVerbRegistry();
         activityLinkBuilderRegistry = new ActivityLinkBuilderRegistry();
+        activityUpgraderRegistry = new ActivityUpgraderRegistry();
+
+        initializationHandler = new ActivityRepositoryInitializationHandler();
+        initializationHandler.install();
     }
 
     @Override
     public void deactivate(ComponentContext context) throws Exception {
         deactivatePersistenceProvider();
+
+        if (initializationHandler != null) {
+            initializationHandler.uninstall();
+        }
+
         super.deactivate(context);
     }
 
@@ -565,6 +609,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             registerActivityVerb((ActivityVerb) contribution);
         } else if (ACTIVITY_LINK_BUILDERS_EP.equals(extensionPoint)) {
             registerActivityLinkBuilder((ActivityLinkBuilderDescriptor) contribution);
+        } else if (ACTIVITY_UPGRADERS_EP.equals(extensionPoint)) {
+            registerActivityUpgrader((ActivityUpgraderDescriptor) contribution);
         }
     }
 
@@ -620,6 +666,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         activityLinkBuilderRegistry.addContribution(activityLinkBuilderDescriptor);
     }
 
+    private void registerActivityUpgrader(
+            ActivityUpgraderDescriptor activityUpgraderDescriptor) {
+        log.info(String.format("Registering activity upgrader '%s'",
+                activityUpgraderDescriptor.getName()));
+        activityUpgraderRegistry.addContribution(activityUpgraderDescriptor);
+    }
+
     @Override
     public void unregisterContribution(Object contribution,
             String extensionPoint, ComponentInstance contributor)
@@ -634,6 +687,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             unregisterActivityVerb((ActivityVerb) contribution);
         } else if (ACTIVITY_LINK_BUILDERS_EP.equals(extensionPoint)) {
             unregisterActivityLinkBuilder((ActivityLinkBuilderDescriptor) contribution);
+        } else if (ACTIVITY_UPGRADERS_EP.equals(extensionPoint)) {
+            unregisterActivityUpgrader((ActivityUpgraderDescriptor) contribution);
         }
     }
 
@@ -674,6 +729,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         activityLinkBuilderRegistry.removeContribution(activityLinkBuilderDescriptor);
         log.info(String.format("Unregistering activity link builder '%s'",
                 activityLinkBuilderDescriptor.getName()));
+    }
+
+    private void unregisterActivityUpgrader(
+            ActivityUpgraderDescriptor activityUpgraderDescriptor) {
+        activityUpgraderRegistry.removeContribution(activityUpgraderDescriptor);
+        log.info(String.format("Unregistering activity upgrader '%s'",
+                activityUpgraderDescriptor.getName()));
     }
 
 }
