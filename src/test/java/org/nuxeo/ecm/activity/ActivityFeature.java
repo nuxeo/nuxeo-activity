@@ -36,7 +36,6 @@ import org.nuxeo.runtime.test.runner.SimpleFeature;
  * @since 5.6
  */
 @Features({ TransactionalFeature.class, CoreFeature.class })
-@RepositoryConfig(cleanup = Granularity.METHOD)
 @Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity"})
 @LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
 public class ActivityFeature extends SimpleFeature {

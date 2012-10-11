@@ -35,7 +35,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.ClientException;
@@ -43,6 +43,7 @@ import org.nuxeo.ecm.core.api.ClientRuntimeException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import org.nuxeo.runtime.test.NXRuntimeTestCase;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.transaction.TransactionHelper;
@@ -58,23 +59,14 @@ import com.google.inject.Inject;
 @RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestActivityStreamService {
 
+    @Inject NXRuntimeTestCase harness;
+    
     @Inject
     protected ActivityStreamService activityStreamService;
-
-    @Before
-    public void cleanupDatabase() throws ClientException {
-        ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(
-                true, new PersistenceProvider.RunVoid() {
-                    @Override
-                    public void runWith(EntityManager em) {
-                        Query query = em.createQuery("delete from Activity");
-                        query.executeUpdate();
-                        query = em.createQuery("delete from Tweet");
-                        query.executeUpdate();
-                    }
-                });
-        TransactionHelper.commitOrRollbackTransaction();
-        TransactionHelper.startTransaction();
+    
+    @After
+    public void rollbackTx() {
+        TransactionHelper.setTransactionRollbackOnly();
     }
 
     @Test
