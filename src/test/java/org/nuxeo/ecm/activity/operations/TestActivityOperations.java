@@ -93,8 +93,8 @@ public class TestActivityOperations {
         TransactionHelper.startTransaction();
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void shouldAddAnActivityReply() throws Exception {
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
@@ -133,7 +133,6 @@ public class TestActivityOperations {
         assertEquals("First reply", reply.getMessage());
     }
 
-    @Ignore
     @Test
     public void shouldRemoveAnActivityReply() throws Exception {
         Activity activity = new ActivityImpl();

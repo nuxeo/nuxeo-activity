@@ -17,14 +17,6 @@
 
 package org.nuxeo.ecm.activity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -36,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.ClientException;
@@ -50,6 +43,15 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 
 import com.google.inject.Inject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -60,14 +62,9 @@ import com.google.inject.Inject;
 public class TestActivityStreamService {
 
     @Inject NXRuntimeTestCase harness;
-    
+
     @Inject
     protected ActivityStreamService activityStreamService;
-    
-    @After
-    public void rollbackTx() {
-        TransactionHelper.setTransactionRollbackOnly();
-    }
 
     @Test
     public void serviceRegistration() {

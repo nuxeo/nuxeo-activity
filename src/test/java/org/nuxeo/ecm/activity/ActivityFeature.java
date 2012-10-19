@@ -19,17 +19,16 @@ package org.nuxeo.ecm.activity;
 
 import java.io.File;
 
+import org.junit.runners.model.FrameworkMethod;
 import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.TransactionalFeature;
-import org.nuxeo.ecm.core.test.annotations.BackendType;
-import org.nuxeo.ecm.core.test.annotations.Granularity;
-import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -55,9 +54,8 @@ public class ActivityFeature extends SimpleFeature {
     }
 
     @Override
-    public void stop(FeaturesRunner runner) throws Exception {
-        FileUtils.deleteTree(dir);
-        dir = null;
-        super.stop(runner);
+    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method,
+            Object test) throws Exception {
+        TransactionHelper.setTransactionRollbackOnly();
     }
 }

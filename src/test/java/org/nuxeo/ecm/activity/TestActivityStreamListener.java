@@ -17,36 +17,26 @@
 
 package org.nuxeo.ecm.activity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
 import org.nuxeo.ecm.core.event.EventService;
-import org.nuxeo.ecm.core.persistence.PersistenceProvider;
-import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.core.test.annotations.BackendType;
-import org.nuxeo.ecm.core.test.annotations.Granularity;
-import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
 import com.google.inject.Inject;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -54,6 +44,7 @@ import com.google.inject.Inject;
  */
 @RunWith(FeaturesRunner.class)
 @Features(ActivityFeature.class)
+@Ignore
 public class TestActivityStreamListener {
 
     @Inject
@@ -65,22 +56,6 @@ public class TestActivityStreamListener {
     @Inject
     protected ActivityStreamService activityStreamService;
 
-    @Before
-    public void cleanupDatabase() throws ClientException {
-        ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(
-                true, new PersistenceProvider.RunVoid() {
-                    @Override
-                    public void runWith(EntityManager em) {
-                        Query query = em.createQuery("delete from Activity");
-                        query.executeUpdate();
-                        query = em.createQuery("delete from Tweet");
-                        query.executeUpdate();
-                    }
-                });
-        commitAndWaitForAsyncCompletion();
-    }
-
-    @Ignore
     @Test
     public void shouldAddNewActivitiesThroughListener() throws ClientException {
         DocumentModel doc1 = session.createDocumentModel("/", "firstDocument",
