@@ -15,6 +15,7 @@
 
   <modules>
     <module>nuxeo-activity</module>
+    <module>nuxeo-activity-web</module>
   </modules>
 
   <repositories>

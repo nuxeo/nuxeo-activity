@@ -1,0 +1,36 @@
+<c:if test="true"
+  xmlns:nxu="http://nuxeo.org/nxweb/util"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:c="http://java.sun.com/jstl/core">
+
+  <nxu:set var="docPath" value="#{nxu:test(!empty value, value.pathAsString, '')}">
+
+    <h3 class="summaryTitle">
+      <h:outputText value="#{messages['label.document.activity']}" />
+    </h3>
+
+    <div class="gadget-documentactivitystream gadgets-gadget-chrome fullWidth"></div>
+
+    <script type="text/javascript">
+      jQuery('.gadget-documentactivitystream').openSocialGadget({
+        baseURL: '#{baseURL}',
+        language: '#{localeSelector.language}',
+        gadgetDefs: [
+          { specUrl: '#{gadgetsBaseURL}/site/gadgets/documentactivitystream/documentactivitystream.xml',
+            title: '',
+            userPrefs: {
+              nuxeoTargetContextPath: {
+                value: '#{nxu:javaScriptEscape(docPath)}'
+              }
+            },
+            displayTitleBar: false,
+            width: '100%'
+          }
+        ]
+      });
+    </script>
+
+  </nxu:set>
+
+</c:if>
