@@ -23,6 +23,7 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.core.schema.FacetNames.HIDDEN_IN_NAVIGATION;
 import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
 import static org.nuxeo.ecm.core.schema.FacetNames.SYSTEM_DOCUMENT;
+import static org.nuxeo.ecm.platform.comment.api.CommentEvents.COMMENT_ADDED;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
+import org.nuxeo.ecm.platform.comment.api.CommentEvents;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -56,7 +58,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
     public void handleEvent(EventBundle events) throws ClientException {
         if (events.containsEventName(DOCUMENT_CREATED)
                 || events.containsEventName(DOCUMENT_UPDATED)
-                || events.containsEventName(DOCUMENT_REMOVED)) {
+                || events.containsEventName(DOCUMENT_REMOVED)
+                || events.containsEventName(COMMENT_ADDED)) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -100,13 +103,14 @@ public class ActivityStreamListener implements PostCommitEventListener {
         if (eventContext instanceof DocumentEventContext) {
             if (DOCUMENT_CREATED.equals(event.getName())
                     || DOCUMENT_REMOVED.equals(event.getName())
-                    || DOCUMENT_UPDATED.equals(event.getName())) {
+                    || DOCUMENT_UPDATED.equals(event.getName())
+                    || COMMENT_ADDED.equals(event.getName())) {
                 DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
                 DocumentModel doc = docEventContext.getSourceDocument();
                 if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
-                        || doc.hasFacet(SYSTEM_DOCUMENT) //
-                        || doc.isProxy() //
+                        || doc.hasFacet(HIDDEN_IN_NAVIGATION)
+                        || doc.hasFacet(SYSTEM_DOCUMENT)
+                        || doc.isProxy()
                         || doc.isVersion()) {
                     // Not really interested in non live document or if document
                     // cannot be reconnected

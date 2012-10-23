@@ -14,6 +14,7 @@
       <event>documentCreated</event>
       <event>documentModified</event>
       <event>documentRemoved</event>
+      <event>commentAdded</event>
     </listener>
 
   </extension>

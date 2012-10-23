@@ -13,6 +13,9 @@
     <activityVerb verb="documentRemoved"
       labelKey="label.activity.documentRemoved"
       icon="/icons/activity_document_deletion.png"/>
+    <activityVerb verb="commentAdded"
+      labelKey="label.activity.commentAdded"
+      icon="/icons/activity_comment.png"/>
 
   </extension>
 
