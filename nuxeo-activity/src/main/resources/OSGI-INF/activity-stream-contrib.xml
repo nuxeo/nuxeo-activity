@@ -16,6 +16,9 @@
     <activityVerb verb="commentAdded"
       labelKey="label.activity.commentAdded"
       icon="/icons/activity_comment.png"/>
+    <activityVerb verb="documentRestored"
+      labelKey="label.activity.documentRestored"
+      icon="/icons/activity_comment.png"/>
 
   </extension>
 

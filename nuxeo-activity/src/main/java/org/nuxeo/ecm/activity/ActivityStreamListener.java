@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_RESTORED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.core.schema.FacetNames.HIDDEN_IN_NAVIGATION;
 import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
@@ -42,7 +43,6 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
-import org.nuxeo.ecm.platform.comment.api.CommentEvents;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -59,7 +59,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
         if (events.containsEventName(DOCUMENT_CREATED)
                 || events.containsEventName(DOCUMENT_UPDATED)
                 || events.containsEventName(DOCUMENT_REMOVED)
-                || events.containsEventName(COMMENT_ADDED)) {
+                || events.containsEventName(COMMENT_ADDED)
+                || events.containsEventName(DOCUMENT_RESTORED)) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -109,8 +110,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 DocumentModel doc = docEventContext.getSourceDocument();
                 if (doc instanceof ShallowDocumentModel
                         || doc.hasFacet(HIDDEN_IN_NAVIGATION)
-                        || doc.hasFacet(SYSTEM_DOCUMENT)
-                        || doc.isProxy()
+                        || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
                         || doc.isVersion()) {
                     // Not really interested in non live document or if document
                     // cannot be reconnected
@@ -134,6 +134,42 @@ public class ActivityStreamListener implements PostCommitEventListener {
                             session.getRepositoryName(), ref.toString());
                     activity = toActivity(docEventContext, event, context);
                     activityStreamService.addActivity(activity);
+                }
+            } else if (DOCUMENT_RESTORED.equals(event.getName())) {
+                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
+                DocumentModel doc = docEventContext.getSourceDocument();
+                if (doc instanceof ShallowDocumentModel
+                        || doc.hasFacet(HIDDEN_IN_NAVIGATION)
+                        || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
+                        || doc.isVersion()) {
+                    // Not really interested in non live document or if document
+                    // cannot be reconnected
+                    // or if not visible
+                    return;
+                }
+
+                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
+                    // do not log activity for system principal
+                    return;
+                }
+
+                // add activity without context
+                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+                Principal principal = docEventContext.getPrincipal();
+                Activity activity = new ActivityBuilder().actor(
+                        ActivityHelper.createUserActivityObject(principal)).displayActor(
+                        ActivityHelper.generateDisplayName(principal)).verb(
+                        event.getName()).object(doc.getVersionLabel()).target(
+                        ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
+                        ActivityHelper.getDocumentTitle(doc)).build();
+                activityStreamService.addActivity(activity);
+
+                CoreSession session = docEventContext.getCoreSession();
+                for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
+                    String context = ActivityHelper.createDocumentActivityObject(
+                            session.getRepositoryName(), ref.toString());
+                    activityStreamService.addActivity(new ActivityBuilder(
+                            activity).context(context).build());
                 }
             }
         }

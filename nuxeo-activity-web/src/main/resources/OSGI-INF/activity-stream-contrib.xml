@@ -17,6 +17,7 @@
         <verb>documentCreated</verb>
         <verb>documentModified</verb>
         <verb>commentAdded</verb>
+        <verb>documentRestored</verb>
       </verbs>
     </activityStream>
 
