@@ -35,6 +35,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.event.Event;
@@ -43,6 +44,8 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
+import org.nuxeo.ecm.platform.routing.api.DocumentRoute;
+import org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -60,7 +63,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 || events.containsEventName(DOCUMENT_UPDATED)
                 || events.containsEventName(DOCUMENT_REMOVED)
                 || events.containsEventName(COMMENT_ADDED)
-                || events.containsEventName(DOCUMENT_RESTORED)) {
+                || events.containsEventName(DOCUMENT_RESTORED)
+                || events.containsEventName(DocumentRoutingConstants.Events.beforeRouteStart.name())) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -170,6 +174,31 @@ public class ActivityStreamListener implements PostCommitEventListener {
                             session.getRepositoryName(), ref.toString());
                     activityStreamService.addActivity(new ActivityBuilder(
                             activity).context(context).build());
+                }
+            } else if (DocumentRoutingConstants.Events.beforeRouteStart.name().equals(event.getName())) {
+                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
+                DocumentRoute route = (DocumentRoute) eventContext.getProperty(DocumentRoutingConstants.DOCUMENT_ELEMENT_EVENT_CONTEXT_KEY);
+                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+                if (route != null) {
+                    List<String> docIds = route.getAttachedDocuments();
+                    for (String docId : docIds) {
+                        CoreSession session = docEventContext.getCoreSession();
+                        DocumentModel doc = session.getDocument(new IdRef(docId));
+                        Principal principal = docEventContext.getPrincipal();
+                        Activity activity = new ActivityBuilder().actor(
+                                ActivityHelper.createUserActivityObject(principal)).displayActor(
+                                ActivityHelper.generateDisplayName(principal)).verb("workflowStarted").object(route.getName()).target(
+                                ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
+                                ActivityHelper.getDocumentTitle(doc)).build();
+                        activityStreamService.addActivity(activity);
+
+                        for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
+                            String context = ActivityHelper.createDocumentActivityObject(
+                                    session.getRepositoryName(), ref.toString());
+                            activityStreamService.addActivity(new ActivityBuilder(
+                                    activity).context(context).build());
+                        }
+                    }
                 }
             }
         }

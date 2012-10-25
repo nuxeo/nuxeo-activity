@@ -18,7 +18,10 @@
       icon="/icons/activity_comment.png"/>
     <activityVerb verb="documentRestored"
       labelKey="label.activity.documentRestored"
-      icon="/icons/activity_comment.png"/>
+      icon="/icons/activity_restore.png"/>
+    <activityVerb verb="workflowStarted"
+      labelKey="label.activity.workflowStarted"
+      icon="/icons/activity_workflow.png"/>
 
   </extension>
 

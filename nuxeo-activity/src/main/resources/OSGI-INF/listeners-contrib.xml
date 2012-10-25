@@ -16,6 +16,7 @@
       <event>documentRemoved</event>
       <event>commentAdded</event>
       <event>documentRestored</event>
+      <event>beforeRouteStart</event>
     </listener>
 
   </extension>

@@ -18,6 +18,7 @@
         <verb>documentModified</verb>
         <verb>commentAdded</verb>
         <verb>documentRestored</verb>
+        <verb>workflowStarted</verb>
       </verbs>
     </activityStream>
 
