@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -44,6 +46,7 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
+import org.nuxeo.ecm.platform.publisher.api.PublishingEvent;
 import org.nuxeo.ecm.platform.routing.api.DocumentRoute;
 import org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants;
 import org.nuxeo.runtime.api.Framework;
@@ -56,6 +59,7 @@ import org.nuxeo.runtime.api.Framework;
  * @since 5.5
  */
 public class ActivityStreamListener implements PostCommitEventListener {
+    private static final Log log = LogFactory.getLog(ActivityStreamListener.class);
 
     @Override
     public void handleEvent(EventBundle events) throws ClientException {
@@ -64,7 +68,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 || events.containsEventName(DOCUMENT_REMOVED)
                 || events.containsEventName(COMMENT_ADDED)
                 || events.containsEventName(DOCUMENT_RESTORED)
-                || events.containsEventName(DocumentRoutingConstants.Events.beforeRouteStart.name())) {
+                || events.containsEventName(DocumentRoutingConstants.Events.beforeRouteStart.name())
+                || events.containsEventName(PublishingEvent.documentPublished.name())) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -175,7 +180,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
                     activityStreamService.addActivity(new ActivityBuilder(
                             activity).context(context).build());
                 }
-            } else if (DocumentRoutingConstants.Events.beforeRouteStart.name().equals(event.getName())) {
+            } else if (DocumentRoutingConstants.Events.beforeRouteStart.name().equals(
+                    event.getName())) {
                 DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
                 DocumentRoute route = (DocumentRoute) eventContext.getProperty(DocumentRoutingConstants.DOCUMENT_ELEMENT_EVENT_CONTEXT_KEY);
                 ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
@@ -187,17 +193,49 @@ public class ActivityStreamListener implements PostCommitEventListener {
                         Principal principal = docEventContext.getPrincipal();
                         Activity activity = new ActivityBuilder().actor(
                                 ActivityHelper.createUserActivityObject(principal)).displayActor(
-                                ActivityHelper.generateDisplayName(principal)).verb("workflowStarted").object(route.getName()).target(
+                                ActivityHelper.generateDisplayName(principal)).verb(
+                                "workflowStarted").object(route.getName()).target(
                                 ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
                                 ActivityHelper.getDocumentTitle(doc)).build();
                         activityStreamService.addActivity(activity);
 
-                        for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
+                        for (DocumentRef ref : getParentSuperSpaceRefs(session,
+                                doc)) {
                             String context = ActivityHelper.createDocumentActivityObject(
                                     session.getRepositoryName(), ref.toString());
                             activityStreamService.addActivity(new ActivityBuilder(
                                     activity).context(context).build());
                         }
+                    }
+                }
+            } else if (PublishingEvent.documentPublished.name().equals(
+                    event.getName())) {
+                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
+                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
+                    // do not log activity for system principal
+                    return;
+                }
+
+                DocumentModel proxy = docEventContext.getSourceDocument();
+                CoreSession session = docEventContext.getCoreSession();
+                if (proxy.isProxy()) {
+                    DocumentModel version = session.getSourceDocument(proxy.getRef());
+                    DocumentModel liveDoc = session.getSourceDocument(version.getRef());
+
+                    // Build an activity for this live doc publishing
+                    Principal principal = docEventContext.getPrincipal();
+                    Activity activity = newPublishedInSectionActivity(event,
+                            proxy, session, liveDoc, principal);
+
+                    ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+                    activityStreamService.addActivity(activity);
+
+                    for (DocumentRef ref : getParentSuperSpaceRefs(session,
+                            liveDoc)) {
+                        String context = ActivityHelper.createDocumentActivityObject(
+                                session.getRepositoryName(), ref.toString());
+                        activity = toActivity(docEventContext, event, context);
+                        activityStreamService.addActivity(activity);
                     }
                 }
             }
@@ -223,6 +261,29 @@ public class ActivityStreamListener implements PostCommitEventListener {
                         doc.getRepositoryName(), doc.getParentRef().toString())).displayTarget(
                 getDocumentTitle(docEventContext.getCoreSession(),
                         doc.getParentRef())).context(context).build();
+    }
+
+    protected Activity newPublishedInSectionActivity(Event event,
+            DocumentModel proxy, CoreSession session, DocumentModel liveDoc,
+            Principal principal) {
+        return newPublishedInSectionActivity(event, proxy, session, liveDoc,
+                principal, null);
+    }
+
+    protected Activity newPublishedInSectionActivity(Event event,
+            DocumentModel proxy, CoreSession session, DocumentModel liveDoc,
+            Principal principal, String context) {
+        return new ActivityBuilder().actor(
+                ActivityHelper.createUserActivityObject(principal)).displayActor(
+                ActivityHelper.generateDisplayName(principal)).verb(
+                event.getName()).object(
+                ActivityHelper.createDocumentActivityObject(liveDoc)).displayObject(
+                ActivityHelper.getDocumentTitle(liveDoc)).target(
+                ActivityHelper.createDocumentActivityObject(
+                        proxy.getRepositoryName(),
+                        proxy.getParentRef().toString())).displayTarget(
+                getDocumentTitle(session, proxy.getParentRef())).context(
+                context).build();
     }
 
     private String getDocumentTitle(CoreSession session, DocumentRef docRef) {

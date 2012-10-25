@@ -22,7 +22,9 @@
     <activityVerb verb="workflowStarted"
       labelKey="label.activity.workflowStarted"
       icon="/icons/activity_workflow.png"/>
-
+    <activityVerb verb="documentPublished"
+      labelKey="label.activity.documentPublished"
+      icon="/icons/activity_document_publishing.png"/>
   </extension>
 
   <extension target="org.nuxeo.ecm.activity.ActivityStreamService"

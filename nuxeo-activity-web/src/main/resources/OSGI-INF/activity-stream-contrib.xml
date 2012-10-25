@@ -19,6 +19,7 @@
         <verb>commentAdded</verb>
         <verb>documentRestored</verb>
         <verb>workflowStarted</verb>
+        <verb>documentPublished</verb>
       </verbs>
     </activityStream>
 
