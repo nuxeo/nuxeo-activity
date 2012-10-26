@@ -113,6 +113,9 @@ public class TestActivityStreamListener {
                 storedActivity.getTarget());
     }
 
+    /**
+     * Cannot play with, tx should be rollabacked
+     */
     private void commitAndWaitForAsyncCompletion() {
         TransactionHelper.commitOrRollbackTransaction();
         TransactionHelper.startTransaction();

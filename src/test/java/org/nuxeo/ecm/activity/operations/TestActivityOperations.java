@@ -77,22 +77,6 @@ public class TestActivityOperations {
     @Inject
     protected AutomationService automationService;
 
-    @Before
-    public void cleanupDatabase() throws ClientException {
-        ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(
-                true, new PersistenceProvider.RunVoid() {
-                    @Override
-                    public void runWith(EntityManager em) {
-                        Query query = em.createQuery("delete from Activity");
-                        query.executeUpdate();
-                        query = em.createQuery("delete from Tweet");
-                        query.executeUpdate();
-                    }
-                });
-        TransactionHelper.commitOrRollbackTransaction();
-        TransactionHelper.startTransaction();
-    }
-
     @Test
     @Ignore
     public void shouldAddAnActivityReply() throws Exception {
