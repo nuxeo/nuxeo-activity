@@ -59,17 +59,14 @@ import org.nuxeo.runtime.api.Framework;
  * @since 5.5
  */
 public class ActivityStreamListener implements PostCommitEventListener {
+
     private static final Log log = LogFactory.getLog(ActivityStreamListener.class);
+
+    public static final String WORKFLOW_STARTED_VERB = "workflowStarted";
 
     @Override
     public void handleEvent(EventBundle events) throws ClientException {
-        if (events.containsEventName(DOCUMENT_CREATED)
-                || events.containsEventName(DOCUMENT_UPDATED)
-                || events.containsEventName(DOCUMENT_REMOVED)
-                || events.containsEventName(COMMENT_ADDED)
-                || events.containsEventName(DOCUMENT_RESTORED)
-                || events.containsEventName(DocumentRoutingConstants.Events.beforeRouteStart.name())
-                || events.containsEventName(PublishingEvent.documentPublished.name())) {
+        if (shouldHandle(events)) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -77,14 +74,22 @@ public class ActivityStreamListener implements PostCommitEventListener {
         }
     }
 
+    private boolean shouldHandle(EventBundle events) {
+        return events.containsEventName(DOCUMENT_CREATED)
+                || events.containsEventName(DOCUMENT_UPDATED)
+                || events.containsEventName(DOCUMENT_REMOVED)
+                || events.containsEventName(COMMENT_ADDED)
+                || events.containsEventName(DOCUMENT_RESTORED)
+                || events.containsEventName(DocumentRoutingConstants.Events.beforeRouteStart.name())
+                || events.containsEventName(PublishingEvent.documentPublished.name());
+    }
+
     private List<Event> filterDuplicateEvents(EventBundle events) {
         List<Event> filteredEvents = new ArrayList<Event>();
-
         for (Event event : events) {
             filteredEvents = removeEventIfExist(filteredEvents, event);
             filteredEvents.add(event);
         }
-
         return filteredEvents;
     }
 
@@ -110,180 +115,181 @@ public class ActivityStreamListener implements PostCommitEventListener {
 
     private void handleEvent(Event event) throws ClientException {
         EventContext eventContext = event.getContext();
-        if (eventContext instanceof DocumentEventContext) {
-            if (DOCUMENT_CREATED.equals(event.getName())
-                    || DOCUMENT_REMOVED.equals(event.getName())
-                    || DOCUMENT_UPDATED.equals(event.getName())
-                    || COMMENT_ADDED.equals(event.getName())) {
-                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
-                DocumentModel doc = docEventContext.getSourceDocument();
-                if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION)
-                        || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
-                        || doc.isVersion()) {
-                    // Not really interested in non live document or if document
-                    // cannot be reconnected
-                    // or if not visible
-                    return;
-                }
+        if (isSystemPrincipal(eventContext)) {
+            // do not log activity for system principal
+            return;
+        }
 
-                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
-                    // do not log activity for system principal
-                    return;
-                }
+        if (!(eventContext instanceof DocumentEventContext)) {
+            return;
+        }
+        DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
+        CoreSession session = docEventContext.getCoreSession();
+        Principal principal = docEventContext.getPrincipal();
+        DocumentModel sourceDoc = docEventContext.getSourceDocument();
 
-                // add activity without context
-                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-                Activity activity = toActivity(docEventContext, event);
-                activityStreamService.addActivity(activity);
-
-                CoreSession session = docEventContext.getCoreSession();
-                for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
-                    String context = ActivityHelper.createDocumentActivityObject(
-                            session.getRepositoryName(), ref.toString());
-                    activity = toActivity(docEventContext, event, context);
-                    activityStreamService.addActivity(activity);
-                }
-            } else if (DOCUMENT_RESTORED.equals(event.getName())) {
-                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
-                DocumentModel doc = docEventContext.getSourceDocument();
-                if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION)
-                        || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
-                        || doc.isVersion()) {
-                    // Not really interested in non live document or if document
-                    // cannot be reconnected
-                    // or if not visible
-                    return;
-                }
-
-                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
-                    // do not log activity for system principal
-                    return;
-                }
-
-                // add activity without context
-                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-                Principal principal = docEventContext.getPrincipal();
-                Activity activity = new ActivityBuilder().actor(
-                        ActivityHelper.createUserActivityObject(principal)).displayActor(
-                        ActivityHelper.generateDisplayName(principal)).verb(
-                        event.getName()).object(doc.getVersionLabel()).target(
-                        ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
-                        ActivityHelper.getDocumentTitle(doc)).build();
-                activityStreamService.addActivity(activity);
-
-                CoreSession session = docEventContext.getCoreSession();
-                for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
-                    String context = ActivityHelper.createDocumentActivityObject(
-                            session.getRepositoryName(), ref.toString());
-                    activityStreamService.addActivity(new ActivityBuilder(
-                            activity).context(context).build());
-                }
-            } else if (DocumentRoutingConstants.Events.beforeRouteStart.name().equals(
-                    event.getName())) {
-                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
-                DocumentRoute route = (DocumentRoute) eventContext.getProperty(DocumentRoutingConstants.DOCUMENT_ELEMENT_EVENT_CONTEXT_KEY);
-                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-                if (route != null) {
-                    List<String> docIds = route.getAttachedDocuments();
-                    for (String docId : docIds) {
-                        CoreSession session = docEventContext.getCoreSession();
-                        DocumentModel doc = session.getDocument(new IdRef(docId));
-                        Principal principal = docEventContext.getPrincipal();
-                        Activity activity = new ActivityBuilder().actor(
-                                ActivityHelper.createUserActivityObject(principal)).displayActor(
-                                ActivityHelper.generateDisplayName(principal)).verb(
-                                "workflowStarted").object(route.getName()).target(
-                                ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
-                                ActivityHelper.getDocumentTitle(doc)).build();
-                        activityStreamService.addActivity(activity);
-
-                        for (DocumentRef ref : getParentSuperSpaceRefs(session,
-                                doc)) {
-                            String context = ActivityHelper.createDocumentActivityObject(
-                                    session.getRepositoryName(), ref.toString());
-                            activityStreamService.addActivity(new ActivityBuilder(
-                                    activity).context(context).build());
-                        }
-                    }
-                }
-            } else if (PublishingEvent.documentPublished.name().equals(
-                    event.getName())) {
-                DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
-                if (docEventContext.getPrincipal() instanceof SystemPrincipal) {
-                    // do not log activity for system principal
-                    return;
-                }
-
-                DocumentModel proxy = docEventContext.getSourceDocument();
-                CoreSession session = docEventContext.getCoreSession();
-                if (proxy.isProxy()) {
-                    DocumentModel version = session.getSourceDocument(proxy.getRef());
-                    DocumentModel liveDoc = session.getSourceDocument(version.getRef());
-
-                    // Build an activity for this live doc publishing
-                    Principal principal = docEventContext.getPrincipal();
-                    Activity activity = newPublishedInSectionActivity(event,
-                            proxy, session, liveDoc, principal);
-
-                    ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-                    activityStreamService.addActivity(activity);
-
-                    for (DocumentRef ref : getParentSuperSpaceRefs(session,
-                            liveDoc)) {
-                        String context = ActivityHelper.createDocumentActivityObject(
-                                session.getRepositoryName(), ref.toString());
-                        activity = toActivity(docEventContext, event, context);
-                        activityStreamService.addActivity(activity);
-                    }
-                }
-            }
+        String eventName = event.getName();
+        if (isDocumentEvent(eventName) || isCommentEvent(eventName)) {
+            addDocumentActivities(session, sourceDoc, principal, eventName);
+        } else if (isRestoreEvent(eventName)) {
+            addRestoreActivities(session, sourceDoc, principal, eventName);
+        } else if (isPublishEvent(eventName)) {
+            addPublishActivities(session, sourceDoc, principal, eventName);
+        } else if (isWorkflowStartEvent(eventName)) {
+            addWorkflowStartActivities(docEventContext, session, principal);
         }
     }
 
-    private Activity toActivity(DocumentEventContext docEventContext,
-            Event event) {
-        return toActivity(docEventContext, event, null);
+    private boolean isSystemPrincipal(EventContext ctx) {
+        return ctx.getPrincipal() instanceof SystemPrincipal;
     }
 
-    private Activity toActivity(DocumentEventContext docEventContext,
-            Event event, String context) {
-        Principal principal = docEventContext.getPrincipal();
-        DocumentModel doc = docEventContext.getSourceDocument();
+    private boolean isDocumentEvent(String eventName) {
+        return DOCUMENT_CREATED.equals(eventName)
+                || DOCUMENT_UPDATED.equals(eventName)
+                || DOCUMENT_REMOVED.equals(eventName);
+    }
+
+    private boolean isCommentEvent(String eventName) {
+        return COMMENT_ADDED.equals(eventName);
+    }
+
+    private boolean isRestoreEvent(String eventName) {
+        return DOCUMENT_RESTORED.equals(eventName);
+    }
+
+    private boolean isPublishEvent(String eventName) {
+        return PublishingEvent.documentPublished.name().equals(eventName);
+    }
+
+    private boolean isWorkflowStartEvent(String eventName) {
+        return DocumentRoutingConstants.Events.beforeRouteStart.name().equals(
+                eventName);
+    }
+
+    private void addDocumentActivities(CoreSession session, DocumentModel doc,
+            Principal principal, String eventName) throws ClientException {
+        if (doc instanceof ShallowDocumentModel
+                || doc.hasFacet(HIDDEN_IN_NAVIGATION)
+                || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
+                || doc.isVersion()) {
+            // Not really interested in non live document or if document
+            // cannot be reconnected
+            // or if not visible
+            return;
+        }
+
+        Activity activity = newDocumentActivity(session, doc, principal,
+                eventName);
+        addActivitiesWithContext(activity, session, doc);
+    }
+
+    private Activity newDocumentActivity(CoreSession session,
+            DocumentModel doc, Principal principal, String eventName) {
         return new ActivityBuilder().actor(
                 ActivityHelper.createUserActivityObject(principal)).displayActor(
-                ActivityHelper.generateDisplayName(principal)).verb(
-                event.getName()).object(
+                ActivityHelper.generateDisplayName(principal)).verb(eventName).object(
                 ActivityHelper.createDocumentActivityObject(doc)).displayObject(
                 ActivityHelper.getDocumentTitle(doc)).target(
                 ActivityHelper.createDocumentActivityObject(
                         doc.getRepositoryName(), doc.getParentRef().toString())).displayTarget(
-                getDocumentTitle(docEventContext.getCoreSession(),
-                        doc.getParentRef())).context(context).build();
+                getDocumentTitle(session, doc.getParentRef())).build();
     }
 
-    protected Activity newPublishedInSectionActivity(Event event,
-            DocumentModel proxy, CoreSession session, DocumentModel liveDoc,
-            Principal principal) {
-        return newPublishedInSectionActivity(event, proxy, session, liveDoc,
-                principal, null);
+    private void addActivitiesWithContext(Activity baseActivity,
+            CoreSession session, DocumentModel doc) throws ClientException {
+        List<Activity> activities = computeActivitiesWithContext(baseActivity,
+                session, doc);
+        activities.add(0, baseActivity);
+        ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+        activityStreamService.addActivities(activities);
     }
 
-    protected Activity newPublishedInSectionActivity(Event event,
-            DocumentModel proxy, CoreSession session, DocumentModel liveDoc,
-            Principal principal, String context) {
+    private List<Activity> computeActivitiesWithContext(Activity activity,
+            CoreSession session, DocumentModel doc) throws ClientException {
+        List<Activity> activities = new ArrayList<Activity>();
+        for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
+            String context = ActivityHelper.createDocumentActivityObject(
+                    session.getRepositoryName(), ref.toString());
+            activities.add(new ActivityBuilder(activity).context(context).build());
+        }
+        return activities;
+    }
+
+    private void addRestoreActivities(CoreSession session, DocumentModel doc,
+            Principal principal, String eventName) throws ClientException {
+        if (doc instanceof ShallowDocumentModel
+                || doc.hasFacet(HIDDEN_IN_NAVIGATION)
+                || doc.hasFacet(SYSTEM_DOCUMENT) || doc.isProxy()
+                || doc.isVersion()) {
+            // Not really interested in non live document or if document
+            // cannot be reconnected
+            // or if not visible
+            return;
+        }
+
+        Activity activity = newRestoreActivity(doc, principal, eventName);
+        addActivitiesWithContext(activity, session, doc);
+    }
+
+    private Activity newRestoreActivity(DocumentModel doc, Principal principal,
+            String eventName) {
         return new ActivityBuilder().actor(
                 ActivityHelper.createUserActivityObject(principal)).displayActor(
-                ActivityHelper.generateDisplayName(principal)).verb(
-                event.getName()).object(
+                ActivityHelper.generateDisplayName(principal)).verb(eventName).object(
+                doc.getVersionLabel()).target(
+                ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
+                ActivityHelper.getDocumentTitle(doc)).build();
+    }
+
+    private void addPublishActivities(CoreSession session, DocumentModel doc,
+            Principal principal, String eventName) throws ClientException {
+        if (doc.isProxy()) {
+            DocumentModel version = session.getSourceDocument(doc.getRef());
+            DocumentModel liveDoc = session.getSourceDocument(version.getRef());
+
+            Activity activity = newPublishActivity(session, doc, liveDoc,
+                    principal, eventName);
+            addActivitiesWithContext(activity, session, doc);
+        }
+    }
+
+    private Activity newPublishActivity(CoreSession session,
+            DocumentModel proxy, DocumentModel liveDoc, Principal principal,
+            String eventName) {
+        return new ActivityBuilder().actor(
+                ActivityHelper.createUserActivityObject(principal)).displayActor(
+                ActivityHelper.generateDisplayName(principal)).verb(eventName).object(
                 ActivityHelper.createDocumentActivityObject(liveDoc)).displayObject(
                 ActivityHelper.getDocumentTitle(liveDoc)).target(
                 ActivityHelper.createDocumentActivityObject(
                         proxy.getRepositoryName(),
                         proxy.getParentRef().toString())).displayTarget(
-                getDocumentTitle(session, proxy.getParentRef())).context(
-                context).build();
+                getDocumentTitle(session, proxy.getParentRef())).build();
+    }
+
+    private void addWorkflowStartActivities(EventContext eventContext,
+            CoreSession session, Principal principal) throws ClientException {
+        DocumentRoute route = (DocumentRoute) eventContext.getProperty(DocumentRoutingConstants.DOCUMENT_ELEMENT_EVENT_CONTEXT_KEY);
+        if (route != null) {
+            List<String> docIds = route.getAttachedDocuments();
+            for (String docId : docIds) {
+                DocumentModel doc = session.getDocument(new IdRef(docId));
+                Activity activity = newWorkflowStartActivity(doc, route,
+                        principal);
+                addActivitiesWithContext(activity, session, doc);
+            }
+        }
+    }
+
+    private Activity newWorkflowStartActivity(DocumentModel doc,
+            DocumentRoute route, Principal principal) {
+        return new ActivityBuilder().actor(
+                ActivityHelper.createUserActivityObject(principal)).displayActor(
+                ActivityHelper.generateDisplayName(principal)).verb(
+                WORKFLOW_STARTED_VERB).object(route.getName()).target(
+                ActivityHelper.createDocumentActivityObject(doc)).displayTarget(
+                ActivityHelper.getDocumentTitle(doc)).build();
     }
 
     private String getDocumentTitle(CoreSession session, DocumentRef docRef) {
