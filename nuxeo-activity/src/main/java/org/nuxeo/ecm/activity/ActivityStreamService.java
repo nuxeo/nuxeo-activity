@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,6 +48,12 @@ public interface ActivityStreamService {
      * Add and store a new {@code Activity}.
      */
     Activity addActivity(Activity activity);
+
+    /**
+     * Add and store new {@code Activities}.
+     * @since 5.7
+     */
+    List<Activity> addActivities(List<Activity> activities);
 
     /**
      * Remove the given {@code activities}.

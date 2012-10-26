@@ -231,6 +231,15 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
+    public List<Activity> addActivities(List<Activity> activities) {
+        List<Activity> addedActivities = new ArrayList<Activity>();
+        for (Activity activity : activities) {
+            addedActivities.add(addActivity(activity));
+        }
+        return addedActivities;
+    }
+
+    @Override
     public void removeActivities(final Collection<Activity> activities) {
         if (activities == null || activities.isEmpty()) {
             return;
