@@ -71,8 +71,15 @@ public class TestActivityStreamService {
         assertNotNull(activityStreamService);
     }
 
+    protected int getOffset() {
+        return activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null).size();
+    }
+
     @Test
     public void shouldStoreAnActivity() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -81,7 +88,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivity(activity);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -93,6 +100,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldCallRegisteredActivityStreamFilter() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -104,7 +113,7 @@ public class TestActivityStreamService {
         assertEquals(2, filters.size());
 
         List<Activity> activities = activityStreamService.query(
-                DummyActivityStreamFilter.ID, null);
+                DummyActivityStreamFilter.ID, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -132,31 +141,33 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldHandlePagination() {
+        int offset = getOffset();
+
         addTestActivities(10);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 5);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 5);
         assertEquals(5, activities.size());
         for (int i = 0; i < 5; i++) {
             assertEquals("activity" + i, activities.get(i).getObject());
         }
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 5, 5);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 5);
         assertEquals(5, activities.size());
         for (int i = 5; i < 10; i++) {
             assertEquals("activity" + i, activities.get(i - 5).getObject());
         }
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 15);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 15);
         assertEquals(10, activities.size());
         for (int i = 0; i < 10; i++) {
             assertEquals("activity" + i, activities.get(i).getObject());
         }
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 15, 5);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 5);
         assertEquals(0, activities.size());
     }
 
@@ -173,30 +184,32 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldRemoveActivities() {
+        int offset = getOffset();
+
         addTestActivities(10);
 
         List<Activity> allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertEquals(10, allActivities.size());
 
         Activity firstActivity = allActivities.get(0);
         activityStreamService.removeActivities(Collections.singleton(firstActivity));
 
         allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertEquals(9, allActivities.size());
         assertFalse(allActivities.contains(firstActivity));
 
         List<Activity> activities = allActivities.subList(0, 4);
         activityStreamService.removeActivities(activities);
         allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertEquals(5, allActivities.size());
 
         activities = allActivities.subList(0, 5);
         activityStreamService.removeActivities(activities);
         allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, 0);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertTrue(allActivities.isEmpty());
     }
 
@@ -233,6 +246,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldStoreTweetActivities() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb(TweetActivityStreamFilter.TWEET_VERB);
@@ -243,7 +258,7 @@ public class TestActivityStreamService {
         Map<String, Serializable> parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Bob");
         List<Activity> activities = activityStreamService.query(
-                TweetActivityStreamFilter.ID, parameters);
+                TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
         Activity storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -253,7 +268,7 @@ public class TestActivityStreamService {
         parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Joe");
         activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters);
+                parameters, offset, 999);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -263,7 +278,7 @@ public class TestActivityStreamService {
         parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "John");
         activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters);
+                parameters, offset, 999);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -273,6 +288,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldRemoveTweets() throws ClientException {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb(TweetActivityStreamFilter.TWEET_VERB);
@@ -283,7 +300,7 @@ public class TestActivityStreamService {
         Map<String, Serializable> parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Bob");
         List<Activity> activities = activityStreamService.query(
-                TweetActivityStreamFilter.ID, parameters);
+                TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
 
         List<TweetActivity> tweets = getAllTweetActivities();
@@ -291,11 +308,11 @@ public class TestActivityStreamService {
 
         activityStreamService.removeActivities(Collections.singleton(activity));
         activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters);
+                parameters, offset, 999);
         assertTrue(activities.isEmpty());
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertTrue(activities.isEmpty());
 
         tweets = getAllTweetActivities();
@@ -342,6 +359,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldStoreAnActivityReply() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -350,7 +369,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivity(activity);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -366,7 +385,7 @@ public class TestActivityStreamService {
         assertEquals(storedActivity.getId() + "-reply-1", storedReply.getId());
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -384,6 +403,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldStoreMultipleActivityReplies() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -392,7 +413,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivity(activity);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -416,7 +437,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivityReply(storedActivity.getId(), fourthReply);
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -453,6 +474,8 @@ public class TestActivityStreamService {
 
     @Test
     public void shouldRemoveActivityReply() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -461,7 +484,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivity(activity);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -485,7 +508,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivityReply(storedActivity.getId(), fourthReply);
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -521,7 +544,7 @@ public class TestActivityStreamService {
 
         activityStreamService.removeActivityReply(activity.getId(), thirdReply.getId());
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -537,6 +560,8 @@ public class TestActivityStreamService {
 
     @Test
     public void testActivityUpgraders() {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Bender");
         activity.setVerb("hi");
@@ -549,7 +574,7 @@ public class TestActivityStreamService {
         activityStreamService.addActivity(activity);
 
         ActivitiesList activities = activityStreamService.query(
-                        ActivityStreamService.ALL_ACTIVITIES, null);
+                        ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(2, activities.size());
 
@@ -561,7 +586,7 @@ public class TestActivityStreamService {
         ((ActivityStreamServiceImpl) activityStreamService).upgradeActivities();
 
         activities = activityStreamService.query(
-                        ActivityStreamService.ALL_ACTIVITIES, null);
+                        ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(2, activities.size());
 

@@ -77,6 +77,11 @@ public class TestActivityOperations {
     @Inject
     protected AutomationService automationService;
 
+    protected int getOffset() {
+        return activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null).size();
+    }
+
     @Test
     @Ignore
     public void shouldAddAnActivityReply() throws Exception {
@@ -119,6 +124,8 @@ public class TestActivityOperations {
 
     @Test
     public void shouldRemoveAnActivityReply() throws Exception {
+        int offset = getOffset();
+
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");
         activity.setVerb("test");
@@ -138,7 +145,7 @@ public class TestActivityOperations {
                 activity.getId(), secondReply);
 
         List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);
@@ -156,7 +163,7 @@ public class TestActivityOperations {
         automationService.run(ctx, chain);
 
         activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);
