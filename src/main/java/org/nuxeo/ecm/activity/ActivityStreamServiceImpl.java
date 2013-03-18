@@ -19,6 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +40,9 @@ import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.ClientRuntimeException;
+import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.core.event.EventContext;
+import org.nuxeo.ecm.core.event.EventProducer;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.persistence.PersistenceProviderFactory;
 import org.nuxeo.ecm.core.repository.RepositoryInitializationHandler;
@@ -46,6 +50,8 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.DefaultComponent;
+
+import static org.nuxeo.ecm.activity.ActivityEvents.*;
 
 /**
  * Default implementation of {@link ActivityStreamService}.
@@ -220,11 +226,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         try {
             localEntityManager.set(em);
             em.persist(activity);
-            for (ActivityStreamFilter filter : activityStreamFilters.values()) {
-                if (filter.isInterestedIn(activity)) {
-                    filter.handleNewActivity(this, activity);
-                }
-            }
+            notifyEvent(ACTIVITY_ADDED, new ActivityEventContext(activity));
         } finally {
             localEntityManager.remove();
         }
@@ -255,13 +257,15 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             localEntityManager.set(em);
 
             ActivitiesList l = new ActivitiesListImpl(activities);
-            for (ActivityStreamFilter filter : activityStreamFilters.values()) {
-                filter.handleRemovedActivities(this, l);
-            }
 
             Query query = em.createQuery("delete from Activity activity where activity.id in (:ids)");
             query.setParameter("ids", l.toActivityIds());
             query.executeUpdate();
+            
+            for (Activity activity : activities) {
+            	notifyEvent(ACTIVITY_REMOVED, new ActivityEventContext(activity));
+            }
+            
         } finally {
             localEntityManager.remove();
         }
@@ -413,6 +417,9 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             replies.add(activityReply);
             activity.setActivityReplies(replies);
             updateActivity(activity);
+            EventContext ctx = new ActivityEventContext(activity);
+            ctx.setProperty( ActivityEvents.ACTIVITY_REPLY_PROPERTY, activityReply);
+            notifyEvent(ACTIVITY_REPLY_ADDED, ctx);
         }
         return activityReply;
     }
@@ -495,13 +502,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                 for (Iterator<ActivityReply> it = replies.iterator(); it.hasNext();) {
                     ActivityReply reply = it.next();
                     if (reply.getId().equals(activityReplyId)) {
-                        for (ActivityStreamFilter filter : activityStreamFilters.values()) {
-                            filter.handleRemovedActivityReply(this, activity,
-                                    reply);
-                        }
                         it.remove();
                         activity.setActivityReplies(replies);
                         updateActivity(activity);
+                        EventContext ctx = new ActivityEventContext(activity);
+                        ctx.setProperty( ActivityEvents.ACTIVITY_REPLY_PROPERTY, reply);
+                        notifyEvent(ACTIVITY_REPLY_REMOVED, ctx);
                         return reply;
                     }
                 }
@@ -572,6 +578,34 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
     }
 
+    @SuppressWarnings("deprecation")
+	private void notifyEvent(String eventType, EventContext ctx) {
+
+        Event event = ctx.newEvent(eventType);
+
+        try {
+            EventProducer evtProducer = Framework.getService(EventProducer.class);
+            evtProducer.fireEvent(event);
+            
+            // TODO - Remove this after the deprecated methods in ActivityStreamFilter are removed
+            Activity activity = ((ActivityEventContext) ctx).getActivity();
+            for (ActivityStreamFilter filter : activityStreamFilters.values()) {
+                if (filter.isInterestedIn(activity)) {
+                	if (eventType.equals(ACTIVITY_ADDED)) {
+                		filter.handleNewActivity(this, activity);
+                	} else if (eventType.equals(ACTIVITY_REMOVED)) {
+                		filter.handleRemovedActivities(this, new ActivitiesListImpl(Arrays.asList(new Activity[]{activity})));
+                	} else if (eventType.equals(ACTIVITY_REPLY_REMOVED)) {
+                		ActivityReply activityReply = (ActivityReply) ctx.getProperty(ACTIVITY_REPLY_PROPERTY);
+                		filter.handleRemovedActivityReply(this, activity, activityReply); 		
+                	}
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error while send message", e);
+        }
+    }
+    
     @Override
     public void activate(ComponentContext context) throws Exception {
         super.activate(context);

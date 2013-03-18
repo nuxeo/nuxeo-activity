@@ -17,11 +17,15 @@
 
 package org.nuxeo.ecm.activity;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-public final class ActivityReply {
+public final class ActivityReply implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String id;
 

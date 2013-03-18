@@ -39,7 +39,10 @@ public interface ActivityStreamFilter {
     /**
      * Returns {@code true} if this {@code ActivityStreamFilter} is interested
      * in the given {@code activity}, {@code false} otherwise.
+     *
+     * @deprecated since 5.7
      */
+    @Deprecated
     boolean isInterestedIn(Activity activity);
 
     /**
@@ -47,7 +50,10 @@ public interface ActivityStreamFilter {
      * is stored.
      * <p>
      * The given {@code activity} must not be modified.
+     *
+     * @deprecated since 5.7
      */
+    @Deprecated
     void handleNewActivity(ActivityStreamService activityStreamService,
             Activity activity);
 
@@ -66,7 +72,10 @@ public interface ActivityStreamFilter {
      * {@code activities}.
      *
      * @since 5.6
+     *
+     * @deprecated since 5.7
      */
+    @Deprecated
     void handleRemovedActivities(ActivityStreamService activityStreamService,
             ActivitiesList activities);
 
@@ -75,7 +84,10 @@ public interface ActivityStreamFilter {
      * {@code activityReply}.
      *
      * @since 5.6
+     *
+     * @deprecated since 5.7
      */
+    @Deprecated
     void handleRemovedActivityReply(
             ActivityStreamService activityStreamService, Activity activity,
             ActivityReply activityReply);
