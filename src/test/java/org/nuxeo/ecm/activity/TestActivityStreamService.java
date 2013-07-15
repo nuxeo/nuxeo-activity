@@ -171,6 +171,47 @@ public class TestActivityStreamService {
         assertEquals(0, activities.size());
     }
 
+    @Test
+    public void shouldHandleOffsetWithoutLimit() {
+        int offset = getOffset();
+
+        addTestActivities(10);
+
+        List<Activity> activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, offset, 0);
+        assertEquals(10, activities.size());
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 0);
+        assertEquals(5, activities.size());
+        for (int i = 5; i < 10; i++) {
+            assertEquals("activity" + i, activities.get(i - 5).getObject());
+        }
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 0);
+        assertEquals(0, activities.size());
+    }
+
+    @Test
+    public void shouldHandleNegativeOffsetOrLimit() {
+        int offset = getOffset();
+
+        addTestActivities(10);
+
+        List<Activity> activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, 0, -10);
+        assertEquals(offset + 10, activities.size());
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, -15, 10);
+        assertEquals(10, activities.size());
+
+        activities = activityStreamService.query(
+                ActivityStreamService.ALL_ACTIVITIES, null, -10, -10);
+        assertEquals(offset + 10, activities.size());
+    }
+
     protected void addTestActivities(int activitiesCount) {
         for (int i = 0; i < activitiesCount; i++) {
             Activity activity = new ActivityImpl();

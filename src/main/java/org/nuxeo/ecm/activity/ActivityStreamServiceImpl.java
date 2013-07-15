@@ -190,9 +190,9 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         Query query = em.createQuery("select activity from Activity activity order by activity.id asc");
         if (limit > 0) {
             query.setMaxResults((int) limit);
-            if (offset > 0) {
-                query.setFirstResult((int) offset);
-            }
+        }
+        if (offset > 0) {
+            query.setFirstResult((int) offset);
         }
         return new ActivitiesListImpl(query.getResultList());
     }
