@@ -26,6 +26,7 @@ import static org.nuxeo.ecm.core.schema.FacetNames.SYSTEM_DOCUMENT;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,9 +55,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
 
     @Override
     public void handleEvent(EventBundle events) throws ClientException {
-        if (events.containsEventName(DOCUMENT_CREATED)
-                || events.containsEventName(DOCUMENT_UPDATED)
-                || events.containsEventName(DOCUMENT_REMOVED)) {
+        if (isEventBundleHandled(events)) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
                 handleEvent(event);
@@ -64,7 +63,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         }
     }
 
-    private List<Event> filterDuplicateEvents(EventBundle events) {
+    protected List<Event> filterDuplicateEvents(EventBundle events) {
         List<Event> filteredEvents = new ArrayList<Event>();
 
         for (Event event : events) {
@@ -75,7 +74,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         return filteredEvents;
     }
 
-    private List<Event> removeEventIfExist(List<Event> events, Event event) {
+    protected List<Event> removeEventIfExist(List<Event> events, Event event) {
         EventContext eventContext = event.getContext();
         if (eventContext instanceof DocumentEventContext) {
             DocumentModel doc = ((DocumentEventContext) eventContext).getSourceDocument();
@@ -95,22 +94,13 @@ public class ActivityStreamListener implements PostCommitEventListener {
         return events;
     }
 
-    private void handleEvent(Event event) throws ClientException {
+    protected void handleEvent(Event event) throws ClientException {
         EventContext eventContext = event.getContext();
         if (eventContext instanceof DocumentEventContext) {
-            if (DOCUMENT_CREATED.equals(event.getName())
-                    || DOCUMENT_REMOVED.equals(event.getName())
-                    || DOCUMENT_UPDATED.equals(event.getName())) {
+            if (isEventHandled(event)) {
                 DocumentEventContext docEventContext = (DocumentEventContext) eventContext;
                 DocumentModel doc = docEventContext.getSourceDocument();
-                if (doc instanceof ShallowDocumentModel
-                        || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
-                        || doc.hasFacet(SYSTEM_DOCUMENT) //
-                        || doc.isProxy() //
-                        || doc.isVersion()) {
-                    // Not really interested in non live document or if document
-                    // cannot be reconnected
-                    // or if not visible
+                if (isSkippedDocument(doc)) {
                     return;
                 }
 
@@ -135,12 +125,46 @@ public class ActivityStreamListener implements PostCommitEventListener {
         }
     }
 
-    private Activity toActivity(DocumentEventContext docEventContext,
+    protected boolean isSkippedDocument(DocumentModel doc) {
+        // Not really interested in non live document or if document
+        // cannot be reconnected
+        // or if not visible
+        return doc instanceof ShallowDocumentModel
+                || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
+                || doc.hasFacet(SYSTEM_DOCUMENT) //
+                || doc.isProxy() //
+                || doc.isVersion();
+    }
+
+    protected boolean isEventHandled(Event event) {
+        for (String eventName : getHandledEventsName()) {
+            if (eventName.equals(event.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean isEventBundleHandled(EventBundle events) {
+        for (String eventName : getHandledEventsName()) {
+            if (events.containsEventName(eventName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected List<String> getHandledEventsName() {
+        return Arrays.asList(DOCUMENT_CREATED, DOCUMENT_UPDATED,
+                DOCUMENT_REMOVED);
+    }
+
+    protected Activity toActivity(DocumentEventContext docEventContext,
             Event event) {
         return toActivity(docEventContext, event, null);
     }
 
-    private Activity toActivity(DocumentEventContext docEventContext,
+    protected Activity toActivity(DocumentEventContext docEventContext,
             Event event, String context) {
         Principal principal = docEventContext.getPrincipal();
         DocumentModel doc = docEventContext.getSourceDocument();
@@ -156,7 +180,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
                         doc.getParentRef())).context(context).build();
     }
 
-    private String getDocumentTitle(CoreSession session, DocumentRef docRef) {
+    protected String getDocumentTitle(CoreSession session, DocumentRef docRef) {
         try {
             DocumentModel doc = session.getDocument(docRef);
             return ActivityHelper.getDocumentTitle(doc);
@@ -165,7 +189,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         }
     }
 
-    private List<DocumentRef> getParentSuperSpaceRefs(CoreSession session,
+    protected List<DocumentRef> getParentSuperSpaceRefs(CoreSession session,
             final DocumentModel doc) throws ClientException {
         final List<DocumentRef> parents = new ArrayList<DocumentRef>();
         new UnrestrictedSessionRunner(session) {
