@@ -19,16 +19,20 @@ package org.nuxeo.ecm.activity;
 
 import java.io.File;
 
-import org.junit.runners.model.FrameworkMethod;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import org.nuxeo.common.utils.FileUtils;
+import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.TransactionalFeature;
+import org.nuxeo.ecm.core.test.annotations.TransactionalConfig;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
-import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -37,6 +41,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Features({ TransactionalFeature.class, CoreFeature.class })
 @Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity"})
 @LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
+@TransactionalConfig(rollback=false)
 public class ActivityFeature extends SimpleFeature {
 
     protected static final String DIRECTORY = "target/test/nxactivities";
@@ -54,8 +59,18 @@ public class ActivityFeature extends SimpleFeature {
     }
 
     @Override
-    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method,
-            Object test) throws Exception {
-        TransactionHelper.setTransactionRollbackOnly();
+    public void afterTeardown(FeaturesRunner runner) throws Exception {
+        ActivityStreamServiceImpl service = (ActivityStreamServiceImpl) Framework.getLocalService(ActivityStreamService.class);
+        service.getOrCreatePersistenceProvider().run(true,
+                new PersistenceProvider.RunVoid() {
+                    @Override
+                    public void runWith(EntityManager em) {
+                        Query query = em.createQuery("delete from Activity");
+                        query.executeUpdate();
+                        query = em.createQuery("delete from Tweet");
+                        query.executeUpdate();
+                    }
+                });
     }
+
 }
