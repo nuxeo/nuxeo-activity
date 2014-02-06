@@ -19,24 +19,24 @@ package org.nuxeo.ecm.activity;
 
 import java.io.File;
 
-import org.junit.runners.model.FrameworkMethod;
 import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.TransactionalFeature;
+import org.nuxeo.ecm.core.test.annotations.TransactionalConfig;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
-import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
 @Features({ TransactionalFeature.class, CoreFeature.class })
-@Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity"})
+@Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.runtime.metrics", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.core.management.jtajca", "org.nuxeo.ecm.activity"})
 @LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
+@TransactionalConfig(autoStart=true, rollback=true)
 public class ActivityFeature extends SimpleFeature {
 
     protected static final String DIRECTORY = "target/test/nxactivities";
@@ -51,11 +51,5 @@ public class ActivityFeature extends SimpleFeature {
         dir.mkdirs();
         System.setProperty(PROP_NAME, dir.getPath());
         super.initialize(runner);
-    }
-
-    @Override
-    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method,
-            Object test) throws Exception {
-        TransactionHelper.setTransactionRollbackOnly();
     }
 }

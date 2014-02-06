@@ -26,6 +26,7 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.ClientException;
@@ -42,6 +44,7 @@ import org.nuxeo.ecm.core.api.ClientRuntimeException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import org.nuxeo.runtime.test.ConditionalIgnoreRule;
 import org.nuxeo.runtime.test.NXRuntimeTestCase;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -55,7 +58,21 @@ import com.google.inject.Inject;
 @RunWith(FeaturesRunner.class)
 @Features(ActivityFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
+@ConditionalIgnoreRule.Ignore(condition=TestActivityStreamService.FilterTest.class)
 public class TestActivityStreamService {
+
+    @Rule
+    public final ConditionalIgnoreRule ignoreRule = new ConditionalIgnoreRule();
+
+    public static class FilterTest implements ConditionalIgnoreRule.Condition {
+
+        @Override
+        public boolean shouldIgnore(Method method, Object target) {
+            String name = method.getName();
+            return !(name.equals("shouldStoreTweetActivities") || name.equals("shouldRemoveTweets"));
+        }
+
+    }
 
     @Inject NXRuntimeTestCase harness;
 
@@ -95,6 +112,7 @@ public class TestActivityStreamService {
     }
 
     @Test
+    @ConditionalIgnoreRule.Ignore(condition=FilterTest.class)
     public void shouldCallRegisteredActivityStreamFilter() {
         int offset = getOffset();
 
