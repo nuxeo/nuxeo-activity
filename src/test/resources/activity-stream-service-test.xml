@@ -4,6 +4,8 @@
     <datasource name="jdbc/nxactivities"  xaDataSource="org.h2.jdbcx.JdbcDataSource"
       maxActive="20" maxIdle="5">
       <property name="URL">jdbc:h2:${ds.nxactivities.home}/db</property>
+      <property name="user">sa</property>
+      <property name="password"></property>
     </datasource>
   </extension>
 
