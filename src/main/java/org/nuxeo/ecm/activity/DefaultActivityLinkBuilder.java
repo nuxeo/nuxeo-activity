@@ -67,8 +67,8 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
                 new IdRef(documentId));
         DocumentView docView = new DocumentViewImpl(docLoc, "view_documents");
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
-        return VirtualHostHelper.getContextPathProperty() + "/"
-                + urlPolicyService.getUrlFromDocumentView("id", docView, null);
+        return urlPolicyService.getUrlFromDocumentView("id", docView,
+                VirtualHostHelper.getContextPathProperty());
     }
 
     @Override
@@ -87,9 +87,8 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
         params.put("username", username);
         DocumentView docView = new DocumentViewImpl(null, null, params);
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
-        return VirtualHostHelper.getContextPathProperty()
-                + "/"
-                + urlPolicyService.getUrlFromDocumentView("user", docView, null);
+        return urlPolicyService.getUrlFromDocumentView("user", docView,
+                VirtualHostHelper.getContextPathProperty());
     }
 
     @Override
