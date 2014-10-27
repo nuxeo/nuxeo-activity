@@ -17,12 +17,9 @@
 
 package org.nuxeo.ecm.activity;
 
-import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
 import static org.nuxeo.ecm.user.center.profile.UserProfileConstants.USER_PROFILE_AVATAR_FIELD;
 
-import java.text.DateFormat;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,8 +72,8 @@ public class ActivityMessageHelper {
                 new IdRef(documentId));
         DocumentView docView = new DocumentViewImpl(docLoc, "view_documents");
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
-        return VirtualHostHelper.getContextPathProperty() + "/"
-                + urlPolicyService.getUrlFromDocumentView("id", docView, null);
+        return urlPolicyService.getUrlFromDocumentView("id", docView,
+                VirtualHostHelper.getContextPathProperty());
     }
 
     public static String getUserProfileLink(String userActivityObject,
