@@ -573,7 +573,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public void activate(ComponentContext context) throws Exception {
+    public void activate(ComponentContext context) {
         super.activate(context);
         activityStreamRegistry = new ActivityStreamRegistry();
         activityVerbRegistry = new ActivityVerbRegistry();
@@ -585,7 +585,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public void deactivate(ComponentContext context) throws Exception {
+    public void deactivate(ComponentContext context) {
         deactivatePersistenceProvider();
 
         if (initializationHandler != null) {
@@ -597,8 +597,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     @Override
     public void registerContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor)
-            throws Exception {
+            String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             registerActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
         } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
@@ -675,8 +674,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     @Override
     public void unregisterContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor)
-            throws Exception {
+            String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             unregisterActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
         } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
