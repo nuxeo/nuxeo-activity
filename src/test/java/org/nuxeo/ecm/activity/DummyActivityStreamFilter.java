@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -43,34 +42,29 @@ public class DummyActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
-    public void handleNewActivity(ActivityStreamService activityStreamService,
-            Activity activity) {
+    public void handleNewActivity(ActivityStreamService activityStreamService, Activity activity) {
         lastActivity = activity;
     }
 
     @Override
     @Deprecated
-    public void handleRemovedActivities(
-            ActivityStreamService activityStreamService,
+    public void handleRemovedActivities(ActivityStreamService activityStreamService,
             Collection<Serializable> activityIds) {
         // nothing
     }
 
     @Override
-    public void handleRemovedActivities(
-            ActivityStreamService activityStreamService,
-            ActivitiesList activities) {
+    public void handleRemovedActivities(ActivityStreamService activityStreamService, ActivitiesList activities) {
     }
 
     @Override
-    public void handleRemovedActivityReply(
-            ActivityStreamService activityStreamService, Activity activity,
+    public void handleRemovedActivityReply(ActivityStreamService activityStreamService, Activity activity,
             ActivityReply activityReply) {
     }
 
     @Override
-    public ActivitiesList query(ActivityStreamService activityStreamService,
-            Map<String, Serializable> parameters, long offset, long limit) {
+    public ActivitiesList query(ActivityStreamService activityStreamService, Map<String, Serializable> parameters,
+            long offset, long limit) {
         ActivitiesList list = new ActivitiesListImpl();
         list.add(lastActivity);
         return list;

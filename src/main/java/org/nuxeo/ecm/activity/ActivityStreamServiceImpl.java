@@ -53,8 +53,7 @@ import org.nuxeo.runtime.model.DefaultComponent;
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
-public class ActivityStreamServiceImpl extends DefaultComponent implements
-        ActivityStreamService {
+public class ActivityStreamServiceImpl extends DefaultComponent implements ActivityStreamService {
 
     private static final Log log = LogFactory.getLog(ActivityStreamServiceImpl.class);
 
@@ -95,17 +94,15 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     public void upgradeActivities() {
         for (final ActivityUpgrader upgrader : activityUpgraderRegistry.getOrderedActivityUpgraders()) {
             try {
-                getOrCreatePersistenceProvider().run(false,
-                        new PersistenceProvider.RunVoid() {
-                            @Override
-                            public void runWith(EntityManager em) {
-                                upgradeActivities(em, upgrader);
-                            }
-                        });
+                getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunVoid() {
+                    @Override
+                    public void runWith(EntityManager em) {
+                        upgradeActivities(em, upgrader);
+                    }
+                });
             } catch (ClientException e) {
-                log.error(String.format(
-                        "Error while running '%s' activity upgrader: %s",
-                        upgrader.getName(), e.getMessage()));
+                log.error(String.format("Error while running '%s' activity upgrader: %s", upgrader.getName(),
+                        e.getMessage()));
                 log.debug(e, e);
             }
         }
@@ -121,14 +118,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivitiesList query(String filterId,
-            final Map<String, Serializable> parameters) {
+    public ActivitiesList query(String filterId, final Map<String, Serializable> parameters) {
         return query(filterId, parameters, 0, 0);
     }
 
     @Override
-    public ActivitiesList query(String filterId,
-            final Map<String, Serializable> parameters, final long offset,
+    public ActivitiesList query(String filterId, final Map<String, Serializable> parameters, final long offset,
             final long limit) {
         if (ALL_ACTIVITIES.equals(filterId)) {
             return queryAll(offset, limit);
@@ -136,31 +131,27 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
         final ActivityStreamFilter filter = activityStreamFilters.get(filterId);
         if (filter == null) {
-            throw new ClientRuntimeException(String.format(
-                    "Unable to retrieve '%s' ActivityStreamFilter", filterId));
+            throw new ClientRuntimeException(String.format("Unable to retrieve '%s' ActivityStreamFilter", filterId));
         }
 
         return query(filter, parameters, offset, limit);
     }
 
-    protected ActivitiesList query(final ActivityStreamFilter filter,
-            final Map<String, Serializable> parameters, final long offset,
-            final long limit) {
+    protected ActivitiesList query(final ActivityStreamFilter filter, final Map<String, Serializable> parameters,
+            final long offset, final long limit) {
         try {
-            return getOrCreatePersistenceProvider().run(false,
-                    new PersistenceProvider.RunCallback<ActivitiesList>() {
-                        @Override
-                        public ActivitiesList runWith(EntityManager em) {
-                            return query(em, filter, parameters, offset, limit);
-                        }
-                    });
+            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+                @Override
+                public ActivitiesList runWith(EntityManager em) {
+                    return query(em, filter, parameters, offset, limit);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
     }
 
-    protected ActivitiesList query(EntityManager em,
-            ActivityStreamFilter filter, Map<String, Serializable> parameters,
+    protected ActivitiesList query(EntityManager em, ActivityStreamFilter filter, Map<String, Serializable> parameters,
             long offset, long limit) {
         try {
             localEntityManager.set(em);
@@ -173,13 +164,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     protected ActivitiesList queryAll(final long offset, final long limit) {
         try {
-            return getOrCreatePersistenceProvider().run(false,
-                    new PersistenceProvider.RunCallback<ActivitiesList>() {
-                        @Override
-                        public ActivitiesList runWith(EntityManager em) {
-                            return queryAll(em, offset, limit);
-                        }
-                    });
+            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+                @Override
+                public ActivitiesList runWith(EntityManager em) {
+                    return queryAll(em, offset, limit);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
@@ -203,13 +193,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             activity.setPublishedDate(new Date());
         }
         try {
-            getOrCreatePersistenceProvider().run(true,
-                    new PersistenceProvider.RunVoid() {
-                        @Override
-                        public void runWith(EntityManager em) {
-                            addActivity(em, activity);
-                        }
-                    });
+            getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
+                @Override
+                public void runWith(EntityManager em) {
+                    addActivity(em, activity);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
@@ -237,20 +226,18 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
 
         try {
-            getOrCreatePersistenceProvider().run(true,
-                    new PersistenceProvider.RunVoid() {
-                        @Override
-                        public void runWith(EntityManager em) {
-                            removeActivities(em, activities);
-                        }
-                    });
+            getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
+                @Override
+                public void runWith(EntityManager em) {
+                    removeActivities(em, activities);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
     }
 
-    protected void removeActivities(EntityManager em,
-            Collection<Activity> activities) {
+    protected void removeActivities(EntityManager em, Collection<Activity> activities) {
         try {
             localEntityManager.set(em);
 
@@ -268,14 +255,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityMessage toActivityMessage(final Activity activity,
-            Locale locale) {
+    public ActivityMessage toActivityMessage(final Activity activity, Locale locale) {
         return toActivityMessage(activity, locale, null);
     }
 
     @Override
-    public ActivityMessage toActivityMessage(Activity activity, Locale locale,
-            String activityLinkBuilderName) {
+    public ActivityMessage toActivityMessage(Activity activity, Locale locale, String activityLinkBuilderName) {
         ActivityLinkBuilder activityLinkBuilder = getActivityLinkBuilder(activityLinkBuilderName);
 
         Map<String, String> fields = activity.toMap();
@@ -285,8 +270,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         String displayActorLink;
         if (ActivityHelper.isUser(actor)) {
             try {
-                displayActorLink = activityLinkBuilder.getUserProfileLink(
-                        actor, activity.getDisplayActor());
+                displayActorLink = activityLinkBuilder.getUserProfileLink(actor, activity.getDisplayActor());
             } catch (Exception e) {
                 displayActorLink = activity.getDisplayActor();
             }
@@ -294,30 +278,26 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             displayActorLink = activity.getDisplayActor();
         }
 
-        List<ActivityReplyMessage> activityReplyMessages = toActivityReplyMessages(
-                activity.getActivityReplies(), locale, activityLinkBuilderName);
+        List<ActivityReplyMessage> activityReplyMessages = toActivityReplyMessages(activity.getActivityReplies(),
+                locale, activityLinkBuilderName);
 
         ActivityVerb verb = activityVerbRegistry.get(activity.getVerb());
 
         if (verb == null || verb.getLabelKey() == null) {
-            return new ActivityMessage(activity.getId(), actor, displayActor,
-                    displayActorLink, activity.getVerb(), activity.toString(),
-                    activity.getPublishedDate(), null, activityReplyMessages);
+            return new ActivityMessage(activity.getId(), actor, displayActor, displayActorLink, activity.getVerb(),
+                    activity.toString(), activity.getPublishedDate(), null, activityReplyMessages);
         }
 
         String labelKey = verb.getLabelKey();
         String messageTemplate;
         try {
-            messageTemplate = I18NUtils.getMessageString("messages", labelKey,
-                    null, locale);
+            messageTemplate = I18NUtils.getMessageString("messages", labelKey, null, locale);
         } catch (MissingResourceException e) {
             log.error(e.getMessage());
             log.debug(e, e);
             // just return the labelKey if we have no resource bundle
-            return new ActivityMessage(activity.getId(), actor, displayActor,
-                    displayActorLink, activity.getVerb(), labelKey,
-                    activity.getPublishedDate(), verb.getIcon(),
-                    activityReplyMessages);
+            return new ActivityMessage(activity.getId(), actor, displayActor, displayActorLink, activity.getVerb(),
+                    labelKey, activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
         }
 
         Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -326,14 +306,11 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             String param = m.group().replaceAll("[\\|$\\|{\\}]", "");
             if (fields.containsKey(param)) {
                 String value = fields.get(param);
-                final String displayValue = fields.get("display"
-                        + StringUtils.capitalize(param));
+                final String displayValue = fields.get("display" + StringUtils.capitalize(param));
                 if (ActivityHelper.isDocument(value)) {
-                    value = activityLinkBuilder.getDocumentLink(value,
-                            displayValue);
+                    value = activityLinkBuilder.getDocumentLink(value, displayValue);
                 } else if (ActivityHelper.isUser(value)) {
-                    value = activityLinkBuilder.getUserProfileLink(value,
-                            displayValue);
+                    value = activityLinkBuilder.getUserProfileLink(value, displayValue);
                 } else {
                     // simple text
                     value = ActivityMessageHelper.replaceURLsByLinks(value);
@@ -342,10 +319,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
             }
         }
 
-        return new ActivityMessage(activity.getId(), actor, displayActor,
-                displayActorLink, activity.getVerb(), messageTemplate,
-                activity.getPublishedDate(), verb.getIcon(),
-                activityReplyMessages);
+        return new ActivityMessage(activity.getId(), actor, displayActor, displayActorLink, activity.getVerb(),
+                messageTemplate, activity.getPublishedDate(), verb.getIcon(), activityReplyMessages);
     }
 
     @Override
@@ -364,35 +339,29 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityReplyMessage toActivityReplyMessage(
-            ActivityReply activityReply, Locale locale) {
+    public ActivityReplyMessage toActivityReplyMessage(ActivityReply activityReply, Locale locale) {
         return toActivityReplyMessage(activityReply, locale, null);
     }
 
     @Override
-    public ActivityReplyMessage toActivityReplyMessage(
-            ActivityReply activityReply, Locale locale,
+    public ActivityReplyMessage toActivityReplyMessage(ActivityReply activityReply, Locale locale,
             String activityLinkBuilderName) {
         ActivityLinkBuilder activityLinkBuilder = getActivityLinkBuilder(activityLinkBuilderName);
 
         String actor = activityReply.getActor();
         String displayActor = activityReply.getDisplayActor();
-        String displayActorLink = activityLinkBuilder.getUserProfileLink(actor,
-                displayActor);
+        String displayActorLink = activityLinkBuilder.getUserProfileLink(actor, displayActor);
         String message = ActivityMessageHelper.replaceURLsByLinks(activityReply.getMessage());
-        return new ActivityReplyMessage(activityReply.getId(), actor,
-                displayActor, displayActorLink, message,
+        return new ActivityReplyMessage(activityReply.getId(), actor, displayActor, displayActorLink, message,
                 activityReply.getPublishedDate());
 
     }
 
-    private List<ActivityReplyMessage> toActivityReplyMessages(
-            List<ActivityReply> replies, Locale locale,
+    private List<ActivityReplyMessage> toActivityReplyMessages(List<ActivityReply> replies, Locale locale,
             String activityLinkBuilderName) {
         List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
         for (ActivityReply reply : replies) {
-            activityReplyMessages.add(toActivityReplyMessage(reply, locale,
-                    activityLinkBuilderName));
+            activityReplyMessages.add(toActivityReplyMessage(reply, locale, activityLinkBuilderName));
         }
         return activityReplyMessages;
     }
@@ -403,8 +372,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public ActivityReply addActivityReply(Serializable activityId,
-            ActivityReply activityReply) {
+    public ActivityReply addActivityReply(Serializable activityId, ActivityReply activityReply) {
         Activity activity = getActivity(activityId);
         if (activity != null) {
             List<ActivityReply> replies = activity.getActivityReplies();
@@ -436,45 +404,39 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     public Activity getActivity(final Serializable activityId) {
         try {
-            return getOrCreatePersistenceProvider().run(false,
-                    new PersistenceProvider.RunCallback<Activity>() {
-                        @Override
-                        public Activity runWith(EntityManager em) {
-                            return getActivity(em, activityId);
-                        }
-                    });
+            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
+                @Override
+                public Activity runWith(EntityManager em) {
+                    return getActivity(em, activityId);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
     }
 
-    public ActivitiesList getActivities(
-            final Collection<Serializable> activityIds) {
+    public ActivitiesList getActivities(final Collection<Serializable> activityIds) {
         try {
-            return getOrCreatePersistenceProvider().run(false,
-                    new PersistenceProvider.RunCallback<ActivitiesList>() {
-                        @Override
-                        public ActivitiesList runWith(EntityManager em) {
-                            return getActivities(em, activityIds);
-                        }
-                    });
+            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+                @Override
+                public ActivitiesList runWith(EntityManager em) {
+                    return getActivities(em, activityIds);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
     }
 
     @Override
-    public ActivityReply removeActivityReply(final Serializable activityId,
-            final String activityReplyId) {
+    public ActivityReply removeActivityReply(final Serializable activityId, final String activityReplyId) {
         try {
-            return getOrCreatePersistenceProvider().run(true,
-                    new PersistenceProvider.RunCallback<ActivityReply>() {
-                        @Override
-                        public ActivityReply runWith(EntityManager em) {
-                            return removeActivityReply(em, activityId,
-                                    activityReplyId);
-                        }
-                    });
+            return getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunCallback<ActivityReply>() {
+                @Override
+                public ActivityReply runWith(EntityManager em) {
+                    return removeActivityReply(em, activityId, activityReplyId);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
@@ -484,8 +446,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     /**
      * @since 5.6
      */
-    protected ActivityReply removeActivityReply(EntityManager em,
-            Serializable activityId, String activityReplyId) {
+    protected ActivityReply removeActivityReply(EntityManager em, Serializable activityId, String activityReplyId) {
         try {
             localEntityManager.set(em);
 
@@ -496,8 +457,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
                     ActivityReply reply = it.next();
                     if (reply.getId().equals(activityReplyId)) {
                         for (ActivityStreamFilter filter : activityStreamFilters.values()) {
-                            filter.handleRemovedActivityReply(this, activity,
-                                    reply);
+                            filter.handleRemovedActivityReply(this, activity, reply);
                         }
                         it.remove();
                         activity.setActivityReplies(replies);
@@ -519,8 +479,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @SuppressWarnings("unchecked")
-    protected ActivitiesList getActivities(EntityManager em,
-            Collection<Serializable> activityIds) {
+    protected ActivitiesList getActivities(EntityManager em, Collection<Serializable> activityIds) {
         Query query = em.createQuery("select activity from Activity activity where activity.id in (:ids)");
         query.setParameter("ids", activityIds);
         return new ActivitiesListImpl(query.getResultList());
@@ -528,14 +487,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
 
     protected void updateActivity(final Activity activity) {
         try {
-            getOrCreatePersistenceProvider().run(false,
-                    new PersistenceProvider.RunCallback<Activity>() {
-                        @Override
-                        public Activity runWith(EntityManager em) {
-                            activity.setLastUpdatedDate(new Date());
-                            return em.merge(activity);
-                        }
-                    });
+            getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
+                @Override
+                public Activity runWith(EntityManager em) {
+                    activity.setLastUpdatedDate(new Date());
+                    return em.merge(activity);
+                }
+            });
         } catch (ClientException e) {
             throw new ClientRuntimeException(e);
         }
@@ -596,8 +554,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     @Override
-    public void registerContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor) {
+    public void registerContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             registerActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
         } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
@@ -613,8 +570,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
     }
 
-    private void registerActivityStreamFilter(
-            ActivityStreamFilterDescriptor descriptor) throws ClientException {
+    private void registerActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) throws ClientException {
         ActivityStreamFilter filter = descriptor.getActivityStreamFilter();
 
         String filterId = filter.getId();
@@ -629,15 +585,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
         if (enabled) {
             log.info("Registering activity stream filter with id " + filterId);
-            activityStreamFilters.put(filterId,
-                    descriptor.getActivityStreamFilter());
+            activityStreamFilters.put(filterId, descriptor.getActivityStreamFilter());
         }
     }
 
-    private void registerActivityMessageLabel(
-            ActivityMessageLabelDescriptor descriptor) {
-        log.info("Registering activity message label for verb"
-                + descriptor.getActivityVerb());
+    private void registerActivityMessageLabel(ActivityMessageLabelDescriptor descriptor) {
+        log.info("Registering activity message label for verb" + descriptor.getActivityVerb());
         log.warn("The 'activityMessageLabels' extension point is deprecated, "
                 + "please use the 'activityVerbs' extension point.");
         ActivityVerb activityVerb = new ActivityVerb();
@@ -647,34 +600,27 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
     }
 
     private void registerActivityStream(ActivityStream activityStream) {
-        log.info(String.format("Registering activity stream '%s'",
-                activityStream.getName()));
+        log.info(String.format("Registering activity stream '%s'", activityStream.getName()));
         activityStreamRegistry.addContribution(activityStream);
     }
 
     private void registerActivityVerb(ActivityVerb activityVerb) {
-        log.info(String.format("Registering activity verb '%s'",
-                activityVerb.getVerb()));
+        log.info(String.format("Registering activity verb '%s'", activityVerb.getVerb()));
         activityVerbRegistry.addContribution(activityVerb);
     }
 
-    private void registerActivityLinkBuilder(
-            ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
-        log.info(String.format("Registering activity link builder '%s'",
-                activityLinkBuilderDescriptor.getName()));
+    private void registerActivityLinkBuilder(ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
+        log.info(String.format("Registering activity link builder '%s'", activityLinkBuilderDescriptor.getName()));
         activityLinkBuilderRegistry.addContribution(activityLinkBuilderDescriptor);
     }
 
-    private void registerActivityUpgrader(
-            ActivityUpgraderDescriptor activityUpgraderDescriptor) {
-        log.info(String.format("Registering activity upgrader '%s'",
-                activityUpgraderDescriptor.getName()));
+    private void registerActivityUpgrader(ActivityUpgraderDescriptor activityUpgraderDescriptor) {
+        log.info(String.format("Registering activity upgrader '%s'", activityUpgraderDescriptor.getName()));
         activityUpgraderRegistry.addContribution(activityUpgraderDescriptor);
     }
 
     @Override
-    public void unregisterContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor) {
+    public void unregisterContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             unregisterActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
         } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
@@ -690,50 +636,41 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements
         }
     }
 
-    private void unregisterActivityStreamFilter(
-            ActivityStreamFilterDescriptor descriptor) throws ClientException {
+    private void unregisterActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) throws ClientException {
         ActivityStreamFilter filter = descriptor.getActivityStreamFilter();
         String filterId = filter.getId();
         activityStreamFilters.remove(filterId);
         log.info("Unregistering activity stream filter with id " + filterId);
     }
 
-    private void unregisterActivityMessageLabel(
-            ActivityMessageLabelDescriptor descriptor) {
+    private void unregisterActivityMessageLabel(ActivityMessageLabelDescriptor descriptor) {
         ActivityVerb activityVerb = new ActivityVerb();
         activityVerb.setVerb(descriptor.getActivityVerb());
         activityVerb.setLabelKey(descriptor.getLabelKey());
         unregisterActivityVerb(activityVerb);
-        log.info("Unregistering activity message label for verb "
-                + activityVerb);
+        log.info("Unregistering activity message label for verb " + activityVerb);
         log.warn("The 'activityMessageLabels' extension point is deprecated, "
                 + "please use the 'activityVerbs' extension point.");
     }
 
     private void unregisterActivityStream(ActivityStream activityStream) {
         activityStreamRegistry.removeContribution(activityStream);
-        log.info(String.format("Unregistering activity stream '%s'",
-                activityStream.getName()));
+        log.info(String.format("Unregistering activity stream '%s'", activityStream.getName()));
     }
 
     private void unregisterActivityVerb(ActivityVerb activityVerb) {
         activityVerbRegistry.removeContribution(activityVerb);
-        log.info(String.format("Unregistering activity verb '%s'",
-                activityVerb.getVerb()));
+        log.info(String.format("Unregistering activity verb '%s'", activityVerb.getVerb()));
     }
 
-    private void unregisterActivityLinkBuilder(
-            ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
+    private void unregisterActivityLinkBuilder(ActivityLinkBuilderDescriptor activityLinkBuilderDescriptor) {
         activityLinkBuilderRegistry.removeContribution(activityLinkBuilderDescriptor);
-        log.info(String.format("Unregistering activity link builder '%s'",
-                activityLinkBuilderDescriptor.getName()));
+        log.info(String.format("Unregistering activity link builder '%s'", activityLinkBuilderDescriptor.getName()));
     }
 
-    private void unregisterActivityUpgrader(
-            ActivityUpgraderDescriptor activityUpgraderDescriptor) {
+    private void unregisterActivityUpgrader(ActivityUpgraderDescriptor activityUpgraderDescriptor) {
         activityUpgraderRegistry.removeContribution(activityUpgraderDescriptor);
-        log.info(String.format("Unregistering activity upgrader '%s'",
-                activityUpgraderDescriptor.getName()));
+        log.info(String.format("Unregistering activity upgrader '%s'", activityUpgraderDescriptor.getName()));
     }
 
 }

@@ -66,19 +66,15 @@ public final class ActivityMessage implements Serializable {
      *             instead.
      */
     @Deprecated
-    public ActivityMessage(Serializable activityId, String message,
-            Date publishedDate) {
-        this(activityId, null, null, null, null, message, publishedDate, null,
-                null);
+    public ActivityMessage(Serializable activityId, String message, Date publishedDate) {
+        this(activityId, null, null, null, null, message, publishedDate, null, null);
     }
 
     /**
      * @since 5.6
      */
-    public ActivityMessage(Serializable activityId, String actor,
-            String displayActor, String displayActorLink, String verb,
-            String message, Date publishedDate, String icon,
-            List<ActivityReplyMessage> replies) {
+    public ActivityMessage(Serializable activityId, String actor, String displayActor, String displayActorLink,
+            String verb, String message, Date publishedDate, String icon, List<ActivityReplyMessage> replies) {
         this.activityId = activityId;
         this.actor = actor;
         this.displayActor = displayActor;
@@ -95,9 +91,8 @@ public final class ActivityMessage implements Serializable {
      */
     @Deprecated
     public ActivityMessage(Activity activity, String message) {
-        this(activity.getId(), activity.getActor(), activity.getDisplayActor(),
-                null, activity.getVerb(), message, activity.getPublishedDate(),
-                null, null);
+        this(activity.getId(), activity.getActor(), activity.getDisplayActor(), null, activity.getVerb(), message,
+                activity.getPublishedDate(), null, null);
     }
 
     public Serializable getActivityId() {
@@ -157,22 +152,19 @@ public final class ActivityMessage implements Serializable {
     /**
      * @since 5.6
      */
-    public Map<String, Object> toMap(CoreSession session, Locale locale)
-            throws ClientException {
+    public Map<String, Object> toMap(CoreSession session, Locale locale) throws ClientException {
         return toMap(session, locale, null);
     }
 
     /**
      * @since 5.6
      */
-    public Map<String, Object> toMap(CoreSession session, Locale locale,
-            String activityLinkBuilderName) throws ClientException {
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(
-                ActivityStreamService.class).getActivityLinkBuilder(
+    public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
+            throws ClientException {
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                locale);
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
 
         Map<String, Object> o = new HashMap<String, Object>();
         o.put("id", getActivityId());
@@ -181,8 +173,7 @@ public final class ActivityMessage implements Serializable {
         o.put("displayActorLink", getDisplayActorLink());
         if (isUser(getActor())) {
             String actorUsername = getUsername(getActor());
-            o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(
-                    session, actorUsername));
+            o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(session, actorUsername));
         }
         o.put("activityVerb", getVerb());
         o.put("activityMessage", getMessage());

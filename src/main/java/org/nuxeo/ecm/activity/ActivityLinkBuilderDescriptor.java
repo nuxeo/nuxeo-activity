@@ -54,8 +54,7 @@ public class ActivityLinkBuilderDescriptor {
         return activityLinkBuilderClass;
     }
 
-    public void setActivityLinkBuilderClass(
-            Class<? extends ActivityLinkBuilder> activityLinkBuilderClass) {
+    public void setActivityLinkBuilderClass(Class<? extends ActivityLinkBuilder> activityLinkBuilderClass) {
         this.activityLinkBuilderClass = activityLinkBuilderClass;
     }
 

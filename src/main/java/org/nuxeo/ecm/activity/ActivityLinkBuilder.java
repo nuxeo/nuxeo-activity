@@ -21,8 +21,8 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 
 /**
- * An {@code ActivityLinkBuilder} is used to compute the different links and URLs
- * (for a document, an user, ...) that can be in an Activity message.
+ * An {@code ActivityLinkBuilder} is used to compute the different links and URLs (for a document, an user, ...) that
+ * can be in an Activity message.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
@@ -33,6 +33,5 @@ public interface ActivityLinkBuilder {
 
     String getUserProfileLink(String userActivityObject, String displayValue);
 
-    String getUserAvatarURL(CoreSession session, String username)
-            throws ClientException;
+    String getUserAvatarURL(CoreSession session, String username) throws ClientException;
 }

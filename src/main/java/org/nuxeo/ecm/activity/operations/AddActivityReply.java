@@ -80,52 +80,37 @@ public class AddActivityReply {
     public Blob run() throws Exception {
         String actor = ActivityHelper.createUserActivityObject(session.getPrincipal());
         String displayActor = ActivityHelper.generateDisplayName(session.getPrincipal());
-        ActivityReply reply = new ActivityReply(actor, displayActor, message,
-                new Date().getTime());
-        reply = activityStreamService.addActivityReply(
-                Long.valueOf(activityId), reply);
+        ActivityReply reply = new ActivityReply(actor, displayActor, message, new Date().getTime());
+        reply = activityStreamService.addActivityReply(Long.valueOf(activityId), reply);
 
-        Locale locale = language != null && !language.isEmpty() ? new Locale(
-                language) : Locale.ENGLISH;
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                locale);
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(
-                ActivityStreamService.class).getActivityLinkBuilder(
+        Locale locale = language != null && !language.isEmpty() ? new Locale(language) : Locale.ENGLISH;
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 
         Map<String, Object> m = new HashMap<String, Object>();
         m.put("id", reply.getId());
         m.put("actor", reply.getActor());
         m.put("displayActor", reply.getDisplayActor());
-        m.put("displayActorLink",
-                getDisplayActorLink(reply.getActor(), reply.getDisplayActor(),
-                        activityLinkBuilder));
-        m.put("actorAvatarURL",
-                activityLinkBuilder.getUserAvatarURL(session,
-                        getUsername(reply.getActor())));
+        m.put("displayActorLink", getDisplayActorLink(reply.getActor(), reply.getDisplayActor(), activityLinkBuilder));
+        m.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(session, getUsername(reply.getActor())));
         m.put("message", replaceURLsByLinks(reply.getMessage()));
-        m.put("publishedDate",
-                dateFormat.format(new Date(reply.getPublishedDate())));
+        m.put("publishedDate", dateFormat.format(new Date(reply.getPublishedDate())));
         String username = ActivityHelper.getUsername(reply.getActor());
-        m.put("allowDeletion",
-                session.getPrincipal().getName().equals(username));
+        m.put("allowDeletion", session.getPrincipal().getName().equals(username));
 
         ObjectMapper mapper = new ObjectMapper();
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, m);
 
-        return new InputStreamBlob(new ByteArrayInputStream(
-                writer.toString().getBytes("UTF-8")), "application/json");
+        return new InputStreamBlob(new ByteArrayInputStream(writer.toString().getBytes("UTF-8")), "application/json");
     }
 
-    protected String getDisplayActorLink(String actor, String displayActor,
-            ActivityLinkBuilder activityLinkBuilder) {
+    protected String getDisplayActorLink(String actor, String displayActor, ActivityLinkBuilder activityLinkBuilder) {
         try {
             return activityLinkBuilder.getUserProfileLink(actor, displayActor);
         } catch (Exception e) {
-            log.warn(String.format(
-                    "Unable to get user profile link for '%s': %s", actor,
-                    e.getMessage()));
+            log.warn(String.format("Unable to get user profile link for '%s': %s", actor, e.getMessage()));
             log.debug(e, e);
         }
         return "";

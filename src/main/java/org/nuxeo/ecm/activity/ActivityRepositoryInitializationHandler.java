@@ -26,12 +26,10 @@ import org.nuxeo.runtime.api.Framework;
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.7
  */
-public class ActivityRepositoryInitializationHandler extends
-        RepositoryInitializationHandler {
+public class ActivityRepositoryInitializationHandler extends RepositoryInitializationHandler {
 
     @Override
-    public void doInitializeRepository(CoreSession session)
-            throws ClientException {
+    public void doInitializeRepository(CoreSession session) throws ClientException {
         ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
         if (activityStreamService != null) {
             ((ActivityStreamServiceImpl) activityStreamService).upgradeActivities();

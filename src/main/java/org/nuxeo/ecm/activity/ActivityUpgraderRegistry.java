@@ -33,14 +33,12 @@ import org.nuxeo.runtime.model.ContributionFragmentRegistry;
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.7
  */
-public class ActivityUpgraderRegistry extends
-        ContributionFragmentRegistry<ActivityUpgraderDescriptor> {
+public class ActivityUpgraderRegistry extends ContributionFragmentRegistry<ActivityUpgraderDescriptor> {
 
     protected Map<String, ActivityUpgrader> activityUpgraders = new HashMap<String, ActivityUpgrader>();
 
     public List<ActivityUpgrader> getOrderedActivityUpgraders() {
-        List<ActivityUpgrader> upgraders = new ArrayList<ActivityUpgrader>(
-                activityUpgraders.values());
+        List<ActivityUpgrader> upgraders = new ArrayList<ActivityUpgrader>(activityUpgraders.values());
         Collections.sort(upgraders, new Comparator<ActivityUpgrader>() {
             @Override
             public int compare(ActivityUpgrader o1, ActivityUpgrader o2) {
@@ -56,15 +54,13 @@ public class ActivityUpgraderRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id,
-            ActivityUpgraderDescriptor contrib,
+    public void contributionUpdated(String id, ActivityUpgraderDescriptor contrib,
             ActivityUpgraderDescriptor newOrigContrib) {
         activityUpgraders.put(id, contrib.getActivityUpgrader());
     }
 
     @Override
-    public void contributionRemoved(String id,
-            ActivityUpgraderDescriptor origContrib) {
+    public void contributionRemoved(String id, ActivityUpgraderDescriptor origContrib) {
         activityUpgraders.remove(id);
     }
 
@@ -74,8 +70,7 @@ public class ActivityUpgraderRegistry extends
     }
 
     @Override
-    public void merge(ActivityUpgraderDescriptor src,
-            ActivityUpgraderDescriptor dst) {
+    public void merge(ActivityUpgraderDescriptor src, ActivityUpgraderDescriptor dst) {
         Class<? extends ActivityUpgrader> clazz = src.getActivityUpgraderClass();
         if (clazz != null) {
             dst.setActivityUpgraderClass(clazz);

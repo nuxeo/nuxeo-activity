@@ -61,7 +61,8 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 @RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestActivityStreamService {
 
-    @Inject NXRuntimeTestCase harness;
+    @Inject
+    NXRuntimeTestCase harness;
 
     @Inject
     protected ActivityStreamService activityStreamService;
@@ -72,8 +73,7 @@ public class TestActivityStreamService {
     }
 
     protected int getOffset() {
-        return activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null).size();
+        return activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null).size();
     }
 
     @Test
@@ -87,8 +87,7 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -112,13 +111,11 @@ public class TestActivityStreamService {
         Map<String, ActivityStreamFilter> filters = ((ActivityStreamServiceImpl) activityStreamService).activityStreamFilters;
         assertEquals(2, filters.size());
 
-        List<Activity> activities = activityStreamService.query(
-                DummyActivityStreamFilter.ID, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(DummyActivityStreamFilter.ID, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
-        activities = filters.get(DummyActivityStreamFilter.ID).query(null,
-                null, 0, 0);
+        activities = filters.get(DummyActivityStreamFilter.ID).query(null, null, 0, 0);
         assertEquals(1, activities.size());
 
         Activity storedActivity = activities.get(0);
@@ -145,29 +142,25 @@ public class TestActivityStreamService {
 
         addTestActivities(10);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 5);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 5);
         assertEquals(5, activities.size());
         for (int i = 0; i < 5; i++) {
             assertEquals("activity" + i, activities.get(i).getObject());
         }
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 5);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 5);
         assertEquals(5, activities.size());
         for (int i = 5; i < 10; i++) {
             assertEquals("activity" + i, activities.get(i - 5).getObject());
         }
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 15);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 15);
         assertEquals(10, activities.size());
         for (int i = 0; i < 10; i++) {
             assertEquals("activity" + i, activities.get(i).getObject());
         }
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 5);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 5);
         assertEquals(0, activities.size());
     }
 
@@ -177,19 +170,16 @@ public class TestActivityStreamService {
 
         addTestActivities(10);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 0);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 0);
         assertEquals(10, activities.size());
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 0);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset + 5, 0);
         assertEquals(5, activities.size());
         for (int i = 5; i < 10; i++) {
             assertEquals("activity" + i, activities.get(i - 5).getObject());
         }
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 0);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset + 15, 0);
         assertEquals(0, activities.size());
     }
 
@@ -199,16 +189,13 @@ public class TestActivityStreamService {
 
         addTestActivities(10);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, 0, -10);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, 0, -10);
         assertEquals(offset + 10, activities.size());
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, -15, 10);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, -15, 10);
         assertEquals(10, activities.size());
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, -10, -10);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, -10, -10);
         assertEquals(offset + 10, activities.size());
     }
 
@@ -229,28 +216,25 @@ public class TestActivityStreamService {
 
         addTestActivities(10);
 
-        List<Activity> allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> allActivities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertEquals(10, allActivities.size());
 
         Activity firstActivity = allActivities.get(0);
         activityStreamService.removeActivities(Collections.singleton(firstActivity));
 
-        allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        allActivities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertEquals(9, allActivities.size());
         assertFalse(allActivities.contains(firstActivity));
 
         List<Activity> activities = allActivities.subList(0, 4);
         activityStreamService.removeActivities(activities);
-        allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        allActivities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertEquals(5, allActivities.size());
 
         activities = allActivities.subList(0, 5);
         activityStreamService.removeActivities(activities);
-        allActivities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        allActivities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertTrue(allActivities.isEmpty());
     }
 
@@ -262,8 +246,7 @@ public class TestActivityStreamService {
 
         ActivityVerb activityVerb = activityVerbRegistry.get("compatVerb");
         assertNotNull(activityVerb);
-        assertEquals("label.activity.compatLabel",
-                activityVerb.getLabelKey());
+        assertEquals("label.activity.compatLabel", activityVerb.getLabelKey());
     }
 
     @Test
@@ -273,16 +256,13 @@ public class TestActivityStreamService {
 
         ActivityVerb activityVerb = activityVerbRegistry.get(DOCUMENT_CREATED);
         assertNotNull(activityVerb);
-        assertEquals("label.activity.documentCreated",
-                activityVerb.getLabelKey());
+        assertEquals("label.activity.documentCreated", activityVerb.getLabelKey());
         activityVerb = activityVerbRegistry.get(DOCUMENT_UPDATED);
         assertNotNull(activityVerb);
-        assertEquals("label.activity.documentUpdated",
-                activityVerb.getLabelKey());
+        assertEquals("label.activity.documentUpdated", activityVerb.getLabelKey());
         activityVerb = activityVerbRegistry.get(DOCUMENT_REMOVED);
         assertNotNull(activityVerb);
-        assertEquals("label.activity.documentRemoved",
-                activityVerb.getLabelKey());
+        assertEquals("label.activity.documentRemoved", activityVerb.getLabelKey());
     }
 
     @Test
@@ -298,8 +278,7 @@ public class TestActivityStreamService {
 
         Map<String, Serializable> parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Bob");
-        List<Activity> activities = activityStreamService.query(
-                TweetActivityStreamFilter.ID, parameters, offset, 999);
+        List<Activity> activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
         Activity storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -308,8 +287,7 @@ public class TestActivityStreamService {
 
         parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Joe");
-        activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters, offset, 999);
+        activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -318,8 +296,7 @@ public class TestActivityStreamService {
 
         parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "John");
-        activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters, offset, 999);
+        activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
         assertEquals(activity.getActor(), storedActivity.getActor());
@@ -340,20 +317,17 @@ public class TestActivityStreamService {
 
         Map<String, Serializable> parameters = new HashMap<String, Serializable>();
         parameters.put("seenBy", "Bob");
-        List<Activity> activities = activityStreamService.query(
-                TweetActivityStreamFilter.ID, parameters, offset, 999);
+        List<Activity> activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
 
         List<TweetActivity> tweets = getAllTweetActivities();
         assertEquals(3, tweets.size());
 
         activityStreamService.removeActivities(Collections.singleton(activity));
-        activities = activityStreamService.query(TweetActivityStreamFilter.ID,
-                parameters, offset, 999);
+        activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertTrue(activities.isEmpty());
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertTrue(activities.isEmpty());
 
         tweets = getAllTweetActivities();
@@ -362,8 +336,7 @@ public class TestActivityStreamService {
 
     @SuppressWarnings("unchecked")
     private List<TweetActivity> getAllTweetActivities() throws ClientException {
-        return ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(
-                true,
+        return ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(true,
                 new PersistenceProvider.RunCallback<List<TweetActivity>>() {
                     @Override
                     public List<TweetActivity> runWith(EntityManager em) {
@@ -409,8 +382,7 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -420,13 +392,11 @@ public class TestActivityStreamService {
         assertEquals(activity.getObject(), storedActivity.getObject());
 
         long replyPublishedDate = new Date().getTime();
-        ActivityReply reply = new ActivityReply("bender", "Bender",
-                "First reply", replyPublishedDate);
+        ActivityReply reply = new ActivityReply("bender", "Bender", "First reply", replyPublishedDate);
         ActivityReply storedReply = activityStreamService.addActivityReply(activity.getId(), reply);
         assertEquals(storedActivity.getId() + "-reply-1", storedReply.getId());
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -453,32 +423,26 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
         Activity storedActivity = activities.get(0);
 
         long firstReplyPublishedDate = new Date().getTime();
-        ActivityReply firstReply = new ActivityReply("bender", "Bender",
-                "First reply", firstReplyPublishedDate);
+        ActivityReply firstReply = new ActivityReply("bender", "Bender", "First reply", firstReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), firstReply);
         long secondReplyPublishedDate = new Date().getTime();
-        ActivityReply secondReply = new ActivityReply("bender", "Bender",
-                "Second reply", secondReplyPublishedDate);
+        ActivityReply secondReply = new ActivityReply("bender", "Bender", "Second reply", secondReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), secondReply);
         long thirdReplyPublishedDate = new Date().getTime();
-        ActivityReply thirdReply = new ActivityReply("fry", "Fry",
-                "Third reply", thirdReplyPublishedDate);
+        ActivityReply thirdReply = new ActivityReply("fry", "Fry", "Third reply", thirdReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), thirdReply);
         long fourthReplyPublishedDate = new Date().getTime();
-        ActivityReply fourthReply = new ActivityReply("leela", "Leela",
-                "Fourth reply", fourthReplyPublishedDate);
+        ActivityReply fourthReply = new ActivityReply("leela", "Leela", "Fourth reply", fourthReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), fourthReply);
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -524,32 +488,26 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
         Activity storedActivity = activities.get(0);
 
         long firstReplyPublishedDate = new Date().getTime();
-        ActivityReply firstReply = new ActivityReply("bender", "Bender",
-                "First reply", firstReplyPublishedDate);
+        ActivityReply firstReply = new ActivityReply("bender", "Bender", "First reply", firstReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), firstReply);
         long secondReplyPublishedDate = new Date().getTime();
-        ActivityReply secondReply = new ActivityReply("bender", "Bender",
-                "Second reply", secondReplyPublishedDate);
+        ActivityReply secondReply = new ActivityReply("bender", "Bender", "Second reply", secondReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), secondReply);
         long thirdReplyPublishedDate = new Date().getTime();
-        ActivityReply thirdReply = new ActivityReply("fry", "Fry",
-                "Third reply", thirdReplyPublishedDate);
+        ActivityReply thirdReply = new ActivityReply("fry", "Fry", "Third reply", thirdReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), thirdReply);
         long fourthReplyPublishedDate = new Date().getTime();
-        ActivityReply fourthReply = new ActivityReply("leela", "Leela",
-                "Fourth reply", fourthReplyPublishedDate);
+        ActivityReply fourthReply = new ActivityReply("leela", "Leela", "Fourth reply", fourthReplyPublishedDate);
         activityStreamService.addActivityReply(storedActivity.getId(), fourthReply);
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -584,8 +542,7 @@ public class TestActivityStreamService {
         assertEquals("Fourth reply", storedReply.getMessage());
 
         activityStreamService.removeActivityReply(activity.getId(), thirdReply.getId());
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         storedActivity = activities.get(0);
@@ -614,8 +571,7 @@ public class TestActivityStreamService {
         activity.setObject("Hello Fry");
         activityStreamService.addActivity(activity);
 
-        ActivitiesList activities = activityStreamService.query(
-                        ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        ActivitiesList activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(2, activities.size());
 
@@ -626,8 +582,7 @@ public class TestActivityStreamService {
 
         ((ActivityStreamServiceImpl) activityStreamService).upgradeActivities();
 
-        activities = activityStreamService.query(
-                        ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(2, activities.size());
 

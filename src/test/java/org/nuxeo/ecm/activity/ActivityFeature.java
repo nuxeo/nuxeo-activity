@@ -35,11 +35,12 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  * @since 5.6
  */
 @Features({ TransactionalFeature.class, CoreFeature.class })
-@Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity"})
+@Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity" })
 @LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
 public class ActivityFeature extends SimpleFeature {
 
     protected static final String DIRECTORY = "target/test/nxactivities";
+
     protected static final String PROP_NAME = "ds.nxactivities.home";
 
     protected File dir;
@@ -54,8 +55,7 @@ public class ActivityFeature extends SimpleFeature {
     }
 
     @Override
-    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method,
-            Object test) throws Exception {
+    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {
         TransactionHelper.setTransactionRollbackOnly();
     }
 }

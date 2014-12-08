@@ -32,26 +32,23 @@ import org.nuxeo.ecm.core.api.CoreSession;
 public interface ActivitiesList extends List<Activity> {
 
     /**
-     * Returns a filtered {@code ActivitiesList} based on the given
-     * {@code session}.
+     * Returns a filtered {@code ActivitiesList} based on the given {@code session}.
      * <p>
-     * All the activities related to documents the user has no read access will
-     * be filter out.
+     * All the activities related to documents the user has no read access will be filter out.
      */
     ActivitiesList filterActivities(CoreSession session);
 
     /**
-     * Transforms this {@code ActivitiesList} into a list of
-     * {@code ActivityMessage}, internationalized with the given {@code locale}.
+     * Transforms this {@code ActivitiesList} into a list of {@code ActivityMessage}, internationalized with the given
+     * {@code locale}.
      */
     List<ActivityMessage> toActivityMessages(Locale locale);
 
     /**
-     * Transforms this {@code ActivitiesList} into a list of
-     * {@code ActivityMessage}, internationalized with the given {@code locale}.
+     * Transforms this {@code ActivitiesList} into a list of {@code ActivityMessage}, internationalized with the given
+     * {@code locale}.
      * <p>
-     * Use the {@link ActivityLinkBuilder} of name {@code activityLinkBuilderName} to
-     * generate the links.
+     * Use the {@link ActivityLinkBuilder} of name {@code activityLinkBuilderName} to generate the links.
      *
      * @since 5.6
      */

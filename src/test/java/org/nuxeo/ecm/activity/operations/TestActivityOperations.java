@@ -61,10 +61,8 @@ import com.google.inject.Inject;
 @RunWith(FeaturesRunner.class)
 @Features(ActivityFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
-@Deploy({ "org.nuxeo.ecm.automation.core",
-        "org.nuxeo.ecm.platform.userworkspace.types",
-        "org.nuxeo.ecm.platform.userworkspace.api",
-        "org.nuxeo.ecm.platform.userworkspace.core",
+@Deploy({ "org.nuxeo.ecm.automation.core", "org.nuxeo.ecm.platform.userworkspace.types",
+        "org.nuxeo.ecm.platform.userworkspace.api", "org.nuxeo.ecm.platform.userworkspace.core",
         "org.nuxeo.ecm.user.center.profile" })
 public class TestActivityOperations {
 
@@ -78,8 +76,7 @@ public class TestActivityOperations {
     protected AutomationService automationService;
 
     protected int getOffset() {
-        return activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null).size();
+        return activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null).size();
     }
 
     @Test
@@ -98,15 +95,13 @@ public class TestActivityOperations {
         assertNotNull(ctx);
 
         OperationChain chain = new OperationChain("testActivityOperation");
-        chain.add(AddActivityReply.ID).set("activityId",
-                String.valueOf(activity.getId())).set("message", replyMessage);
+        chain.add(AddActivityReply.ID).set("activityId", String.valueOf(activity.getId())).set("message", replyMessage);
         Blob result = (Blob) automationService.run(ctx, chain);
         assertNotNull(result);
         String json = result.getString();
         assertNotNull(json);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -134,18 +129,13 @@ public class TestActivityOperations {
         activity = activityStreamService.addActivity(activity);
 
         long firstReplyPublishedDate = new Date().getTime();
-        ActivityReply firstReply = new ActivityReply("bender", "Bender",
-                "First reply", firstReplyPublishedDate);
-        firstReply = activityStreamService.addActivityReply(
-                activity.getId(), firstReply);
+        ActivityReply firstReply = new ActivityReply("bender", "Bender", "First reply", firstReplyPublishedDate);
+        firstReply = activityStreamService.addActivityReply(activity.getId(), firstReply);
         long secondReplyPublishedDate = new Date().getTime();
-        ActivityReply secondReply = new ActivityReply("bender", "Bender",
-                "Second reply", secondReplyPublishedDate);
-        secondReply = activityStreamService.addActivityReply(
-                activity.getId(), secondReply);
+        ActivityReply secondReply = new ActivityReply("bender", "Bender", "Second reply", secondReplyPublishedDate);
+        secondReply = activityStreamService.addActivityReply(activity.getId(), secondReply);
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);
@@ -157,13 +147,11 @@ public class TestActivityOperations {
         assertNotNull(ctx);
 
         OperationChain chain = new OperationChain("testActivityOperation");
-        chain.add(RemoveActivityReply.ID).set("activityId",
-                String.valueOf(activity.getId())).set("replyId",
+        chain.add(RemoveActivityReply.ID).set("activityId", String.valueOf(activity.getId())).set("replyId",
                 secondReply.getId());
         automationService.run(ctx, chain);
 
-        activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
         activity = activities.get(0);

@@ -25,14 +25,12 @@ import java.util.Map;
 import org.nuxeo.runtime.model.ContributionFragmentRegistry;
 
 /**
- * Registry for activity streams, handling merge of registered
- * {@link ActivityStream} elements.
+ * Registry for activity streams, handling merge of registered {@link ActivityStream} elements.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
-public class ActivityStreamRegistry extends
-        ContributionFragmentRegistry<ActivityStream> {
+public class ActivityStreamRegistry extends ContributionFragmentRegistry<ActivityStream> {
 
     protected Map<String, ActivityStream> activityStreams = new HashMap<String, ActivityStream>();
 
@@ -46,8 +44,7 @@ public class ActivityStreamRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id, ActivityStream contrib,
-            ActivityStream newOrigContrib) {
+    public void contributionUpdated(String id, ActivityStream contrib, ActivityStream newOrigContrib) {
         activityStreams.put(id, contrib);
     }
 
@@ -67,8 +64,7 @@ public class ActivityStreamRegistry extends
         if (newVerbs != null) {
             List<String> merged = new ArrayList<String>();
             merged.addAll(newVerbs);
-            boolean keepOld = src.isAppendVerbs()
-                    || (newVerbs.isEmpty() && !src.isAppendVerbs());
+            boolean keepOld = src.isAppendVerbs() || (newVerbs.isEmpty() && !src.isAppendVerbs());
             if (keepOld) {
                 // add back old contributions
                 List<String> oldVerbs = dst.getVerbs();

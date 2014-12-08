@@ -39,8 +39,7 @@ import org.nuxeo.runtime.api.Framework;
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
-public class ActivitiesListImpl extends ArrayList<Activity> implements
-        ActivitiesList {
+public class ActivitiesListImpl extends ArrayList<Activity> implements ActivitiesList {
 
     private static final long serialVersionUID = 1L;
 
@@ -58,8 +57,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
 
         Map<String, List<Activity>> activitiesByDocument = getActivitiesByDocument();
 
-        List<String> authorizedDocuments = filterAuthorizedDocuments(
-                activitiesByDocument.keySet(), session);
+        List<String> authorizedDocuments = filterAuthorizedDocuments(activitiesByDocument.keySet(), session);
         // remove all activities the user has access to
         for (String authorizedDocument : authorizedDocuments) {
             activitiesByDocument.remove(authorizedDocument);
@@ -111,16 +109,11 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
         return relatedDocuments;
     }
 
-    protected List<String> filterAuthorizedDocuments(Set<String> allDocuments,
-            CoreSession session) {
+    protected List<String> filterAuthorizedDocuments(Set<String> allDocuments, CoreSession session) {
         try {
-            String idsParam = "('"
-                    + StringUtils.join(
-                            allDocuments.toArray(new String[allDocuments.size()]),
-                            "', '") + "')";
-            String query = String.format(
-                    "SELECT ecm:uuid FROM Document WHERE ecm:uuid IN %s",
-                    idsParam);
+            String idsParam = "('" + StringUtils.join(allDocuments.toArray(new String[allDocuments.size()]), "', '")
+                    + "')";
+            String query = String.format("SELECT ecm:uuid FROM Document WHERE ecm:uuid IN %s", idsParam);
             IterableQueryResult res = session.queryAndFetch(query, "NXQL");
 
             try {
@@ -144,8 +137,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
         ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
         List<ActivityMessage> messages = new ArrayList<ActivityMessage>();
         for (Activity activity : this) {
-            messages.add(activityStreamService.toActivityMessage(activity,
-                    locale));
+            messages.add(activityStreamService.toActivityMessage(activity, locale));
         }
         return messages;
     }
@@ -155,8 +147,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements
         ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
         List<ActivityMessage> messages = new ArrayList<ActivityMessage>();
         for (Activity activity : this) {
-            messages.add(activityStreamService.toActivityMessage(activity,
-                    locale, activityLinkBuilderName));
+            messages.add(activityStreamService.toActivityMessage(activity, locale, activityLinkBuilderName));
         }
         return messages;
     }

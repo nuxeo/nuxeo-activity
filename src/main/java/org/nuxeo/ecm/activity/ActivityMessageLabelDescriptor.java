@@ -21,8 +21,7 @@ import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XObject;
 
 /**
- * Descriptor object for registering a mapping between an Activity verb and a
- * label key.
+ * Descriptor object for registering a mapping between an Activity verb and a label key.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5

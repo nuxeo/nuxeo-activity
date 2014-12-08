@@ -23,14 +23,12 @@ import java.util.Map;
 import org.nuxeo.runtime.model.ContributionFragmentRegistry;
 
 /**
- * Registry for activity verbs, handling merge of registered
- * {@link org.nuxeo.ecm.activity.ActivityVerb} elements.
+ * Registry for activity verbs, handling merge of registered {@link org.nuxeo.ecm.activity.ActivityVerb} elements.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-public class ActivityVerbRegistry extends
-        ContributionFragmentRegistry<ActivityVerb> {
+public class ActivityVerbRegistry extends ContributionFragmentRegistry<ActivityVerb> {
 
     protected Map<String, ActivityVerb> activityVerbs = new HashMap<String, ActivityVerb>();
 
@@ -44,8 +42,7 @@ public class ActivityVerbRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id, ActivityVerb contrib,
-            ActivityVerb newOrigContrib) {
+    public void contributionUpdated(String id, ActivityVerb contrib, ActivityVerb newOrigContrib) {
         activityVerbs.put(id, contrib);
     }
 

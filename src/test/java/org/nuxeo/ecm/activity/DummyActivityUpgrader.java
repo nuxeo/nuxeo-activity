@@ -20,10 +20,8 @@ package org.nuxeo.ecm.activity;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-
 /**
- * Dummy {@link ActivityUpgrader} replacing all activities actors by 'Dummy
- * Actor'.
+ * Dummy {@link ActivityUpgrader} replacing all activities actors by 'Dummy Actor'.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.7
@@ -34,8 +32,7 @@ public class DummyActivityUpgrader extends AbstractActivityUpgrader {
     public void doUpgrade(ActivityStreamService activityStreamService) {
         EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();
         Query query = em.createQuery("select activity from Activity activity");
-        ActivitiesList activities = new ActivitiesListImpl(
-                query.getResultList());
+        ActivitiesList activities = new ActivitiesListImpl(query.getResultList());
 
         for (Activity activity : activities) {
             activity.setActor("Dummy Actor");

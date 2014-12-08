@@ -46,8 +46,7 @@ public class RemoveActivityReply {
 
     @OperationMethod
     public void run() throws Exception {
-        activityStreamService.removeActivityReply(Long.valueOf(activityId),
-                replyId);
+        activityStreamService.removeActivityReply(Long.valueOf(activityId), replyId);
     }
 
 }

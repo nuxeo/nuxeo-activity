@@ -42,10 +42,8 @@ import com.google.inject.Inject;
 @RunWith(FeaturesRunner.class)
 @Features(ActivityFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
-@Deploy({ "org.nuxeo.ecm.platform.userworkspace.types",
-        "org.nuxeo.ecm.platform.userworkspace.api",
-        "org.nuxeo.ecm.platform.userworkspace.core",
-        "org.nuxeo.ecm.user.center.profile" })
+@Deploy({ "org.nuxeo.ecm.platform.userworkspace.types", "org.nuxeo.ecm.platform.userworkspace.api",
+        "org.nuxeo.ecm.platform.userworkspace.core", "org.nuxeo.ecm.user.center.profile" })
 public class TestActivityLinkBuilder {
 
     @Inject
@@ -62,19 +60,15 @@ public class TestActivityLinkBuilder {
         Activity activity = new ActivityImpl();
         activity.setActor(ActivityHelper.createUserActivityObject("bender"));
         activity.setVerb("test");
-        activity.setObject(ActivityHelper.createDocumentActivityObject(
-                "server", "docId"));
+        activity.setObject(ActivityHelper.createDocumentActivityObject("server", "docId"));
         activity.setPublishedDate(new Date());
 
-        ActivityMessage activityMessage = activityStreamService.toActivityMessage(
-                activity, Locale.ENGLISH, "dummy");
+        ActivityMessage activityMessage = activityStreamService.toActivityMessage(activity, Locale.ENGLISH, "dummy");
         assertEquals("userProfileLink", activityMessage.getDisplayActorLink());
 
         ActivityLinkBuilder dummyActivityLinkBuilder = activityStreamService.getActivityLinkBuilder("dummy");
-        assertEquals("documentLink",
-                dummyActivityLinkBuilder.getDocumentLink("server", "docId"));
-        assertEquals("userAvatarURL",
-                dummyActivityLinkBuilder.getUserAvatarURL(null, "bender"));
+        assertEquals("documentLink", dummyActivityLinkBuilder.getDocumentLink("server", "docId"));
+        assertEquals("userAvatarURL", dummyActivityLinkBuilder.getUserAvatarURL(null, "bender"));
     }
 
 }

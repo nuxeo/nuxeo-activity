@@ -225,13 +225,10 @@ public class ActivityImpl implements Activity {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(replies,
-                    new TypeReference<List<ActivityReply>>() {
-                    });
+            return mapper.readValue(replies, new TypeReference<List<ActivityReply>>() {
+            });
         } catch (Exception e) {
-            log.warn(String.format(
-                    "Unable to convert replies to ActivityReply: %s",
-                    e.getMessage()));
+            log.warn(String.format("Unable to convert replies to ActivityReply: %s", e.getMessage()));
             log.debug(e, e);
             return new ArrayList<ActivityReply>();
         }
@@ -245,9 +242,7 @@ public class ActivityImpl implements Activity {
             mapper.writeValue(writer, activityReplies);
             replies = writer.toString();
         } catch (Exception e) {
-            log.warn(String.format(
-                    "Unable to convert replies to ActivityReply: %s",
-                    e.getMessage()));
+            log.warn(String.format("Unable to convert replies to ActivityReply: %s", e.getMessage()));
             log.debug(e, e);
         }
     }
@@ -265,8 +260,7 @@ public class ActivityImpl implements Activity {
         m.put("verb", verb);
         m.put("context", context);
         m.put("publishedDate", publishedDate.toString());
-        m.put("lastUpdatedDate",
-                lastUpdatedDate != null ? lastUpdatedDate.toString() : null);
+        m.put("lastUpdatedDate", lastUpdatedDate != null ? lastUpdatedDate.toString() : null);
         m.put("replies", replies);
         return Collections.unmodifiableMap(m);
     }

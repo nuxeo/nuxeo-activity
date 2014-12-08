@@ -51,9 +51,8 @@ public class ActivityReplyMessage implements Serializable {
 
     private final long publishedDate;
 
-    public ActivityReplyMessage(String activityReplyId, String actor,
-            String displayActor, String displayActorLink, String message,
-            long publishedDate) {
+    public ActivityReplyMessage(String activityReplyId, String actor, String displayActor, String displayActorLink,
+            String message, long publishedDate) {
         this.activityReplyId = activityReplyId;
         this.actor = actor;
         this.displayActor = displayActor;
@@ -86,19 +85,16 @@ public class ActivityReplyMessage implements Serializable {
         return publishedDate;
     }
 
-    public Map<String, Object> toMap(CoreSession session, Locale locale)
-            throws ClientException {
+    public Map<String, Object> toMap(CoreSession session, Locale locale) throws ClientException {
         return toMap(session, locale, null);
     }
 
     public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
             throws ClientException {
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(
-                        ActivityStreamService.class).getActivityLinkBuilder(
-                        activityLinkBuilderName);
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
+                activityLinkBuilderName);
 
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                locale);
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
 
         Map<String, Object> o = new HashMap<String, Object>();
         o.put("id", getActivityReplyId());
@@ -107,8 +103,7 @@ public class ActivityReplyMessage implements Serializable {
         o.put("displayActorLink", getDisplayActorLink());
         if (isUser(getActor())) {
             String actorUsername = getUsername(getActor());
-            o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(
-                    session, actorUsername));
+            o.put("actorAvatarURL", activityLinkBuilder.getUserAvatarURL(session, actorUsername));
         }
         o.put("message", getMessage());
         o.put("publishedDate", dateFormat.format(new Date(getPublishedDate())));

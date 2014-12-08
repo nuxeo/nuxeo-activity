@@ -56,14 +56,12 @@ public class ActivityHelper {
     }
 
     public static boolean isActivity(String activityObject) {
-        return activityObject != null
-                && activityObject.startsWith(ACTIVITY_PREFIX);
+        return activityObject != null && activityObject.startsWith(ACTIVITY_PREFIX);
     }
 
     public static String getUsername(String activityObject) {
         if (!isUser(activityObject)) {
-            throw new IllegalArgumentException(activityObject
-                    + " is not a user activity object");
+            throw new IllegalArgumentException(activityObject + " is not a user activity object");
         }
         return activityObject.replaceAll(USER_PREFIX, "");
     }
@@ -101,12 +99,10 @@ public class ActivityHelper {
     }
 
     public static String createDocumentActivityObject(DocumentModel doc) {
-        return createDocumentActivityObject(doc.getRepositoryName(),
-                doc.getId());
+        return createDocumentActivityObject(doc.getRepositoryName(), doc.getId());
     }
 
-    public static String createDocumentActivityObject(String repositoryName,
-            String docId) {
+    public static String createDocumentActivityObject(String repositoryName, String docId) {
         return DOC_PREFIX + repositoryName + SEPARATOR + docId;
     }
 
@@ -131,8 +127,7 @@ public class ActivityHelper {
             NuxeoPrincipal nuxeoPrincipal = (NuxeoPrincipal) principal;
             if (!StringUtils.isBlank(nuxeoPrincipal.getFirstName())
                     || !StringUtils.isBlank(nuxeoPrincipal.getLastName())) {
-                return nuxeoPrincipal.getFirstName() + " "
-                        + nuxeoPrincipal.getLastName();
+                return nuxeoPrincipal.getFirstName() + " " + nuxeoPrincipal.getLastName();
             }
         }
         return principal.getName();

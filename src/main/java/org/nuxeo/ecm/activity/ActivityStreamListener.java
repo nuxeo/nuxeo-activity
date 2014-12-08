@@ -45,8 +45,7 @@ import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * Listener called asynchronously to save events as activities through the
- * {@link ActivityStreamService}.
+ * Listener called asynchronously to save events as activities through the {@link ActivityStreamService}.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -116,8 +115,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
 
                 CoreSession session = docEventContext.getCoreSession();
                 for (DocumentRef ref : getParentSuperSpaceRefs(session, doc)) {
-                    String context = ActivityHelper.createDocumentActivityObject(
-                            session.getRepositoryName(), ref.toString());
+                    String context = ActivityHelper.createDocumentActivityObject(session.getRepositoryName(),
+                            ref.toString());
                     activity = toActivity(docEventContext, event, context);
                     activityStreamService.addActivity(activity);
                 }
@@ -129,8 +128,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         // Not really interested in non live document or if document
         // cannot be reconnected
         // or if not visible
-        return doc instanceof ShallowDocumentModel
-                || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
+        return doc instanceof ShallowDocumentModel || doc.hasFacet(HIDDEN_IN_NAVIGATION) //
                 || doc.hasFacet(SYSTEM_DOCUMENT) //
                 || doc.isProxy() //
                 || doc.isVersion();
@@ -155,29 +153,21 @@ public class ActivityStreamListener implements PostCommitEventListener {
     }
 
     protected List<String> getHandledEventsName() {
-        return Arrays.asList(DOCUMENT_CREATED, DOCUMENT_UPDATED,
-                DOCUMENT_REMOVED);
+        return Arrays.asList(DOCUMENT_CREATED, DOCUMENT_UPDATED, DOCUMENT_REMOVED);
     }
 
-    protected Activity toActivity(DocumentEventContext docEventContext,
-            Event event) {
+    protected Activity toActivity(DocumentEventContext docEventContext, Event event) {
         return toActivity(docEventContext, event, null);
     }
 
-    protected Activity toActivity(DocumentEventContext docEventContext,
-            Event event, String context) {
+    protected Activity toActivity(DocumentEventContext docEventContext, Event event, String context) {
         Principal principal = docEventContext.getPrincipal();
         DocumentModel doc = docEventContext.getSourceDocument();
-        return new ActivityBuilder().actor(
-                ActivityHelper.createUserActivityObject(principal)).displayActor(
-                ActivityHelper.generateDisplayName(principal)).verb(
-                event.getName()).object(
-                ActivityHelper.createDocumentActivityObject(doc)).displayObject(
-                ActivityHelper.getDocumentTitle(doc)).target(
-                ActivityHelper.createDocumentActivityObject(
-                        doc.getRepositoryName(), doc.getParentRef().toString())).displayTarget(
-                getDocumentTitle(docEventContext.getCoreSession(),
-                        doc.getParentRef())).context(context).build();
+        return new ActivityBuilder().actor(ActivityHelper.createUserActivityObject(principal)).displayActor(
+                ActivityHelper.generateDisplayName(principal)).verb(event.getName()).object(
+                ActivityHelper.createDocumentActivityObject(doc)).displayObject(ActivityHelper.getDocumentTitle(doc)).target(
+                ActivityHelper.createDocumentActivityObject(doc.getRepositoryName(), doc.getParentRef().toString())).displayTarget(
+                getDocumentTitle(docEventContext.getCoreSession(), doc.getParentRef())).context(context).build();
     }
 
     protected String getDocumentTitle(CoreSession session, DocumentRef docRef) {
@@ -189,8 +179,8 @@ public class ActivityStreamListener implements PostCommitEventListener {
         }
     }
 
-    protected List<DocumentRef> getParentSuperSpaceRefs(CoreSession session,
-            final DocumentModel doc) throws ClientException {
+    protected List<DocumentRef> getParentSuperSpaceRefs(CoreSession session, final DocumentModel doc)
+            throws ClientException {
         final List<DocumentRef> parents = new ArrayList<DocumentRef>();
         new UnrestrictedSessionRunner(session) {
             @Override

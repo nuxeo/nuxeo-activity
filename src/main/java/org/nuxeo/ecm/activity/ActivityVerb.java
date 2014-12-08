@@ -26,8 +26,8 @@ import org.nuxeo.common.xmap.annotation.XObject;
 /**
  * An {@code ActivityVerb} stores the configuration for a given activity verb:
  * <ul>
- *   <li>a label key</li>
- *   <li>an icon path</li>
+ * <li>a label key</li>
+ * <li>an icon path</li>
  * </ul>
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>

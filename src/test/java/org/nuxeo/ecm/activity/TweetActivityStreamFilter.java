@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -46,8 +45,7 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
-    public void handleNewActivity(ActivityStreamService activityStreamService,
-            Activity activity) {
+    public void handleNewActivity(ActivityStreamService activityStreamService, Activity activity) {
         if (TWEET_VERB.equals(activity.getVerb())) {
             EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();
             TweetActivity tweetActivity = new TweetActivity();
@@ -67,15 +65,12 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
 
     @Override
     @Deprecated
-    public void handleRemovedActivities(
-            ActivityStreamService activityStreamService,
+    public void handleRemovedActivities(ActivityStreamService activityStreamService,
             Collection<Serializable> activityIds) {
     }
 
     @Override
-    public void handleRemovedActivities(
-            ActivityStreamService activityStreamService,
-            ActivitiesList activities) {
+    public void handleRemovedActivities(ActivityStreamService activityStreamService, ActivitiesList activities) {
         EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();
         Query query = em.createQuery("delete from Tweet tweet where tweet.activityId in (:activityIds)");
         query.setParameter("activityIds", activities.toActivityIds());
@@ -83,15 +78,14 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
     }
 
     @Override
-    public void handleRemovedActivityReply(
-            ActivityStreamService activityStreamService, Activity activity,
+    public void handleRemovedActivityReply(ActivityStreamService activityStreamService, Activity activity,
             ActivityReply activityReply) {
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public ActivitiesList query(ActivityStreamService activityStreamService,
-            Map<String, Serializable> parameters, long offset, long limit) {
+    public ActivitiesList query(ActivityStreamService activityStreamService, Map<String, Serializable> parameters,
+            long offset, long limit) {
         if (parameters.containsKey("seenBy")) {
             String seenBy = (String) parameters.get("seenBy");
             EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();

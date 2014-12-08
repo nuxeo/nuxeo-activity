@@ -36,8 +36,7 @@ public final class ActivityReply {
     public ActivityReply() {
     }
 
-    public ActivityReply(String actor, String displayActor, String message,
-            long publishedDate) {
+    public ActivityReply(String actor, String displayActor, String message, long publishedDate) {
         this.actor = actor;
         this.displayActor = displayActor;
         this.message = message;

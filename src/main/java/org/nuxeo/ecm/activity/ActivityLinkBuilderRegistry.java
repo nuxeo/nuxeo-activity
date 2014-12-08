@@ -25,14 +25,12 @@ import java.util.Map;
 import org.nuxeo.runtime.model.ContributionFragmentRegistry;
 
 /**
- * Registry for activity link builders, handling merge of registered
- * {@link ActivityLinkBuilderDescriptor} elements.
+ * Registry for activity link builders, handling merge of registered {@link ActivityLinkBuilderDescriptor} elements.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
  */
-public class ActivityLinkBuilderRegistry extends
-        ContributionFragmentRegistry<ActivityLinkBuilderDescriptor> {
+public class ActivityLinkBuilderRegistry extends ContributionFragmentRegistry<ActivityLinkBuilderDescriptor> {
 
     protected Map<String, ActivityLinkBuilder> activityLinkBuilders = new HashMap<String, ActivityLinkBuilder>();
 
@@ -40,8 +38,7 @@ public class ActivityLinkBuilderRegistry extends
 
     public ActivityLinkBuilder getDefaultActivityLinkBuilder() {
         if (activityLinkBuildersIds.isEmpty()) {
-            throw new IllegalStateException(
-                    "No default ActivityLinkBuilder configured");
+            throw new IllegalStateException("No default ActivityLinkBuilder configured");
         }
         return activityLinkBuilders.get(activityLinkBuildersIds.get(0));
     }
@@ -56,8 +53,7 @@ public class ActivityLinkBuilderRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id,
-            ActivityLinkBuilderDescriptor contrib,
+    public void contributionUpdated(String id, ActivityLinkBuilderDescriptor contrib,
             ActivityLinkBuilderDescriptor newOrigContrib) {
         activityLinkBuilders.put(id, contrib.getActivityLinkBuilder());
         if (contrib.isDefault()) {
@@ -66,21 +62,18 @@ public class ActivityLinkBuilderRegistry extends
     }
 
     @Override
-    public void contributionRemoved(String id,
-            ActivityLinkBuilderDescriptor origContrib) {
+    public void contributionRemoved(String id, ActivityLinkBuilderDescriptor origContrib) {
         activityLinkBuilders.remove(id);
         activityLinkBuildersIds.remove(id);
     }
 
     @Override
-    public ActivityLinkBuilderDescriptor clone(
-            ActivityLinkBuilderDescriptor orig) {
+    public ActivityLinkBuilderDescriptor clone(ActivityLinkBuilderDescriptor orig) {
         return orig.clone();
     }
 
     @Override
-    public void merge(ActivityLinkBuilderDescriptor src,
-            ActivityLinkBuilderDescriptor dst) {
+    public void merge(ActivityLinkBuilderDescriptor src, ActivityLinkBuilderDescriptor dst) {
         Class<? extends ActivityLinkBuilder> clazz = src.getActivityLinkBuilderClass();
         if (clazz != null) {
             dst.setActivityLinkBuilderClass(clazz);

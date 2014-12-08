@@ -27,8 +27,7 @@ import org.nuxeo.ecm.platform.query.api.AbstractPageProvider;
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
-public abstract class AbstractActivityPageProvider<T> extends
-        AbstractPageProvider<T> {
+public abstract class AbstractActivityPageProvider<T> extends AbstractPageProvider<T> {
 
     private static final long serialVersionUID = 1L;
 

@@ -58,13 +58,11 @@ public class TestActivityStreamListener {
 
     @Test
     public void shouldAddNewActivitiesThroughListener() throws ClientException {
-        DocumentModel doc1 = session.createDocumentModel("/", "firstDocument",
-                "File");
+        DocumentModel doc1 = session.createDocumentModel("/", "firstDocument", "File");
         doc1 = session.createDocument(doc1);
         commitAndWaitForAsyncCompletion();
 
-        DocumentModel doc2 = session.createDocumentModel("/", "secondDocument",
-                "File");
+        DocumentModel doc2 = session.createDocumentModel("/", "secondDocument", "File");
         doc2 = session.createDocument(doc2);
         commitAndWaitForAsyncCompletion();
 
@@ -72,8 +70,7 @@ public class TestActivityStreamListener {
         session.saveDocument(doc1);
         commitAndWaitForAsyncCompletion();
 
-        List<Activity> activities = activityStreamService.query(
-                ActivityStreamService.ALL_ACTIVITIES, null);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null);
         assertNotNull(activities);
         assertEquals(3, activities.size());
 
@@ -82,35 +79,25 @@ public class TestActivityStreamListener {
         assertEquals(1L, storedActivity.getId());
         assertEquals(currentUser, storedActivity.getActor());
         assertEquals(DOCUMENT_CREATED, storedActivity.getVerb());
-        assertEquals(ActivityHelper.createDocumentActivityObject(doc1),
-                storedActivity.getObject());
+        assertEquals(ActivityHelper.createDocumentActivityObject(doc1), storedActivity.getObject());
         assertEquals("firstDocument", storedActivity.getDisplayObject());
-        assertEquals(
-                ActivityHelper.createDocumentActivityObject(session.getRootDocument()),
-                storedActivity.getTarget());
+        assertEquals(ActivityHelper.createDocumentActivityObject(session.getRootDocument()), storedActivity.getTarget());
 
         storedActivity = activities.get(1);
         assertEquals(2L, storedActivity.getId());
         assertEquals(currentUser, storedActivity.getActor());
         assertEquals(DOCUMENT_CREATED, storedActivity.getVerb());
-        assertEquals(ActivityHelper.createDocumentActivityObject(doc2),
-                storedActivity.getObject());
+        assertEquals(ActivityHelper.createDocumentActivityObject(doc2), storedActivity.getObject());
         assertEquals("secondDocument", storedActivity.getDisplayObject());
-        assertEquals(
-                ActivityHelper.createDocumentActivityObject(session.getRootDocument()),
-                storedActivity.getTarget());
+        assertEquals(ActivityHelper.createDocumentActivityObject(session.getRootDocument()), storedActivity.getTarget());
 
         storedActivity = activities.get(2);
         assertEquals(3L, storedActivity.getId());
         assertEquals(currentUser, storedActivity.getActor());
-        assertEquals(DocumentEventTypes.DOCUMENT_UPDATED,
-                storedActivity.getVerb());
-        assertEquals(ActivityHelper.createDocumentActivityObject(doc1),
-                storedActivity.getObject());
+        assertEquals(DocumentEventTypes.DOCUMENT_UPDATED, storedActivity.getVerb());
+        assertEquals(ActivityHelper.createDocumentActivityObject(doc1), storedActivity.getObject());
         assertEquals("A new Title", storedActivity.getDisplayObject());
-        assertEquals(
-                ActivityHelper.createDocumentActivityObject(session.getRootDocument()),
-                storedActivity.getTarget());
+        assertEquals(ActivityHelper.createDocumentActivityObject(session.getRootDocument()), storedActivity.getTarget());
     }
 
     /**

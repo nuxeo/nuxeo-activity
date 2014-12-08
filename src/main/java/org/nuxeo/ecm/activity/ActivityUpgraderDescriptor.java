@@ -22,8 +22,7 @@ import org.nuxeo.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.core.api.ClientRuntimeException;
 
 /**
- * Descriptor object for registering
- * {@link org.nuxeo.ecm.activity.ActivityUpgrader}s.
+ * Descriptor object for registering {@link org.nuxeo.ecm.activity.ActivityUpgrader}s.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.7
@@ -82,8 +81,7 @@ public class ActivityUpgraderDescriptor {
         return activityUpgraderClass;
     }
 
-    public void setActivityUpgraderClass(
-            Class<? extends ActivityUpgrader> activityUpgraderClass) {
+    public void setActivityUpgraderClass(Class<? extends ActivityUpgrader> activityUpgraderClass) {
         this.activityUpgraderClass = activityUpgraderClass;
     }
 

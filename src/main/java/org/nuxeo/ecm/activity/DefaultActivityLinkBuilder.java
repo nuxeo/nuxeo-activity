@@ -40,8 +40,7 @@ import org.nuxeo.ecm.user.center.profile.UserProfileService;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * Default {@link ActivityLinkBuilder} computing URLs with the default id codec
- * for documents and user codec for users.
+ * Default {@link ActivityLinkBuilder} computing URLs with the default id codec for documents and user codec for users.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.6
@@ -49,37 +48,30 @@ import org.nuxeo.runtime.api.Framework;
 public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
 
     @Override
-    public String getDocumentLink(String documentActivityObject,
-            String displayValue) {
+    public String getDocumentLink(String documentActivityObject, String displayValue) {
         documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
         displayValue = StringEscapeUtils.escapeHtml(displayValue);
         String link = "<a href=\"%s\" target=\"_top\">%s</a>";
         return String.format(
                 link,
-                getDocumentURL(
-                        ActivityHelper.getRepositoryName(documentActivityObject),
-                        ActivityHelper.getDocumentId(documentActivityObject)),
-                displayValue);
+                getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
+                        ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
     }
 
     protected String getDocumentURL(String repositoryName, String documentId) {
-        DocumentLocation docLoc = new DocumentLocationImpl(repositoryName,
-                new IdRef(documentId));
+        DocumentLocation docLoc = new DocumentLocationImpl(repositoryName, new IdRef(documentId));
         DocumentView docView = new DocumentViewImpl(docLoc, "view_documents");
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
-        return urlPolicyService.getUrlFromDocumentView("id", docView,
-                VirtualHostHelper.getContextPathProperty());
+        return urlPolicyService.getUrlFromDocumentView("id", docView, VirtualHostHelper.getContextPathProperty());
     }
 
     @Override
-    public String getUserProfileLink(String userActivityObject,
-            String displayValue) {
+    public String getUserProfileLink(String userActivityObject, String displayValue) {
         userActivityObject = StringEscapeUtils.escapeHtml(userActivityObject);
         displayValue = StringEscapeUtils.escapeHtml(displayValue);
         String link = "<span class=\"username\"><a href=\"%s\" target=\"_top\" title=\"%s\">%s</a></span>";
         String username = ActivityHelper.getUsername(userActivityObject);
-        return String.format(link, getUserProfileURL(username), username,
-                displayValue);
+        return String.format(link, getUserProfileURL(username), username, displayValue);
     }
 
     protected String getUserProfileURL(String username) {
@@ -87,31 +79,25 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
         params.put("username", username);
         DocumentView docView = new DocumentViewImpl(null, null, params);
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
-        return urlPolicyService.getUrlFromDocumentView("user", docView,
-                VirtualHostHelper.getContextPathProperty());
+        return urlPolicyService.getUrlFromDocumentView("user", docView, VirtualHostHelper.getContextPathProperty());
     }
 
     @Override
-    public String getUserAvatarURL(CoreSession session, String username)
-            throws ClientException {
+    public String getUserAvatarURL(CoreSession session, String username) throws ClientException {
         UserProfileService userProfileService = Framework.getLocalService(UserProfileService.class);
-        DocumentModel profile = userProfileService.getUserProfileDocument(
-                username, session);
+        DocumentModel profile = userProfileService.getUserProfileDocument(username, session);
         Blob avatar = (Blob) profile.getPropertyValue(USER_PROFILE_AVATAR_FIELD);
         if (avatar != null) {
-            String bigDownloadURL = VirtualHostHelper.getContextPathProperty()
-                    + "/";
+            String bigDownloadURL = VirtualHostHelper.getContextPathProperty() + "/";
             bigDownloadURL += "nxbigfile" + "/";
             bigDownloadURL += profile.getRepositoryName() + "/";
             bigDownloadURL += profile.getRef().toString() + "/";
             bigDownloadURL += USER_PROFILE_AVATAR_FIELD + "/";
-            String filename = username + "."
-                    + FilenameUtils.getExtension(avatar.getFilename());
+            String filename = username + "." + FilenameUtils.getExtension(avatar.getFilename());
             bigDownloadURL += URIUtils.quoteURIPathComponent(filename, true);
             return bigDownloadURL;
         } else {
-            return VirtualHostHelper.getContextPathProperty()
-                    + "/icons/missing_avatar.png";
+            return VirtualHostHelper.getContextPathProperty() + "/icons/missing_avatar.png";
         }
     }
 }

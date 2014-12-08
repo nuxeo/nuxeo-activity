@@ -21,10 +21,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-
 /**
- * Filter called by the {@code ActivityStreamService} to store and filter
- * activities for specific use cases.
+ * Filter called by the {@code ActivityStreamService} to store and filter activities for specific use cases.
  *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
@@ -37,47 +35,40 @@ public interface ActivityStreamFilter {
     String getId();
 
     /**
-     * Returns {@code true} if this {@code ActivityStreamFilter} is interested
-     * in the given {@code activity}, {@code false} otherwise.
+     * Returns {@code true} if this {@code ActivityStreamFilter} is interested in the given {@code activity},
+     * {@code false} otherwise.
      */
     boolean isInterestedIn(Activity activity);
 
     /**
-     * Called by the {@code ActivityStreamService} when a new {@code Activity}
-     * is stored.
+     * Called by the {@code ActivityStreamService} when a new {@code Activity} is stored.
      * <p>
      * The given {@code activity} must not be modified.
      */
-    void handleNewActivity(ActivityStreamService activityStreamService,
-            Activity activity);
+    void handleNewActivity(ActivityStreamService activityStreamService, Activity activity);
 
     /**
-     * Called by the {@code ActivityStreamService} before removing the
-     * activities referenced by the given {@code activityIds}.
+     * Called by the {@code ActivityStreamService} before removing the activities referenced by the given
+     * {@code activityIds}.
      *
      * @deprecated since 5.6
      */
     @Deprecated
-    void handleRemovedActivities(ActivityStreamService activityStreamService,
-            Collection<Serializable> activityIds);
+    void handleRemovedActivities(ActivityStreamService activityStreamService, Collection<Serializable> activityIds);
 
     /**
-     * Called by the {@code ActivityStreamService} before removing the given
-     * {@code activities}.
+     * Called by the {@code ActivityStreamService} before removing the given {@code activities}.
      *
      * @since 5.6
      */
-    void handleRemovedActivities(ActivityStreamService activityStreamService,
-            ActivitiesList activities);
+    void handleRemovedActivities(ActivityStreamService activityStreamService, ActivitiesList activities);
 
     /**
-     * Called by the {@code ActivityStreamService} before removing the given
-     * {@code activityReply}.
+     * Called by the {@code ActivityStreamService} before removing the given {@code activityReply}.
      *
      * @since 5.6
      */
-    void handleRemovedActivityReply(
-            ActivityStreamService activityStreamService, Activity activity,
+    void handleRemovedActivityReply(ActivityStreamService activityStreamService, Activity activity,
             ActivityReply activityReply);
 
     /**
@@ -86,10 +77,9 @@ public interface ActivityStreamFilter {
      * @param activityStreamService the main {@code ActivityStreamService}
      * @param parameters this query parameters.
      * @param offset the offset (starting at 0) into the list of activities.
-     * @param limit the maximum number of activities to retrieve, or 0 for all
-     *            of them.
+     * @param limit the maximum number of activities to retrieve, or 0 for all of them.
      */
-    ActivitiesList query(ActivityStreamService activityStreamService,
-            Map<String, Serializable> parameters, long offset, long limit);
+    ActivitiesList query(ActivityStreamService activityStreamService, Map<String, Serializable> parameters,
+            long offset, long limit);
 
 }
