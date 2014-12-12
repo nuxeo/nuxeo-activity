@@ -79,6 +79,9 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
         params.put("username", username);
         DocumentView docView = new DocumentViewImpl(null, null, params);
         URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
+        if (urlPolicyService == null) {
+            return "";
+        }
         return urlPolicyService.getUrlFromDocumentView("user", docView, VirtualHostHelper.getContextPathProperty());
     }
 
