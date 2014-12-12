@@ -45,7 +45,7 @@ public class RemoveActivityReply {
     protected String replyId;
 
     @OperationMethod
-    public void run() throws Exception {
+    public void run() throws NumberFormatException {
         activityStreamService.removeActivityReply(Long.valueOf(activityId), replyId);
     }
 

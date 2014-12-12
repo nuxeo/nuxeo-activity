@@ -269,11 +269,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         String displayActor = activity.getDisplayActor();
         String displayActorLink;
         if (ActivityHelper.isUser(actor)) {
-            try {
-                displayActorLink = activityLinkBuilder.getUserProfileLink(actor, activity.getDisplayActor());
-            } catch (Exception e) {
-                displayActorLink = activity.getDisplayActor();
-            }
+            displayActorLink = activityLinkBuilder.getUserProfileLink(actor, activity.getDisplayActor());
         } else {
             displayActorLink = activity.getDisplayActor();
         }

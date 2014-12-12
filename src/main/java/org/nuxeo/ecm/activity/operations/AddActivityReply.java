@@ -21,6 +21,7 @@ import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
 import static org.nuxeo.ecm.activity.ActivityMessageHelper.replaceURLsByLinks;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.util.Date;
@@ -77,7 +78,7 @@ public class AddActivityReply {
     protected String activityLinkBuilderName;
 
     @OperationMethod
-    public Blob run() throws Exception {
+    public Blob run() throws IOException {
         String actor = ActivityHelper.createUserActivityObject(session.getPrincipal());
         String displayActor = ActivityHelper.generateDisplayName(session.getPrincipal());
         ActivityReply reply = new ActivityReply(actor, displayActor, message, new Date().getTime());
@@ -107,13 +108,7 @@ public class AddActivityReply {
     }
 
     protected String getDisplayActorLink(String actor, String displayActor, ActivityLinkBuilder activityLinkBuilder) {
-        try {
-            return activityLinkBuilder.getUserProfileLink(actor, displayActor);
-        } catch (Exception e) {
-            log.warn(String.format("Unable to get user profile link for '%s': %s", actor, e.getMessage()));
-            log.debug(e, e);
-        }
-        return "";
+        return activityLinkBuilder.getUserProfileLink(actor, displayActor);
     }
 
 }

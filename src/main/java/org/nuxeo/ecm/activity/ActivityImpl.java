@@ -17,6 +17,7 @@
 
 package org.nuxeo.ecm.activity;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +47,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 /**
  * Default implementation of {@link Activity}.
- * 
+ *
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
  * @since 5.5
  */
@@ -227,7 +228,7 @@ public class ActivityImpl implements Activity {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(replies, new TypeReference<List<ActivityReply>>() {
             });
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.warn(String.format("Unable to convert replies to ActivityReply: %s", e.getMessage()));
             log.debug(e, e);
             return new ArrayList<ActivityReply>();
@@ -241,7 +242,7 @@ public class ActivityImpl implements Activity {
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, activityReplies);
             replies = writer.toString();
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.warn(String.format("Unable to convert replies to ActivityReply: %s", e.getMessage()));
             log.debug(e, e);
         }

@@ -61,7 +61,7 @@ public class ActivityLinkBuilderDescriptor {
     public ActivityLinkBuilder getActivityLinkBuilder() {
         try {
             return activityLinkBuilderClass.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new ClientRuntimeException(e);
         }
     }

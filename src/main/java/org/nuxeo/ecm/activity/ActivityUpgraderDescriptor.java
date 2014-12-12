@@ -64,7 +64,7 @@ public class ActivityUpgraderDescriptor {
             upgrader.setName(name);
             upgrader.setOrder(order);
             return upgrader;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new ClientRuntimeException(e);
         }
     }

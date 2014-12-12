@@ -52,7 +52,7 @@ public class ActivityStreamFilterDescriptor {
     public ActivityStreamFilter getActivityStreamFilter() throws ClientException {
         try {
             return activityStreamFilterClass.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new ClientException(e);
         }
     }
