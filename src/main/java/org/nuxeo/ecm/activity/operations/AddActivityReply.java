@@ -20,7 +20,6 @@ package org.nuxeo.ecm.activity.operations;
 import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
 import static org.nuxeo.ecm.activity.ActivityMessageHelper.replaceURLsByLinks;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -43,7 +42,7 @@ import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.impl.blob.InputStreamBlob;
+import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -104,7 +103,7 @@ public class AddActivityReply {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, m);
 
-        return new InputStreamBlob(new ByteArrayInputStream(writer.toString().getBytes("UTF-8")), "application/json");
+        return new StringBlob(writer.toString(), "application/json");
     }
 
     protected String getDisplayActorLink(String actor, String displayActor, ActivityLinkBuilder activityLinkBuilder) {
