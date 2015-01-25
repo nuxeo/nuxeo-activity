@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.nuxeo.ecm.activity.ActivityHelper;
 import org.nuxeo.ecm.activity.ActivityLinkBuilder;
@@ -41,8 +39,8 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -55,8 +53,6 @@ import org.nuxeo.runtime.api.Framework;
 public class AddActivityReply {
 
     public static final String ID = "Services.AddActivityReply";
-
-    private static final Log log = LogFactory.getLog(AddActivityReply.class);
 
     @Context
     protected CoreSession session;
@@ -103,7 +99,7 @@ public class AddActivityReply {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, m);
 
-        return new StringBlob(writer.toString(), "application/json");
+        return Blobs.createBlob(writer.toString(), "application/json");
     }
 
     protected String getDisplayActorLink(String actor, String displayActor, ActivityLinkBuilder activityLinkBuilder) {
