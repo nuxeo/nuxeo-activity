@@ -2,33 +2,28 @@
 
 This addon provides a service to store and retrieve activities done in Nuxeo.
 
+# Building
 
-## Building and deploying
+    mvn clean install
 
-### How to build
-
-You can build Nuxeo Activity with:
-
-    $ mvn clean install
-
-### How to deploy
-
-#### Deploy the module
-
-Copy the `nuxeo-activity-*.jar` into your Nuxeo instance in `nxserver/bundles` and restart.
-
-#### Configure the Datasource
+## Deploying
 
 Nuxeo Activity relies on a Datasource `nxactivities` which is not defined in a default distribution.
 The easiest way to add it is to use the provided `activity` template. You need to copy the `templates/activity` folder into your Nuxeo instance:
 
-    $ cp -r templates/activity $NUXEO_HOME/templates/
+    cp -r templates/activity $NUXEO_HOME/templates/
 
-Edit the `bin/nuxeo.conf` file to deploy the `activity` template after the default configuration:
+Copy the built artifacts into `$NUXEO_HOME/templates/activity/bundles/`.
+
+Edit the `bin/nuxeo.conf` file to activate the `activity` template:
 
     nuxeo.templates=default,activity
 
 Restart the Nuxeo instance.
+
+## QA results
+
+[![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=addons_nuxeo-activity-master)](https://qa.nuxeo.org/jenkins/job/addons_nuxeo-activity-master/)
 
 
 ## About Nuxeo
