@@ -86,7 +86,7 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
     }
 
     @Override
-    public String getUserAvatarURL(CoreSession session, String username) throws ClientException {
+    public String getUserAvatarURL(CoreSession session, String username) {
         UserProfileService userProfileService = Framework.getLocalService(UserProfileService.class);
         DocumentModel profile = userProfileService.getUserProfileDocument(username, session);
         Blob avatar = (Blob) profile.getPropertyValue(USER_PROFILE_AVATAR_FIELD);

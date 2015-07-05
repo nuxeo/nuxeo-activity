@@ -85,12 +85,12 @@ public class ActivityReplyMessage implements Serializable {
         return publishedDate;
     }
 
-    public Map<String, Object> toMap(CoreSession session, Locale locale) throws ClientException {
+    public Map<String, Object> toMap(CoreSession session, Locale locale) {
         return toMap(session, locale, null);
     }
 
     public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
-            throws ClientException {
+            {
         ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 

@@ -53,7 +53,7 @@ import org.nuxeo.runtime.api.Framework;
 public class ActivityStreamListener implements PostCommitEventListener {
 
     @Override
-    public void handleEvent(EventBundle events) throws ClientException {
+    public void handleEvent(EventBundle events) {
         if (isEventBundleHandled(events)) {
             List<Event> filteredEvents = filterDuplicateEvents(events);
             for (Event event : filteredEvents) {
@@ -93,7 +93,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         return events;
     }
 
-    protected void handleEvent(Event event) throws ClientException {
+    protected void handleEvent(Event event) {
         EventContext eventContext = event.getContext();
         if (eventContext instanceof DocumentEventContext) {
             if (isEventHandled(event)) {
@@ -180,11 +180,11 @@ public class ActivityStreamListener implements PostCommitEventListener {
     }
 
     protected List<DocumentRef> getParentSuperSpaceRefs(CoreSession session, final DocumentModel doc)
-            throws ClientException {
+            {
         final List<DocumentRef> parents = new ArrayList<DocumentRef>();
         new UnrestrictedSessionRunner(session) {
             @Override
-            public void run() throws ClientException {
+            public void run() {
                 List<DocumentModel> parentDocuments = session.getParentDocuments(doc.getRef());
                 for (DocumentModel parent : parentDocuments) {
                     if (parent.hasFacet(SUPER_SPACE)) {
