@@ -56,7 +56,7 @@ public class TestActivityLinkBuilder {
     }
 
     @Test
-    public void shouldRewriteLinkInActivityMessage() throws ClientException {
+    public void shouldRewriteLinkInActivityMessage() {
         Activity activity = new ActivityImpl();
         activity.setActor(ActivityHelper.createUserActivityObject("bender"));
         activity.setVerb("test");

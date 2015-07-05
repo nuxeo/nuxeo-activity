@@ -56,7 +56,7 @@ public class TestActivityStreamListener {
     protected ActivityStreamService activityStreamService;
 
     @Test
-    public void shouldAddNewActivitiesThroughListener() throws ClientException {
+    public void shouldAddNewActivitiesThroughListener() {
         DocumentModel doc1 = session.createDocumentModel("/", "firstDocument", "File");
         doc1 = session.createDocument(doc1);
         commitAndWaitForAsyncCompletion();

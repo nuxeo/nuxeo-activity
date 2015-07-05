@@ -33,5 +33,5 @@ public interface ActivityLinkBuilder {
 
     String getUserProfileLink(String userActivityObject, String displayValue);
 
-    String getUserAvatarURL(CoreSession session, String username) throws ClientException;
+    String getUserAvatarURL(CoreSession session, String username);
 }

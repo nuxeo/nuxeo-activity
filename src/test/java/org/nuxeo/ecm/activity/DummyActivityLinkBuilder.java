@@ -37,7 +37,7 @@ public class DummyActivityLinkBuilder implements ActivityLinkBuilder {
     }
 
     @Override
-    public String getUserAvatarURL(CoreSession session, String username) throws ClientException {
+    public String getUserAvatarURL(CoreSession session, String username) {
         return "userAvatarURL";
     }
 

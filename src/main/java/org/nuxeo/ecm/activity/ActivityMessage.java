@@ -152,7 +152,7 @@ public final class ActivityMessage implements Serializable {
     /**
      * @since 5.6
      */
-    public Map<String, Object> toMap(CoreSession session, Locale locale) throws ClientException {
+    public Map<String, Object> toMap(CoreSession session, Locale locale) {
         return toMap(session, locale, null);
     }
 
@@ -160,7 +160,7 @@ public final class ActivityMessage implements Serializable {
      * @since 5.6
      */
     public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
-            throws ClientException {
+            {
         ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 

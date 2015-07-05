@@ -566,7 +566,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         }
     }
 
-    private void registerActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) throws ClientException {
+    private void registerActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) {
         ActivityStreamFilter filter = descriptor.getActivityStreamFilter();
 
         String filterId = filter.getId();
@@ -632,7 +632,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         }
     }
 
-    private void unregisterActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) throws ClientException {
+    private void unregisterActivityStreamFilter(ActivityStreamFilterDescriptor descriptor) {
         ActivityStreamFilter filter = descriptor.getActivityStreamFilter();
         String filterId = filter.getId();
         activityStreamFilters.remove(filterId);

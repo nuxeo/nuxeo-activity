@@ -303,7 +303,7 @@ public class TestActivityStreamService {
     }
 
     @Test
-    public void shouldRemoveTweets() throws ClientException {
+    public void shouldRemoveTweets() {
         int offset = getOffset();
 
         Activity activity = new ActivityImpl();
@@ -333,7 +333,7 @@ public class TestActivityStreamService {
     }
 
     @SuppressWarnings("unchecked")
-    private List<TweetActivity> getAllTweetActivities() throws ClientException {
+    private List<TweetActivity> getAllTweetActivities() {
         return ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(true,
                 new PersistenceProvider.RunCallback<List<TweetActivity>>() {
                     @Override
