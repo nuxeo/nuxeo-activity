@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.i18n.I18NUtils;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.persistence.PersistenceProviderFactory;
@@ -100,7 +99,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
                         upgradeActivities(em, upgrader);
                     }
                 });
-            } catch (ClientException e) {
+            } catch (NuxeoException e) {
                 log.error(String.format("Error while running '%s' activity upgrader: %s", upgrader.getName(),
                         e.getMessage()));
                 log.debug(e, e);

@@ -19,7 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.core.api.NuxeoException;
 
 /**
  * Descriptor object for registering {@link ActivityStreamFilter}s.
@@ -53,7 +53,7 @@ public class ActivityStreamFilterDescriptor {
         try {
             return activityStreamFilterClass.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new ClientException(e);
+            throw new NuxeoException(e);
         }
     }
 

@@ -17,7 +17,6 @@
 
 package org.nuxeo.ecm.activity;
 
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.repository.RepositoryInitializationHandler;
 import org.nuxeo.runtime.api.Framework;

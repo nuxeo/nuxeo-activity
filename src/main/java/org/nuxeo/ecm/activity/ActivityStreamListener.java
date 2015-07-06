@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -42,6 +41,7 @@ import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.event.impl.ShallowDocumentModel;
+import org.nuxeo.ecm.core.model.NoSuchDocumentException;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -174,7 +174,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
         try {
             DocumentModel doc = session.getDocument(docRef);
             return ActivityHelper.getDocumentTitle(doc);
-        } catch (ClientException e) {
+        } catch (NoSuchDocumentException e) {
             return docRef.toString();
         }
     }

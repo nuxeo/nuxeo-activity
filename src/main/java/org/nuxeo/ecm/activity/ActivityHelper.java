@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.model.PropertyException;
 
 /**
  * Helper class to deal with activity objects.
@@ -136,7 +136,7 @@ public class ActivityHelper {
     public static String getDocumentTitle(DocumentModel doc) {
         try {
             return doc.getTitle();
-        } catch (ClientException e) {
+        } catch (PropertyException e) {
             return doc.getId();
         }
     }
