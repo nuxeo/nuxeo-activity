@@ -38,7 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.ClientRuntimeException;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.persistence.PersistenceProviderFactory;
 import org.nuxeo.ecm.core.repository.RepositoryInitializationHandler;
@@ -131,7 +131,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
         final ActivityStreamFilter filter = activityStreamFilters.get(filterId);
         if (filter == null) {
-            throw new ClientRuntimeException(String.format("Unable to retrieve '%s' ActivityStreamFilter", filterId));
+            throw new NuxeoException(String.format("Unable to retrieve '%s' ActivityStreamFilter", filterId));
         }
 
         return query(filter, parameters, offset, limit);
@@ -139,16 +139,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     protected ActivitiesList query(final ActivityStreamFilter filter, final Map<String, Serializable> parameters,
             final long offset, final long limit) {
-        try {
-            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-                @Override
-                public ActivitiesList runWith(EntityManager em) {
-                    return query(em, filter, parameters, offset, limit);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+            @Override
+            public ActivitiesList runWith(EntityManager em) {
+                return query(em, filter, parameters, offset, limit);
+            }
+        });
     }
 
     protected ActivitiesList query(EntityManager em, ActivityStreamFilter filter, Map<String, Serializable> parameters,
@@ -163,16 +159,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     protected ActivitiesList queryAll(final long offset, final long limit) {
-        try {
-            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-                @Override
-                public ActivitiesList runWith(EntityManager em) {
-                    return queryAll(em, offset, limit);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+            @Override
+            public ActivitiesList runWith(EntityManager em) {
+                return queryAll(em, offset, limit);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -192,16 +184,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         if (activity.getPublishedDate() == null) {
             activity.setPublishedDate(new Date());
         }
-        try {
-            getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
-                @Override
-                public void runWith(EntityManager em) {
-                    addActivity(em, activity);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
+            @Override
+            public void runWith(EntityManager em) {
+                addActivity(em, activity);
+            }
+        });
         return activity;
     }
 
@@ -224,17 +212,12 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         if (activities == null || activities.isEmpty()) {
             return;
         }
-
-        try {
-            getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
-                @Override
-                public void runWith(EntityManager em) {
-                    removeActivities(em, activities);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
+            @Override
+            public void runWith(EntityManager em) {
+                removeActivities(em, activities);
+            }
+        });
     }
 
     protected void removeActivities(EntityManager em, Collection<Activity> activities) {
@@ -399,44 +382,31 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     public Activity getActivity(final Serializable activityId) {
-        try {
-            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
-                @Override
-                public Activity runWith(EntityManager em) {
-                    return getActivity(em, activityId);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
+            @Override
+            public Activity runWith(EntityManager em) {
+                return getActivity(em, activityId);
+            }
+        });
     }
 
     public ActivitiesList getActivities(final Collection<Serializable> activityIds) {
-        try {
-            return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-                @Override
-                public ActivitiesList runWith(EntityManager em) {
-                    return getActivities(em, activityIds);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
+            @Override
+            public ActivitiesList runWith(EntityManager em) {
+                return getActivities(em, activityIds);
+            }
+        });
     }
 
     @Override
     public ActivityReply removeActivityReply(final Serializable activityId, final String activityReplyId) {
-        try {
-            return getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunCallback<ActivityReply>() {
-                @Override
-                public ActivityReply runWith(EntityManager em) {
-                    return removeActivityReply(em, activityId, activityReplyId);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
-
+        return getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunCallback<ActivityReply>() {
+            @Override
+            public ActivityReply runWith(EntityManager em) {
+                return removeActivityReply(em, activityId, activityReplyId);
+            }
+        });
     }
 
     /**
@@ -482,17 +452,13 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     protected void updateActivity(final Activity activity) {
-        try {
-            getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
-                @Override
-                public Activity runWith(EntityManager em) {
-                    activity.setLastUpdatedDate(new Date());
-                    return em.merge(activity);
-                }
-            });
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
-        }
+        getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
+            @Override
+            public Activity runWith(EntityManager em) {
+                activity.setLastUpdatedDate(new Date());
+                return em.merge(activity);
+            }
+        });
     }
 
     public EntityManager getEntityManager() {

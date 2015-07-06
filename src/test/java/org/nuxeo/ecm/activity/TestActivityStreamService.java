@@ -32,8 +32,7 @@ import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.ClientRuntimeException;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.persistence.PersistenceProvider;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
@@ -122,7 +121,7 @@ public class TestActivityStreamService {
         assertEquals(activity.getObject(), storedActivity.getObject());
     }
 
-    @Test(expected = ClientRuntimeException.class)
+    @Test(expected = NuxeoException.class)
     public void shouldThrowExceptionIfFilterIsNotRegistered() {
         Activity activity = new ActivityImpl();
         activity.setActor("Administrator");

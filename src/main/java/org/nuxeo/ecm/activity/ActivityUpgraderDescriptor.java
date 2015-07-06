@@ -19,7 +19,7 @@ package org.nuxeo.ecm.activity;
 
 import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.ecm.core.api.ClientRuntimeException;
+import org.nuxeo.ecm.core.api.NuxeoException;
 
 /**
  * Descriptor object for registering {@link org.nuxeo.ecm.activity.ActivityUpgrader}s.
@@ -65,7 +65,7 @@ public class ActivityUpgraderDescriptor {
             upgrader.setOrder(order);
             return upgrader;
         } catch (ReflectiveOperationException e) {
-            throw new ClientRuntimeException(e);
+            throw new NuxeoException(e);
         }
     }
 
