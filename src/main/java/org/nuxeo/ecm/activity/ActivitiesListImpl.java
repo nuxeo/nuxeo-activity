@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nuxeo.common.utils.StringUtils;
-import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.ClientRuntimeException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.runtime.api.Framework;
@@ -110,25 +108,20 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     }
 
     protected List<String> filterAuthorizedDocuments(Set<String> allDocuments, CoreSession session) {
-        try {
-            String idsParam = "('" + StringUtils.join(allDocuments.toArray(new String[allDocuments.size()]), "', '")
-                    + "')";
-            String query = String.format("SELECT ecm:uuid FROM Document WHERE ecm:uuid IN %s", idsParam);
-            IterableQueryResult res = session.queryAndFetch(query, "NXQL");
+        String idsParam = "('" + StringUtils.join(allDocuments.toArray(new String[allDocuments.size()]), "', '") + "')";
+        String query = String.format("SELECT ecm:uuid FROM Document WHERE ecm:uuid IN %s", idsParam);
+        IterableQueryResult res = session.queryAndFetch(query, "NXQL");
 
-            try {
-                List<String> authorizedDocuments = new ArrayList<String>();
-                for (Map<String, Serializable> map : res) {
-                    authorizedDocuments.add((String) map.get("ecm:uuid"));
-                }
-                return authorizedDocuments;
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
+        try {
+            List<String> authorizedDocuments = new ArrayList<String>();
+            for (Map<String, Serializable> map : res) {
+                authorizedDocuments.add((String) map.get("ecm:uuid"));
             }
-        } catch (ClientException e) {
-            throw new ClientRuntimeException(e);
+            return authorizedDocuments;
+        } finally {
+            if (res != null) {
+                res.close();
+            }
         }
     }
 

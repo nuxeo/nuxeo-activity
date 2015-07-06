@@ -59,8 +59,7 @@ public interface ActivityStreamService {
      * @param parameters this query parameters.
      * @param offset the offset (starting at 0) into the list of activities.
      * @param limit the maximum number of activities to retrieve, or 0 for all of them.
-     * @throws org.nuxeo.ecm.core.api.ClientRuntimeException if there is no {@code ActivityStreamFilter} matching the
-     *             given {@code filterId}.
+     * @throws NuxeoException if there is no {@code ActivityStreamFilter} matching the given {@code filterId}.
      */
     ActivitiesList query(String filterId, Map<String, Serializable> parameters, long offset, long limit);
 
@@ -70,8 +69,7 @@ public interface ActivityStreamService {
      *
      * @param filterId the id of the {@code ActivityStreamFilter} to use.
      * @param parameters this query parameters.
-     * @throws org.nuxeo.ecm.core.api.ClientRuntimeException if there is no {@code ActivityStreamFilter} matching the
-     *             given {@code filterId}.
+     * @throws NuxeoException if there is no {@code ActivityStreamFilter} matching the given {@code filterId}.
      */
     ActivitiesList query(String filterId, Map<String, Serializable> parameters);
 
