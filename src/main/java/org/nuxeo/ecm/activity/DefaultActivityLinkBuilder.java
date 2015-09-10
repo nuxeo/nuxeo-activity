@@ -24,13 +24,13 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.nuxeo.common.utils.URIUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentLocation;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.impl.DocumentLocationImpl;
+import org.nuxeo.ecm.core.io.download.DownloadService;
 import org.nuxeo.ecm.platform.ui.web.rest.api.URLPolicyService;
 import org.nuxeo.ecm.platform.url.DocumentViewImpl;
 import org.nuxeo.ecm.platform.url.api.DocumentView;
@@ -90,14 +90,10 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
         DocumentModel profile = userProfileService.getUserProfileDocument(username, session);
         Blob avatar = (Blob) profile.getPropertyValue(USER_PROFILE_AVATAR_FIELD);
         if (avatar != null) {
-            String bigDownloadURL = VirtualHostHelper.getContextPathProperty() + "/";
-            bigDownloadURL += "nxbigfile" + "/";
-            bigDownloadURL += profile.getRepositoryName() + "/";
-            bigDownloadURL += profile.getRef().toString() + "/";
-            bigDownloadURL += USER_PROFILE_AVATAR_FIELD + "/";
+            DownloadService downloadService = Framework.getService(DownloadService.class);
             String filename = username + "." + FilenameUtils.getExtension(avatar.getFilename());
-            bigDownloadURL += URIUtils.quoteURIPathComponent(filename, true);
-            return bigDownloadURL;
+            return VirtualHostHelper.getContextPathProperty() + "/"
+                    + downloadService.getDownloadUrl(profile, USER_PROFILE_AVATAR_FIELD, filename);
         } else {
             return VirtualHostHelper.getContextPathProperty() + "/icons/missing_avatar.png";
         }
