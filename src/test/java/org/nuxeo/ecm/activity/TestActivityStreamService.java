@@ -238,17 +238,6 @@ public class TestActivityStreamService {
     }
 
     @Test
-    public void shouldStoreLabelKeyForActivityVerbs() {
-        // compat test
-        ActivityVerbRegistry activityVerbRegistry = ((ActivityStreamServiceImpl) activityStreamService).activityVerbRegistry;
-        assertNotNull(activityVerbRegistry);
-
-        ActivityVerb activityVerb = activityVerbRegistry.get("compatVerb");
-        assertNotNull(activityVerb);
-        assertEquals("label.activity.compatLabel", activityVerb.getLabelKey());
-    }
-
-    @Test
     public void shouldStoreActivityVerbs() {
         ActivityVerbRegistry activityVerbRegistry = ((ActivityStreamServiceImpl) activityStreamService).activityVerbRegistry;
         assertNotNull(activityVerbRegistry);

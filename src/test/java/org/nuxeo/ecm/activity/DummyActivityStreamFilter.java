@@ -19,7 +19,6 @@
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -45,13 +44,6 @@ public class DummyActivityStreamFilter implements ActivityStreamFilter {
     @Override
     public void handleNewActivity(ActivityStreamService activityStreamService, Activity activity) {
         lastActivity = activity;
-    }
-
-    @Override
-    @Deprecated
-    public void handleRemovedActivities(ActivityStreamService activityStreamService,
-            Collection<Serializable> activityIds) {
-        // nothing
     }
 
     @Override

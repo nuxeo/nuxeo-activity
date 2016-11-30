@@ -61,12 +61,6 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     public static final String ACTIVITY_STREAM_FILTER_EP = "activityStreamFilters";
 
-    /**
-     * @deprecated since 5.6. Use {@link #ACTIVITY_VERBS_EP}.
-     */
-    @Deprecated
-    public static final String ACTIVITY_MESSAGE_LABELS_EP = "activityMessageLabels";
-
     public static final String ACTIVITY_STREAMS_EP = "activityStreams";
 
     public static final String ACTIVITY_VERBS_EP = "activityVerbs";
@@ -493,8 +487,6 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     public void registerContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             registerActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
-        } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
-            registerActivityMessageLabel((ActivityMessageLabelDescriptor) contribution);
         } else if (ACTIVITY_STREAMS_EP.equals(extensionPoint)) {
             registerActivityStream((ActivityStream) contribution);
         } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
@@ -525,16 +517,6 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         }
     }
 
-    private void registerActivityMessageLabel(ActivityMessageLabelDescriptor descriptor) {
-        log.info("Registering activity message label for verb" + descriptor.getActivityVerb());
-        log.warn("The 'activityMessageLabels' extension point is deprecated, "
-                + "please use the 'activityVerbs' extension point.");
-        ActivityVerb activityVerb = new ActivityVerb();
-        activityVerb.setVerb(descriptor.getActivityVerb());
-        activityVerb.setLabelKey(descriptor.getLabelKey());
-        registerActivityVerb(activityVerb);
-    }
-
     private void registerActivityStream(ActivityStream activityStream) {
         log.info(String.format("Registering activity stream '%s'", activityStream.getName()));
         activityStreamRegistry.addContribution(activityStream);
@@ -559,8 +541,6 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     public void unregisterContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if (ACTIVITY_STREAM_FILTER_EP.equals(extensionPoint)) {
             unregisterActivityStreamFilter((ActivityStreamFilterDescriptor) contribution);
-        } else if (ACTIVITY_MESSAGE_LABELS_EP.equals(extensionPoint)) {
-            unregisterActivityMessageLabel((ActivityMessageLabelDescriptor) contribution);
         } else if (ACTIVITY_STREAMS_EP.equals(extensionPoint)) {
             unregisterActivityStream((ActivityStream) contribution);
         } else if (ACTIVITY_VERBS_EP.equals(extensionPoint)) {
@@ -577,16 +557,6 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         String filterId = filter.getId();
         activityStreamFilters.remove(filterId);
         log.info("Unregistering activity stream filter with id " + filterId);
-    }
-
-    private void unregisterActivityMessageLabel(ActivityMessageLabelDescriptor descriptor) {
-        ActivityVerb activityVerb = new ActivityVerb();
-        activityVerb.setVerb(descriptor.getActivityVerb());
-        activityVerb.setLabelKey(descriptor.getLabelKey());
-        unregisterActivityVerb(activityVerb);
-        log.info("Unregistering activity message label for verb " + activityVerb);
-        log.warn("The 'activityMessageLabels' extension point is deprecated, "
-                + "please use the 'activityVerbs' extension point.");
     }
 
     private void unregisterActivityStream(ActivityStream activityStream) {

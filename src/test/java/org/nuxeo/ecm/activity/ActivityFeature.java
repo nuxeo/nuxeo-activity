@@ -21,8 +21,8 @@ package org.nuxeo.ecm.activity;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.runners.model.FrameworkMethod;
-import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -49,7 +49,8 @@ public class ActivityFeature extends SimpleFeature {
     @Override
     public void initialize(FeaturesRunner runner) throws Exception {
         dir = new File(DIRECTORY);
-        FileUtils.deleteTree(dir);
+        FileUtils.deleteDirectory(dir);
+        dir.delete();
         dir.mkdirs();
         System.setProperty(PROP_NAME, dir.getPath());
         super.initialize(runner);
