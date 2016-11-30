@@ -45,14 +45,6 @@
   </extension>
 
   <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
-    point="activityMessageLabels">
-
-    <activityMessageLabel activityVerb="compatVerb"
-      labelKey="label.activity.compatLabel" />
-
-  </extension>
-
-  <extension target="org.nuxeo.ecm.activity.ActivityStreamService"
     point="activityLinkBuilders">
 
     <activityLinkBuilder name="dummy"

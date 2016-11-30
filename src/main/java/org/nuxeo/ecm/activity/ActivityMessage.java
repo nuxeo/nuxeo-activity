@@ -61,16 +61,6 @@ public final class ActivityMessage implements Serializable {
     private final List<ActivityReplyMessage> replies;
 
     /**
-     * @deprecated since 5.6. Use
-     *             {@link ActivityMessage#ActivityMessage(java.io.Serializable, String, String, String, String, String, java.util.Date, String, java.util.List)}
-     *             instead.
-     */
-    @Deprecated
-    public ActivityMessage(Serializable activityId, String message, Date publishedDate) {
-        this(activityId, null, null, null, null, message, publishedDate, null, null);
-    }
-
-    /**
      * @since 5.6
      */
     public ActivityMessage(Serializable activityId, String actor, String displayActor, String displayActorLink,
@@ -84,15 +74,6 @@ public final class ActivityMessage implements Serializable {
         this.publishedDate = publishedDate;
         this.icon = icon;
         this.replies = replies;
-    }
-
-    /**
-     * @deprecated since 5.6.
-     */
-    @Deprecated
-    public ActivityMessage(Activity activity, String message) {
-        this(activity.getId(), activity.getActor(), activity.getDisplayActor(), null, activity.getVerb(), message,
-                activity.getPublishedDate(), null, null);
     }
 
     public Serializable getActivityId() {

@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.common.utils.StringUtils;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.IterableQueryResult;
 import org.nuxeo.runtime.api.Framework;
@@ -109,7 +108,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     }
 
     protected List<String> filterAuthorizedDocuments(Set<String> allDocuments, CoreSession session) {
-        String idsParam = "('" + StringUtils.join(allDocuments.toArray(new String[allDocuments.size()]), "', '") + "')";
+        String idsParam = "('" + String.join("', '", allDocuments) + "')";
         String query = String.format("SELECT ecm:uuid FROM Document WHERE ecm:uuid IN %s", idsParam);
         IterableQueryResult res = session.queryAndFetch(query, "NXQL");
 

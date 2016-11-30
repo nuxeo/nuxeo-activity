@@ -19,7 +19,6 @@
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -47,15 +46,6 @@ public interface ActivityStreamFilter {
      * The given {@code activity} must not be modified.
      */
     void handleNewActivity(ActivityStreamService activityStreamService, Activity activity);
-
-    /**
-     * Called by the {@code ActivityStreamService} before removing the activities referenced by the given
-     * {@code activityIds}.
-     *
-     * @deprecated since 5.6
-     */
-    @Deprecated
-    void handleRemovedActivities(ActivityStreamService activityStreamService, Collection<Serializable> activityIds);
 
     /**
      * Called by the {@code ActivityStreamService} before removing the given {@code activities}.
