@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2011 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2006-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * Contributors:
  *     Thomas Roger <troger@nuxeo.com>
  */
-
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
@@ -64,7 +63,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
         }
 
         // extract all unauthorized activities
-        List<Activity> unauthorizedActivities = new ArrayList<Activity>();
+        List<Activity> unauthorizedActivities = new ArrayList<>();
         for (List<Activity> activities : activitiesByDocument.values()) {
             unauthorizedActivities.addAll(activities);
         }
@@ -75,13 +74,13 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     }
 
     protected Map<String, List<Activity>> getActivitiesByDocument() {
-        Map<String, List<Activity>> activitiesByDocuments = new HashMap<String, List<Activity>>();
+        Map<String, List<Activity>> activitiesByDocuments = new HashMap<>();
         for (Activity activity : this) {
             List<String> relatedDocuments = getRelatedDocuments(activity);
             for (String doc : relatedDocuments) {
                 List<Activity> value = activitiesByDocuments.get(doc);
                 if (value == null) {
-                    value = new ArrayList<Activity>();
+                    value = new ArrayList<>();
                     activitiesByDocuments.put(doc, value);
                 }
                 value.add(activity);
@@ -91,7 +90,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     }
 
     protected List<String> getRelatedDocuments(Activity activity) {
-        List<String> relatedDocuments = new ArrayList<String>();
+        List<String> relatedDocuments = new ArrayList<>();
 
         String activityObject = activity.getActor();
         if (activityObject != null && ActivityHelper.isDocument(activityObject)) {
@@ -115,7 +114,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
         IterableQueryResult res = session.queryAndFetch(query, "NXQL");
 
         try {
-            List<String> authorizedDocuments = new ArrayList<String>();
+            List<String> authorizedDocuments = new ArrayList<>();
             for (Map<String, Serializable> map : res) {
                 authorizedDocuments.add((String) map.get("ecm:uuid"));
             }
@@ -130,7 +129,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     @Override
     public List<ActivityMessage> toActivityMessages(Locale locale) {
         ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-        List<ActivityMessage> messages = new ArrayList<ActivityMessage>();
+        List<ActivityMessage> messages = new ArrayList<>();
         for (Activity activity : this) {
             messages.add(activityStreamService.toActivityMessage(activity, locale));
         }
@@ -140,7 +139,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
     @Override
     public List<ActivityMessage> toActivityMessages(Locale locale, String activityLinkBuilderName) {
         ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
-        List<ActivityMessage> messages = new ArrayList<ActivityMessage>();
+        List<ActivityMessage> messages = new ArrayList<>();
         for (Activity activity : this) {
             messages.add(activityStreamService.toActivityMessage(activity, locale, activityLinkBuilderName));
         }
@@ -149,7 +148,7 @@ public class ActivitiesListImpl extends ArrayList<Activity> implements Activitie
 
     @Override
     public List<Serializable> toActivityIds() {
-        List<Serializable> activityIds = new ArrayList<Serializable>();
+        List<Serializable> activityIds = new ArrayList<>();
         for (Activity activity : this) {
             activityIds.add(activity.getId());
         }

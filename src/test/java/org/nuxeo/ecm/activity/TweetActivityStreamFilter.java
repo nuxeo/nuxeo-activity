@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2011-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * Contributors:
  *     Thomas Roger <troger@nuxeo.com>
  */
-
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
@@ -91,7 +90,8 @@ public class TweetActivityStreamFilter implements ActivityStreamFilter {
         if (parameters.containsKey("seenBy")) {
             String seenBy = (String) parameters.get("seenBy");
             EntityManager em = ((ActivityStreamServiceImpl) activityStreamService).getEntityManager();
-            Query query = em.createQuery("select activity from Tweet tweet, Activity activity where tweet.seenBy=:seenBy and tweet.activityId = activity.id");
+            Query query = em.createQuery(
+                    "select activity from Tweet tweet, Activity activity where tweet.seenBy=:seenBy and tweet.activityId = activity.id");
             query.setParameter("seenBy", seenBy);
             return new ActivitiesListImpl(query.getResultList());
         }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2011-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * Contributors:
  *     Thomas Roger <troger@nuxeo.com>
  */
-
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
@@ -76,9 +75,9 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     public static final String ACTIVITY_UPGRADERS_EP = "activityUpgraders";
 
-    protected final ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<EntityManager>();
+    protected final ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<>();
 
-    protected final Map<String, ActivityStreamFilter> activityStreamFilters = new HashMap<String, ActivityStreamFilter>();
+    protected final Map<String, ActivityStreamFilter> activityStreamFilters = new HashMap<>();
 
     protected ActivityStreamRegistry activityStreamRegistry;
 
@@ -95,11 +94,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     public void upgradeActivities() {
         for (final ActivityUpgrader upgrader : activityUpgraderRegistry.getOrderedActivityUpgraders()) {
             try {
-                getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunVoid() {
-                    @Override
-                    public void runWith(EntityManager em) {
-                        upgradeActivities(em, upgrader);
-                    }
+                getOrCreatePersistenceProvider().run(false, em -> {
+                    upgradeActivities(em, upgrader);
                 });
             } catch (NuxeoException e) {
                 log.error(String.format("Error while running '%s' activity upgrader: %s", upgrader.getName(),
@@ -140,11 +136,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     protected ActivitiesList query(final ActivityStreamFilter filter, final Map<String, Serializable> parameters,
             final long offset, final long limit) {
-        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-            @Override
-            public ActivitiesList runWith(EntityManager em) {
-                return query(em, filter, parameters, offset, limit);
-            }
+        return getOrCreatePersistenceProvider().run(false, em -> {
+            return query(em, filter, parameters, offset, limit);
         });
     }
 
@@ -160,11 +153,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     protected ActivitiesList queryAll(final long offset, final long limit) {
-        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-            @Override
-            public ActivitiesList runWith(EntityManager em) {
-                return queryAll(em, offset, limit);
-            }
+        return getOrCreatePersistenceProvider().run(false, em -> {
+            return queryAll(em, offset, limit);
         });
     }
 
@@ -185,11 +175,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         if (activity.getPublishedDate() == null) {
             activity.setPublishedDate(new Date());
         }
-        getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
-            @Override
-            public void runWith(EntityManager em) {
-                addActivity(em, activity);
-            }
+        getOrCreatePersistenceProvider().run(true, em -> {
+            addActivity(em, activity);
         });
         return activity;
     }
@@ -213,11 +200,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         if (activities == null || activities.isEmpty()) {
             return;
         }
-        getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunVoid() {
-            @Override
-            public void runWith(EntityManager em) {
-                removeActivities(em, activities);
-            }
+        getOrCreatePersistenceProvider().run(true, em -> {
+            removeActivities(em, activities);
         });
     }
 
@@ -339,7 +323,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     private List<ActivityReplyMessage> toActivityReplyMessages(List<ActivityReply> replies, Locale locale,
             String activityLinkBuilderName) {
-        List<ActivityReplyMessage> activityReplyMessages = new ArrayList<ActivityReplyMessage>();
+        List<ActivityReplyMessage> activityReplyMessages = new ArrayList<>();
         for (ActivityReply reply : replies) {
             activityReplyMessages.add(toActivityReplyMessage(reply, locale, activityLinkBuilderName));
         }
@@ -383,30 +367,21 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     public Activity getActivity(final Serializable activityId) {
-        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
-            @Override
-            public Activity runWith(EntityManager em) {
-                return getActivity(em, activityId);
-            }
+        return getOrCreatePersistenceProvider().run(false, em -> {
+            return getActivity(em, activityId);
         });
     }
 
     public ActivitiesList getActivities(final Collection<Serializable> activityIds) {
-        return getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<ActivitiesList>() {
-            @Override
-            public ActivitiesList runWith(EntityManager em) {
-                return getActivities(em, activityIds);
-            }
+        return getOrCreatePersistenceProvider().run(false, em -> {
+            return getActivities(em, activityIds);
         });
     }
 
     @Override
     public ActivityReply removeActivityReply(final Serializable activityId, final String activityReplyId) {
-        return getOrCreatePersistenceProvider().run(true, new PersistenceProvider.RunCallback<ActivityReply>() {
-            @Override
-            public ActivityReply runWith(EntityManager em) {
-                return removeActivityReply(em, activityId, activityReplyId);
-            }
+        return getOrCreatePersistenceProvider().run(true, em -> {
+            return removeActivityReply(em, activityId, activityReplyId);
         });
     }
 
@@ -453,12 +428,9 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
     }
 
     protected void updateActivity(final Activity activity) {
-        getOrCreatePersistenceProvider().run(false, new PersistenceProvider.RunCallback<Activity>() {
-            @Override
-            public Activity runWith(EntityManager em) {
+        getOrCreatePersistenceProvider().run(false, em -> {
                 activity.setLastUpdatedDate(new Date());
                 return em.merge(activity);
-            }
         });
     }
 
@@ -478,7 +450,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         ClassLoader last = thread.getContextClassLoader();
         try {
             thread.setContextClassLoader(PersistenceProvider.class.getClassLoader());
-            PersistenceProviderFactory persistenceProviderFactory = Framework.getLocalService(PersistenceProviderFactory.class);
+            PersistenceProviderFactory persistenceProviderFactory = Framework.getLocalService(
+                    PersistenceProviderFactory.class);
             persistenceProvider = persistenceProviderFactory.newProvider(ACTIVITIES_PROVIDER);
             persistenceProvider.openPersistenceUnit();
         } finally {
