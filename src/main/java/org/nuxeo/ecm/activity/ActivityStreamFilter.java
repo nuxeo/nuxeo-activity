@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2011-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * Contributors:
  *     Thomas Roger <troger@nuxeo.com>
  */
-
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
@@ -81,7 +80,7 @@ public interface ActivityStreamFilter {
      * @param offset the offset (starting at 0) into the list of activities.
      * @param limit the maximum number of activities to retrieve, or 0 for all of them.
      */
-    ActivitiesList query(ActivityStreamService activityStreamService, Map<String, Serializable> parameters,
-            long offset, long limit);
+    ActivitiesList query(ActivityStreamService activityStreamService, Map<String, Serializable> parameters, long offset,
+            long limit);
 
 }

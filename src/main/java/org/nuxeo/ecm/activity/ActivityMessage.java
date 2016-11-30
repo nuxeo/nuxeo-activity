@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2011 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2006-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * Contributors:
  *     Thomas Roger <troger@nuxeo.com>
  */
-
 package org.nuxeo.ecm.activity;
 
 import static org.nuxeo.ecm.activity.ActivityHelper.getUsername;
@@ -160,14 +159,13 @@ public final class ActivityMessage implements Serializable {
     /**
      * @since 5.6
      */
-    public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
-            {
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
-                activityLinkBuilderName);
+    public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName) {
+        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class)
+                                                           .getActivityLinkBuilder(activityLinkBuilderName);
 
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
 
-        Map<String, Object> o = new HashMap<String, Object>();
+        Map<String, Object> o = new HashMap<>();
         o.put("id", getActivityId());
         o.put("actor", getActor());
         o.put("displayActor", getDisplayActor());
