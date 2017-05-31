@@ -101,7 +101,7 @@ public class AddActivityReply {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, m);
 
-        return Blobs.createBlob(writer.toString(), "application/json");
+        return Blobs.createJSONBlob(writer.toString());
     }
 
     protected String getDisplayActorLink(String actor, String displayActor, ActivityLinkBuilder activityLinkBuilder) {
