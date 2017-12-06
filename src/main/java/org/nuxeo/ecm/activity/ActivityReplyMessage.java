@@ -92,7 +92,7 @@ public class ActivityReplyMessage implements Serializable {
 
     public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName)
             {
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
+        ActivityLinkBuilder activityLinkBuilder = Framework.getService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);

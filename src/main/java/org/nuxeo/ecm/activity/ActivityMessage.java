@@ -141,7 +141,7 @@ public final class ActivityMessage implements Serializable {
      * @since 5.6
      */
     public Map<String, Object> toMap(CoreSession session, Locale locale, String activityLinkBuilderName) {
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class)
+        ActivityLinkBuilder activityLinkBuilder = Framework.getService(ActivityStreamService.class)
                                                            .getActivityLinkBuilder(activityLinkBuilderName);
 
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);

@@ -67,7 +67,7 @@ public class ActivityMessageHelper {
     public static String getDocumentURL(String repositoryName, String documentId) {
         DocumentLocation docLoc = new DocumentLocationImpl(repositoryName, new IdRef(documentId));
         DocumentView docView = new DocumentViewImpl(docLoc, "view_documents");
-        URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
+        URLPolicyService urlPolicyService = Framework.getService(URLPolicyService.class);
         return urlPolicyService.getUrlFromDocumentView("id", docView, VirtualHostHelper.getContextPathProperty());
     }
 
@@ -83,13 +83,13 @@ public class ActivityMessageHelper {
         Map<String, String> params = new HashMap<String, String>();
         params.put("username", username);
         DocumentView docView = new DocumentViewImpl(null, null, params);
-        URLPolicyService urlPolicyService = Framework.getLocalService(URLPolicyService.class);
+        URLPolicyService urlPolicyService = Framework.getService(URLPolicyService.class);
         return VirtualHostHelper.getContextPathProperty() + "/"
                 + urlPolicyService.getUrlFromDocumentView("user", docView, null);
     }
 
     public static String getUserAvatarURL(CoreSession session, String username) {
-        UserProfileService userProfileService = Framework.getLocalService(UserProfileService.class);
+        UserProfileService userProfileService = Framework.getService(UserProfileService.class);
         DocumentModel profile = userProfileService.getUserProfileDocument(username, session);
         Blob avatar = (Blob) profile.getPropertyValue(USER_PROFILE_AVATAR_FIELD);
         if (avatar != null) {
