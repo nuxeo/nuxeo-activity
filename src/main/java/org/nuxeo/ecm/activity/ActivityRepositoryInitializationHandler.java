@@ -31,7 +31,7 @@ public class ActivityRepositoryInitializationHandler extends RepositoryInitializ
 
     @Override
     public void doInitializeRepository(CoreSession session) {
-        ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+        ActivityStreamService activityStreamService = Framework.getService(ActivityStreamService.class);
         if (activityStreamService != null) {
             ((ActivityStreamServiceImpl) activityStreamService).upgradeActivities();
         }

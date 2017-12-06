@@ -83,7 +83,7 @@ public class AddActivityReply {
 
         Locale locale = language != null && !language.isEmpty() ? new Locale(language) : Locale.ENGLISH;
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
-        ActivityLinkBuilder activityLinkBuilder = Framework.getLocalService(ActivityStreamService.class).getActivityLinkBuilder(
+        ActivityLinkBuilder activityLinkBuilder = Framework.getService(ActivityStreamService.class).getActivityLinkBuilder(
                 activityLinkBuilderName);
 
         Map<String, Object> m = new HashMap<String, Object>();

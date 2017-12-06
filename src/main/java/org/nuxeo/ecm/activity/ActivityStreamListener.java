@@ -111,7 +111,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
                 }
 
                 // add activity without context
-                ActivityStreamService activityStreamService = Framework.getLocalService(ActivityStreamService.class);
+                ActivityStreamService activityStreamService = Framework.getService(ActivityStreamService.class);
                 Activity activity = toActivity(docEventContext, event);
                 activityStreamService.addActivity(activity);
 

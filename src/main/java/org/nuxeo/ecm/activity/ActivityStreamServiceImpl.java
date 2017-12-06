@@ -444,7 +444,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         ClassLoader last = thread.getContextClassLoader();
         try {
             thread.setContextClassLoader(PersistenceProvider.class.getClassLoader());
-            PersistenceProviderFactory persistenceProviderFactory = Framework.getLocalService(
+            PersistenceProviderFactory persistenceProviderFactory = Framework.getService(
                     PersistenceProviderFactory.class);
             persistenceProvider = persistenceProviderFactory.newProvider(ACTIVITIES_PROVIDER);
             persistenceProvider.openPersistenceUnit();
