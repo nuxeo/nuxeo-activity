@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.nuxeo.ecm.activity.ActivityHelper;
 import org.nuxeo.ecm.activity.ActivityLinkBuilder;
 import org.nuxeo.ecm.activity.ActivityReply;
@@ -44,6 +43,8 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.Blobs;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.runtime.api.Framework;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Operation to add an activity reply.
