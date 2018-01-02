@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2012 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2006-2018 Nuxeo (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,8 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
         documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
         displayValue = StringEscapeUtils.escapeHtml(displayValue);
         String link = "<a href=\"%s\" target=\"_top\">%s</a>";
-        return String.format(
-                link,
-                getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
-                        ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
+        return String.format(link, getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
+                ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
     }
 
     protected String getDocumentURL(String repositoryName, String documentId) {
@@ -76,7 +74,7 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
     }
 
     protected String getUserProfileURL(String username) {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("username", username);
         DocumentView docView = new DocumentViewImpl(null, null, params);
         URLPolicyService urlPolicyService = Framework.getService(URLPolicyService.class);

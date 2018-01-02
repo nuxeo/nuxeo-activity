@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2012 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2006-2018 Nuxeo (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +58,8 @@ public class ActivityMessageHelper {
         documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
         displayValue = StringEscapeUtils.escapeHtml(displayValue);
         String link = "<a href=\"%s\" target=\"_top\">%s</a>";
-        return String.format(
-                link,
-                getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
-                        ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
+        return String.format(link, getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
+                ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
     }
 
     public static String getDocumentURL(String repositoryName, String documentId) {
@@ -102,7 +100,8 @@ public class ActivityMessageHelper {
         }
     }
 
-    public static Pattern HTTP_URL_PATTERN = Pattern.compile("\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
+    public static Pattern HTTP_URL_PATTERN = Pattern.compile(
+            "\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 
     public static String replaceURLsByLinks(String message) {
         String escapedMessage = StringEscapeUtils.escapeHtml(message);

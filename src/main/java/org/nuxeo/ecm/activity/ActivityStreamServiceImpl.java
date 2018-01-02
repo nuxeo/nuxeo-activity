@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011-2016 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2011-2018 Nuxeo (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -352,7 +352,7 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
         long maxId = 0;
         for (ActivityReply reply : replies) {
             String replyId = reply.getId();
-            long currentId = Long.valueOf(replyId.replace(replyIdPrefix, ""));
+            long currentId = Long.parseLong(replyId.replace(replyIdPrefix, ""));
             if (currentId > maxId) {
                 maxId = currentId;
             }
@@ -423,8 +423,8 @@ public class ActivityStreamServiceImpl extends DefaultComponent implements Activ
 
     protected void updateActivity(final Activity activity) {
         getOrCreatePersistenceProvider().run(false, em -> {
-                activity.setLastUpdatedDate(new Date());
-                return em.merge(activity);
+            activity.setLastUpdatedDate(new Date());
+            return em.merge(activity);
         });
     }
 
