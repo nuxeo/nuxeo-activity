@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentLocation;
@@ -50,8 +50,8 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
 
     @Override
     public String getDocumentLink(String documentActivityObject, String displayValue) {
-        documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
+        documentActivityObject = StringEscapeUtils.escapeHtml4(documentActivityObject);
+        displayValue = StringEscapeUtils.escapeHtml4(displayValue);
         String link = "<a href=\"%s\" target=\"_top\">%s</a>";
         return String.format(link, getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
                 ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
@@ -66,8 +66,8 @@ public class DefaultActivityLinkBuilder implements ActivityLinkBuilder {
 
     @Override
     public String getUserProfileLink(String userActivityObject, String displayValue) {
-        userActivityObject = StringEscapeUtils.escapeHtml(userActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
+        userActivityObject = StringEscapeUtils.escapeHtml4(userActivityObject);
+        displayValue = StringEscapeUtils.escapeHtml4(displayValue);
         String link = "<span class=\"username\"><a href=\"%s\" target=\"_top\" title=\"%s\">%s</a></span>";
         String username = ActivityHelper.getUsername(userActivityObject);
         return String.format(link, getUserProfileURL(username), username, displayValue);

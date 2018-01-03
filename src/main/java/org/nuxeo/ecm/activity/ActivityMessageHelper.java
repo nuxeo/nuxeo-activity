@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentLocation;
@@ -55,8 +55,8 @@ public class ActivityMessageHelper {
     }
 
     public static String getDocumentLink(String documentActivityObject, String displayValue) {
-        documentActivityObject = StringEscapeUtils.escapeHtml(documentActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
+        documentActivityObject = StringEscapeUtils.escapeHtml4(documentActivityObject);
+        displayValue = StringEscapeUtils.escapeHtml4(displayValue);
         String link = "<a href=\"%s\" target=\"_top\">%s</a>";
         return String.format(link, getDocumentURL(ActivityHelper.getRepositoryName(documentActivityObject),
                 ActivityHelper.getDocumentId(documentActivityObject)), displayValue);
@@ -70,8 +70,8 @@ public class ActivityMessageHelper {
     }
 
     public static String getUserProfileLink(String userActivityObject, String displayValue) {
-        userActivityObject = StringEscapeUtils.escapeHtml(userActivityObject);
-        displayValue = StringEscapeUtils.escapeHtml(displayValue);
+        userActivityObject = StringEscapeUtils.escapeHtml4(userActivityObject);
+        displayValue = StringEscapeUtils.escapeHtml4(displayValue);
         String link = "<span class=\"username\"><a href=\"%s\" target=\"_top\" title=\"%s\">%s</a></span>";
         String username = ActivityHelper.getUsername(userActivityObject);
         return String.format(link, getUserProfileURL(username), username, displayValue);
@@ -104,7 +104,7 @@ public class ActivityMessageHelper {
             "\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 
     public static String replaceURLsByLinks(String message) {
-        String escapedMessage = StringEscapeUtils.escapeHtml(message);
+        String escapedMessage = StringEscapeUtils.escapeHtml4(message);
         Matcher m = HTTP_URL_PATTERN.matcher(escapedMessage);
         StringBuffer sb = new StringBuffer(escapedMessage.length());
         while (m.find()) {
