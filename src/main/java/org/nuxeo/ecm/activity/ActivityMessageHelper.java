@@ -100,7 +100,7 @@ public class ActivityMessageHelper {
         }
     }
 
-    public static Pattern HTTP_URL_PATTERN = Pattern.compile(
+    public static final Pattern HTTP_URL_PATTERN = Pattern.compile(
             "\\b(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 
     public static String replaceURLsByLinks(String message) {
