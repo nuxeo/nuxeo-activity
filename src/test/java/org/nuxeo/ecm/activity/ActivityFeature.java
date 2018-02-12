@@ -27,7 +27,6 @@ import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.LocalDeploy;
 import org.nuxeo.runtime.test.runner.SimpleFeature;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
@@ -37,7 +36,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  */
 @Features(CoreFeature.class)
 @Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity" })
-@LocalDeploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
+@Deploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
 public class ActivityFeature extends SimpleFeature {
 
     protected static final String DIRECTORY = "target/test/nxactivities";
