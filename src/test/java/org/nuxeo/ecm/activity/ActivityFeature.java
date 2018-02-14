@@ -35,7 +35,9 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  * @since 5.6
  */
 @Features(CoreFeature.class)
-@Deploy({ "org.nuxeo.runtime.datasource", "org.nuxeo.ecm.core.persistence", "org.nuxeo.ecm.activity" })
+@Deploy("org.nuxeo.runtime.datasource")
+@Deploy("org.nuxeo.ecm.core.persistence")
+@Deploy("org.nuxeo.ecm.activity")
 @Deploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
 public class ActivityFeature extends SimpleFeature {
 
