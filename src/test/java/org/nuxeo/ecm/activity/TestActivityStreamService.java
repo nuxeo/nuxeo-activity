@@ -19,6 +19,14 @@
 
 package org.nuxeo.ecm.activity;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -27,29 +35,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.persistence.PersistenceProvider;
+import org.nuxeo.ecm.core.persistence.PersistenceProvider.RunCallback;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.runtime.test.NXRuntimeTestCase;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.transaction.TransactionHelper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 /**
  * @author <a href="mailto:troger@nuxeo.com">Thomas Roger</a>
@@ -59,9 +54,6 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 @Features(ActivityFeature.class)
 @RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestActivityStreamService {
-
-    @Inject
-    NXRuntimeTestCase harness;
 
     @Inject
     protected ActivityStreamService activityStreamService;
@@ -86,7 +78,8 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -264,7 +257,7 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        Map<String, Serializable> parameters = new HashMap<String, Serializable>();
+        Map<String, Serializable> parameters = new HashMap<>();
         parameters.put("seenBy", "Bob");
         List<Activity> activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
@@ -273,7 +266,7 @@ public class TestActivityStreamService {
         assertEquals(activity.getVerb(), storedActivity.getVerb());
         assertEquals(activity.getObject(), storedActivity.getObject());
 
-        parameters = new HashMap<String, Serializable>();
+        parameters = new HashMap<>();
         parameters.put("seenBy", "Joe");
         activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
@@ -282,7 +275,7 @@ public class TestActivityStreamService {
         assertEquals(activity.getVerb(), storedActivity.getVerb());
         assertEquals(activity.getObject(), storedActivity.getObject());
 
-        parameters = new HashMap<String, Serializable>();
+        parameters = new HashMap<>();
         parameters.put("seenBy", "John");
         activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
@@ -303,7 +296,7 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activity = activityStreamService.addActivity(activity);
 
-        Map<String, Serializable> parameters = new HashMap<String, Serializable>();
+        Map<String, Serializable> parameters = new HashMap<>();
         parameters.put("seenBy", "Bob");
         List<Activity> activities = activityStreamService.query(TweetActivityStreamFilter.ID, parameters, offset, 999);
         assertEquals(1, activities.size());
@@ -325,12 +318,9 @@ public class TestActivityStreamService {
     @SuppressWarnings("unchecked")
     private List<TweetActivity> getAllTweetActivities() {
         return ((ActivityStreamServiceImpl) activityStreamService).getOrCreatePersistenceProvider().run(true,
-                new PersistenceProvider.RunCallback<List<TweetActivity>>() {
-                    @Override
-                    public List<TweetActivity> runWith(EntityManager em) {
-                        Query query = em.createQuery("from Tweet");
-                        return query.getResultList();
-                    }
+                (RunCallback<List<TweetActivity>>) em -> {
+                    Query query = em.createQuery("from Tweet");
+                    return query.getResultList();
                 });
     }
 
@@ -370,7 +360,8 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -411,7 +402,8 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -476,7 +468,8 @@ public class TestActivityStreamService {
         activity.setPublishedDate(new Date());
         activityStreamService.addActivity(activity);
 
-        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        List<Activity> activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertNotNull(activities);
         assertEquals(1, activities.size());
 
@@ -559,7 +552,8 @@ public class TestActivityStreamService {
         activity.setObject("Hello Fry");
         activityStreamService.addActivity(activity);
 
-        ActivitiesList activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset, 999);
+        ActivitiesList activities = activityStreamService.query(ActivityStreamService.ALL_ACTIVITIES, null, offset,
+                999);
         assertNotNull(activities);
         assertEquals(2, activities.size());
 
