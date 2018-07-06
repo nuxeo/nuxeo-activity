@@ -27,7 +27,7 @@ import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.SimpleFeature;
+import org.nuxeo.runtime.test.runner.RunnerFeature;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
@@ -39,7 +39,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Deploy("org.nuxeo.ecm.core.persistence")
 @Deploy("org.nuxeo.ecm.activity")
 @Deploy("org.nuxeo.ecm.activity:activity-stream-service-test.xml")
-public class ActivityFeature extends SimpleFeature {
+public class ActivityFeature implements RunnerFeature {
 
     protected static final String DIRECTORY = "target/test/nxactivities";
 
@@ -54,11 +54,10 @@ public class ActivityFeature extends SimpleFeature {
         dir.delete();
         dir.mkdirs();
         System.setProperty(PROP_NAME, dir.getPath());
-        super.initialize(runner);
     }
 
     @Override
-    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {
+    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) {
         TransactionHelper.setTransactionRollbackOnly();
     }
 }
