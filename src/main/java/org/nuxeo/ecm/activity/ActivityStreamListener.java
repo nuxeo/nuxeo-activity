@@ -26,7 +26,6 @@ import static org.nuxeo.ecm.core.schema.FacetNames.HIDDEN_IN_NAVIGATION;
 import static org.nuxeo.ecm.core.schema.FacetNames.SUPER_SPACE;
 import static org.nuxeo.ecm.core.schema.FacetNames.SYSTEM_DOCUMENT;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,6 +35,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.api.SystemPrincipal;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.event.Event;
@@ -163,7 +163,7 @@ public class ActivityStreamListener implements PostCommitEventListener {
     }
 
     protected Activity toActivity(DocumentEventContext docEventContext, Event event, String context) {
-        Principal principal = docEventContext.getPrincipal();
+        NuxeoPrincipal principal = docEventContext.getPrincipal();
         DocumentModel doc = docEventContext.getSourceDocument();
         return new ActivityBuilder().actor(ActivityHelper.createUserActivityObject(principal)).displayActor(
                 ActivityHelper.generateDisplayName(principal)).verb(event.getName()).object(
