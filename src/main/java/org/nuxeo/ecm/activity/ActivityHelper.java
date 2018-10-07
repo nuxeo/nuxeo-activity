@@ -19,7 +19,6 @@
 package org.nuxeo.ecm.activity;
 
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +106,7 @@ public class ActivityHelper {
         return DOC_PREFIX + repositoryName + SEPARATOR + docId;
     }
 
-    public static String createUserActivityObject(Principal principal) {
+    public static String createUserActivityObject(NuxeoPrincipal principal) {
         return createUserActivityObject(principal.getName());
     }
 
@@ -123,13 +122,9 @@ public class ActivityHelper {
         return ACTIVITY_PREFIX + activityId;
     }
 
-    public static String generateDisplayName(Principal principal) {
-        if (principal instanceof NuxeoPrincipal) {
-            NuxeoPrincipal nuxeoPrincipal = (NuxeoPrincipal) principal;
-            if (!StringUtils.isBlank(nuxeoPrincipal.getFirstName())
-                    || !StringUtils.isBlank(nuxeoPrincipal.getLastName())) {
-                return nuxeoPrincipal.getFirstName() + " " + nuxeoPrincipal.getLastName();
-            }
+    public static String generateDisplayName(NuxeoPrincipal principal) {
+        if (!StringUtils.isBlank(principal.getFirstName()) || !StringUtils.isBlank(principal.getLastName())) {
+            return principal.getFirstName() + " " + principal.getLastName();
         }
         return principal.getName();
     }
