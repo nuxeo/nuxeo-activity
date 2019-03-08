@@ -53,7 +53,7 @@ public class ActivityStreamFilterDescriptor {
 
     public ActivityStreamFilter getActivityStreamFilter() {
         try {
-            return activityStreamFilterClass.newInstance();
+            return activityStreamFilterClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }

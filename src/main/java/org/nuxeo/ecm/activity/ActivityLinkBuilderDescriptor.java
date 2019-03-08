@@ -62,7 +62,7 @@ public class ActivityLinkBuilderDescriptor {
 
     public ActivityLinkBuilder getActivityLinkBuilder() {
         try {
-            return activityLinkBuilderClass.newInstance();
+            return activityLinkBuilderClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }

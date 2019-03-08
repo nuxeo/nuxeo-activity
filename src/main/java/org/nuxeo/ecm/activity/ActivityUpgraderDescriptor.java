@@ -62,7 +62,7 @@ public class ActivityUpgraderDescriptor {
 
     public ActivityUpgrader getActivityUpgrader() {
         try {
-            ActivityUpgrader upgrader = activityUpgraderClass.newInstance();
+            ActivityUpgrader upgrader = activityUpgraderClass.getDeclaredConstructor().newInstance();
             upgrader.setName(name);
             upgrader.setOrder(order);
             return upgrader;
